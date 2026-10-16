@@ -4,5 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
-  datasourceUrl: process.env.DATABASE_URL,
+  schema: './prisma/schema.prisma',
+  datasource: {
+    url: process.env.DATABASE_URL,
+  },
 });
