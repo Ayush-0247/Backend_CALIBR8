@@ -7,58 +7,37 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  email String @unique
-  password String
-  name String?
-  onboarded Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  sessions Session[]
-  ratings UserTopicRating[]
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  difficulty   String?
+  rating       Int        @default(800)
+  onboarded    Boolean    @default(false)
+  topics       UserTopic[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@map("users")
 }
 
 model Topic {
-  id String @id @default(uuid())
-  slug String @unique
-  name String
-  active Boolean @default(true)
-  ratings UserTopicRating[]
+  id    String      @id @default(uuid())
+  slug  String      @unique
+  name  String
+  users UserTopic[]
 
   @@map("topics")
 }
 
-model UserTopicRating {
-  id String @id @default(uuid())
-  userId String
+model UserTopic {
+  id      String @id @default(uuid())
+  userId  String
   topicId String
-  rating Int // 800 / 1200 / 1600
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@unique([userId, topicId])
-  @@map("user_topic_ratings")
-}
-
-model Session {
-  id String @id @default(uuid())
-  userId String
-  token String @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model AppConfig {
-  key String @id
-  value Json
-
-  @@map("app_config")
+  @@map("user_topics")
 }

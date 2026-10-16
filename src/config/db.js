@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configure WebSocket for Node.js environment
+// Required for WebSocket-based Neon connections in Node.js
 neonConfig.webSocketConstructor = ws;
 
 const connectionString = process.env.DATABASE_URL;
@@ -15,7 +15,6 @@ if (!connectionString) {
 }
 
 const adapter = new PrismaNeon({ connectionString });
-
 const prisma = new PrismaClient({ adapter });
 
 export default prisma;
