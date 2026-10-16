@@ -1,11 +1,12 @@
 import { verifyToken } from '../utils/jwt.js';
 import { ApiError } from '../utils/ApiError.js';
+import { isTokenBlacklisted } from '../utils/tokenBlacklist.js';
 import prisma from '../config/db.js';
 
 /**
  * Middleware to protect routes.
  * Expects: Authorization: Bearer <token>
- * Attaches the full user object (without passwordHash) to req.user.
+ * Attaches the full user object (without passwordHash) to req.user and the token to req.token.
  */
 export const protect = async (req, res, next) => {
   try {
@@ -16,6 +17,11 @@ export const protect = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
+
+    if (isTokenBlacklisted(token)) {
+      throw new ApiError(401, 'Token has been revoked. Please log in again.');
+    }
+
     const decoded = verifyToken(token);
 
     const user = await prisma.user.findUnique({
@@ -41,6 +47,7 @@ export const protect = async (req, res, next) => {
       throw new ApiError(401, 'User belonging to this token no longer exists.');
     }
 
+    req.token = token;
     req.user = user;
     next();
   } catch (err) {
