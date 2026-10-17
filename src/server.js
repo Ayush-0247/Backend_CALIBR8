@@ -9,12 +9,17 @@ async function startServer() {
     // Attempt database connection
     try {
       await prisma.$connect();
-      console.log('✅ Connected to database');
+      if (typeof prisma.$isMock === 'function' && prisma.$isMock()) {
+        console.log('ℹ️ Running with in-memory database store (data will reset on restart)');
+      } else {
+        console.log('✅ Connected to database');
+      }
     } catch (dbErr) {
       console.warn('⚠️ Could not connect to external DB, using fallback mock store:', dbErr.message);
       if (typeof prisma.$fallback === 'function') {
         prisma.$fallback();
       }
+      console.log('ℹ️ Running with in-memory database store (data will reset on restart)');
     }
 
     const server = app.listen(PORT, '0.0.0.0', () => {
@@ -26,9 +31,15 @@ async function startServer() {
       console.log(`\n⚠️  ${signal} received. Shutting down gracefully...`);
       server.close(async () => {
         try {
-          await prisma.$disconnect();
-        } catch (_) {}
-        console.log('🔌 Database disconnected. Bye!');
+          if (typeof prisma.$isLive === 'function' && prisma.$isLive()) {
+            await prisma.$disconnect();
+            console.log('🔌 Database disconnected. Bye!');
+          } else {
+            console.log('🔌 Server stopped. Bye!');
+          }
+        } catch (_) {
+          console.log('🔌 Server stopped. Bye!');
+        }
         process.exit(0);
       });
     };

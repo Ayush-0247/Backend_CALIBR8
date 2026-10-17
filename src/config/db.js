@@ -194,7 +194,22 @@ function wrapModel(modelName) {
       return async (...args) => {
         try {
           if (activePrisma && activePrisma !== mockPrisma && activePrisma[modelName] && typeof activePrisma[modelName][method] === 'function') {
-            return await activePrisma[modelName][method](...args);
+            try {
+              return await activePrisma[modelName][method](...args);
+            } catch (innerErr) {
+              // If query failed on topics table because category column is not yet in the DB table, fallback to selecting id, slug, name
+              if (modelName === 'topic' && method === 'findMany' && innerErr.message && innerErr.message.toLowerCase().includes('column')) {
+                const res = await activePrisma.topic.findMany({
+                  select: { id: true, slug: true, name: true },
+                  ...(args[0]?.orderBy ? { orderBy: args[0].orderBy } : {})
+                });
+                return res.map((t) => ({
+                  ...t,
+                  category: t.slug && t.slug.toLowerCase().startsWith('dsa') ? 'DSA' : 'CORE'
+                }));
+              }
+              throw innerErr;
+            }
           }
         } catch (dbErr) {
           console.warn(`[AI Studio] Database call ${modelName}.${method} failed (${dbErr.message || 'connection error'}), switching permanently to in-memory store.`);
@@ -216,17 +231,30 @@ export function setPrismaFallback() {
 const proxy = new Proxy({}, {
   get(_, prop) {
     if (prop === '$fallback') return setPrismaFallback;
+    if (prop === '$isMock') return () => activePrisma === mockPrisma;
+    if (prop === '$isLive') return () => activePrisma !== mockPrisma;
     if (prop === '$connect') {
       return async () => {
         if (activePrisma && activePrisma !== mockPrisma && typeof activePrisma.$connect === 'function') {
           try {
             await activePrisma.$connect();
-            // Test a quick query to verify network reachability
-            await activePrisma.topic.findMany({ take: 1 });
+            // Test a quick query to verify network reachability and schema compatibility
+            try {
+              await activePrisma.topic.findMany({ take: 1 });
+            } catch (queryErr) {
+              if (queryErr.message && queryErr.message.toLowerCase().includes('column')) {
+                // Table exists but category column might not have been pushed yet
+                await activePrisma.topic.findMany({ select: { id: true, slug: true, name: true }, take: 1 });
+                console.warn('⚠️ Warning: "topics" table is missing the "category" column in your live database. Run "npm run db:push" to synchronize schema.');
+                return;
+              }
+              throw queryErr;
+            }
             return;
           } catch (err) {
-            console.warn('[AI Studio] Live database unreachable, using in-memory store:', err.message || err);
+            console.warn('[AI Studio] Live database unreachable or schema mismatch:', err.message || err);
             activePrisma = mockPrisma;
+            throw err;
           }
         }
       };
