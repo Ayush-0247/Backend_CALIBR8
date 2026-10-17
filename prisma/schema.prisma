@@ -17,6 +17,7 @@ model User {
   topics       UserTopic[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  socialAccounts SocialAccount[]
 
   @@map("users")
 }
@@ -41,4 +42,27 @@ model UserTopic {
 
   @@unique([userId, topicId])
   @@map("user_topics")
+}
+
+// SocialAccount model to store social account information for users
+model SocialAccount {
+  id             String   @id @default(cuid())
+  userId         String
+  provider       String
+  providerUserId String
+  username       String?
+  name           String?
+  email          String?
+  avatarUrl      String?
+  profileUrl     String?
+  bio            String?  @db.Text
+  headline       String?
+  stats          Json?
+  connectedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@unique([provider, providerUserId])
+  @@map("social_accounts")
 }

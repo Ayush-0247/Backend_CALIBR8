@@ -35,6 +35,7 @@ export const protect = async (req, res, next) => {
         onboarded: true,
         createdAt: true,
         updatedAt: true,
+        socialAccounts: true,
         topics: {
           include: {
             topic: true,
