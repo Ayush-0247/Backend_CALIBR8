@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calibr8 — Developer API & Interactive Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --code-bg: #070a12;
+      --input-bg: #1c2438;
+      --border-color: #2e3b55;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container { max-width: 980px; width: 100%; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+    }
+    h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    p.subtitle { color: var(--text-muted); font-size: 0.88rem; }
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(100, 116, 139, 0.15);
+      color: #cbd5e1;
+      border: 1px solid #475569;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 6px var(--success); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.25rem;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active { color: #fff; background: var(--card-bg); border: 1px solid var(--card-border); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+    input, select {
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 0.6rem 0.8rem;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary { background: #1e293b; border: 1px solid var(--border-color); color: #cbd5e1; }
+    .btn-secondary:hover { background: #334155; }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+    .btn-beginner {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.25rem;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-beginner:hover { background: linear-gradient(135deg, #059669, #047857); }
+
+    /* Topic Level Grid */
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.85rem;
+      margin: 1rem 0;
+    }
+    .topic-card {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.2s;
+    }
+    .topic-card:hover { border-color: #4b5563; }
+    .topic-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topic-name { font-weight: 600; font-size: 0.92rem; color: #f1f5f9; }
+    .topic-cat {
+      font-size: 0.7rem;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .level-pills {
+      display: flex;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.25rem;
+      border-radius: 8px;
+    }
+    .pill-btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.35rem 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      background: transparent;
+      transition: all 0.15s;
+    }
+    .pill-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .pill-btn.active-easy { background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
+    .pill-btn.active-mid { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
+    .pill-btn.active-hard { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+
+    /* Endpoint list */
+    .endpoint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.6rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .method {
+      display: inline-block;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      margin-right: 0.6rem;
+    }
+    .get { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .post { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .put { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+    /* Console */
+    #console {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      color: #38bdf8;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .rating-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    .rating-number { font-size: 1.5rem; font-weight: 800; color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div class="logo-badge">C8</div>
+        <div>
+          <h1>Calibr8 Backend API</h1>
+          <p class="subtitle">Authentication, DSA Topic Level Calibration, and Engineering Onboarding</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div id="authStatusBadge" class="status-badge">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;"></span>
+          <span id="authStatusText">Guest (Not Logged In)</span>
+        </div>
+        <button id="logoutBtn" class="btn btn-danger" style="display: none;" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="btnTabDsa" onclick="switchTab('dsaTab')">DSA Level Selector</button>
+      <button class="tab-btn" id="btnTabAuth" onclick="switchTab('authTab')">Auth & Profile</button>
+      <button class="tab-btn" id="btnTabExp" onclick="switchTab('explorerTab')">API Explorer</button>
+    </div>
+
+    <!-- TAB 1: DSA Topic Level Selection -->
+    <div id="dsaTab" class="tab-content active">
+      <!-- Beginner Quick Action -->
+      <div class="card" style="border-color: rgba(16, 185, 129, 0.35);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3 style="font-size: 1.15rem; color: #34d399; margin-bottom: 0.25rem;">Are you a Beginner?</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">
+              One-click setup: Automatically sets all DSA topics to <strong>Easy</strong> level and starts your calibration rating at <strong>800</strong>.
+            </p>
+          </div>
+          <button class="btn btn-beginner" onclick="applyBeginnerMode()">
+            ⚡ I am a Beginner (Set All to Easy)
+          </button>
+        </div>
+      </div>
+
+      <!-- Individual DSA Level Selection -->
+      <div class="card">
+        <div class="card-title">
+          <span>Custom DSA Topic Calibration</span>
+          <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">
+            Pick Easy, Mid, or Hard for each individual DSA topic
+          </span>
+        </div>
+
+        <div class="rating-banner">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Projected Calibration Rating</div>
+            <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0.2rem;" id="ratingBreakdown">Calculating based on your selected levels...</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="rating-number" id="projectedRating">800</div>
+            <div style="font-size: 0.75rem; color: #93c5fd;" id="projectedDifficulty">EASY LEVEL</div>
+          </div>
+        </div>
+
+        <div class="topics-grid" id="topicsContainer">
+          <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">Loading topics...</div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <button class="btn btn-secondary" onclick="resetToAllEasy()">Reset All to Easy</button>
+          <button class="btn" onclick="saveTopicLevels()">💾 Save & Complete Onboarding</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Authentication & Profile -->
+    <div id="authTab" class="tab-content">
+      <div class="form-grid">
+        <!-- Register Card -->
+        <div class="card">
+          <div class="card-title">Register New Account</div>
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label>Full Name</label>
+            <input type="text" id="regName" placeholder="e.g. Alex Chen" value="Alex Chen">
+          </div>
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label>Email Address</label>
+            <input type="email" id="regEmail" placeholder="alex@calibr8.dev" value="">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Password</label>
+            <input type="password" id="regPassword" placeholder="Minimum 6 characters" value="Password123!">
+          </div>
+          <button class="btn" style="width: 100%;" onclick="handleRegister()">Register Account</button>
+        </div>
+
+        <!-- Login Card -->
+        <div class="card">
+          <div class="card-title">Sign In</div>
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" placeholder="alex@calibr8.dev" value="">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Password</label>
+            <input type="password" id="loginPassword" value="Password123!">
+          </div>
+          <button class="btn" style="width: 100%;" onclick="handleLogin()">Sign In</button>
+        </div>
+      </div>
+
+      <!-- Current Profile Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>Active Session & Profile</span>
+          <button class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;" onclick="fetchProfile()">Refresh Profile (/me)</button>
+        </div>
+        <div id="profileDetails" style="color: var(--text-muted); font-size: 0.88rem;">
+          No active user session. Please register or log in.
+        </div>
+      </div>
+
+      <!-- Password Change Card -->
+      <div class="card">
+        <div class="card-title">Change Password</div>
+        <div class="form-grid" style="margin-bottom: 0.75rem;">
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" id="oldPassword" value="Password123!">
+          </div>
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="newPassword" placeholder="Minimum 6 characters">
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="handleChangePassword()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- TAB 3: REST API Explorer -->
+    <div id="explorerTab" class="tab-content">
+      <div class="card">
+        <div class="card-title">REST API Endpoints</div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/health</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— API health check</span></div>
+          <button class="btn" onclick="testEndpoint('/health')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/topics/dsa</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List DSA topics specifically</span></div>
+          <button class="btn" onclick="testEndpoint('/topics/dsa')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/topics</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List all topics (DSA + Core)</span></div>
+          <button class="btn" onclick="testEndpoint('/topics')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/onboarding/status</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— User onboarding & topic levels (Protected)</span></div>
+          <button class="btn" onclick="testEndpoint('/onboarding/status', true)">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/me</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Current user profile (Protected)</span></div>
+          <button class="btn" onclick="testEndpoint('/me', true)">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method post">POST</span><span>/auth/logout</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Revoke current auth token (Protected)</span></div>
+          <button class="btn btn-danger" onclick="handleLogout()">Test Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Response Console -->
+    <div class="card">
+      <div class="card-title">
+        <span>Response Console</span>
+        <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="clearConsole()">Clear</button>
+      </div>
+      <pre id="console">Calibr8 Backend ready. Loading topics and session...</pre>
+    </div>
+  </div>
+
+  <script>
+    let authToken = localStorage.getItem('calibr8_token') || '';
+    let currentUser = null;
+    let dsaTopicList = [];
+    const selectedLevels = {};
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(content) { content.classList.remove('active'); });
+      
+      if (tabId === 'dsaTab') document.getElementById('btnTabDsa').classList.add('active');
+      else if (tabId === 'authTab') document.getElementById('btnTabAuth').classList.add('active');
+      else if (tabId === 'explorerTab') document.getElementById('btnTabExp').classList.add('active');
+      
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+    }
+
+    function logConsole(title, data) {
+      const el = document.getElementById('console');
+      el.textContent = '=== ' + title + ' [' + new Date().toLocaleTimeString() + '] ===\n' + JSON.stringify(data, null, 2);
+    }
+
+    function clearConsole() {
+      document.getElementById('console').textContent = 'Console cleared.';
+    }
+
+    function updateAuthUI() {
+      const badge = document.getElementById('authStatusBadge');
+      const text = document.getElementById('authStatusText');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      if (authToken && currentUser) {
+        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+        badge.style.color = '#34d399';
+        badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        text.textContent = '👤 ' + (currentUser.name || currentUser.email) + ' (Rating: ' + (currentUser.rating || 800) + ')';
+        logoutBtn.style.display = 'inline-flex';
+
+        const topicsList = (currentUser.topics || []).map(function(t) {
+          const tName = (t.topic && t.topic.name) ? t.topic.name : t.topicId;
+          return tName + ' (' + (t.level || 'easy') + ')';
+        }).join(', ');
+
+        document.getElementById('profileDetails').innerHTML =
+          '<div style="line-height: 1.6;">' +
+            '<div><strong>Name:</strong> ' + escapeHtml(currentUser.name) + '</div>' +
+            '<div><strong>Email:</strong> ' + escapeHtml(currentUser.email) + '</div>' +
+            '<div><strong>Overall Difficulty:</strong> <span style="text-transform: capitalize; color: #60a5fa;">' + escapeHtml(currentUser.difficulty || 'Not set') + '</span></div>' +
+            '<div><strong>Calibration Rating:</strong> <span style="color: #34d399; font-weight: bold;">' + currentUser.rating + '</span></div>' +
+            '<div><strong>Onboarded:</strong> ' + (currentUser.onboarded ? '✅ Yes' : '⏳ Pending') + '</div>' +
+            '<div style="margin-top: 0.5rem;"><strong>Calibrated Topics:</strong> ' + escapeHtml(topicsList || 'None selected yet') + '</div>' +
+          '</div>';
+      } else {
+        badge.style.background = 'rgba(100, 116, 139, 0.15)';
+        badge.style.color = '#cbd5e1';
+        badge.style.borderColor = '#475569';
+        text.textContent = 'Guest (Not Logged In)';
+        logoutBtn.style.display = 'none';
+        document.getElementById('profileDetails').textContent = 'No active user session. Please register or log in.';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function loadTopics() {
+      try {
+        const res = await fetch('/topics');
+        const data = await res.json();
+        dsaTopicList = data.dsaTopics || data.topics || [];
+        renderTopics();
+      } catch (err) {
+        document.getElementById('topicsContainer').innerHTML = '<div style="color: #ef4444;">Failed to load topics: ' + escapeHtml(err.message) + '</div>';
+      }
+    }
+
+    function renderTopics() {
+      const container = document.getElementById('topicsContainer');
+      container.innerHTML = '';
+
+      dsaTopicList.forEach(function(topic) {
+        if (!selectedLevels[topic.id]) {
+          selectedLevels[topic.id] = 'easy';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'topic-card';
+        card.id = 'topic-card-' + topic.id;
+
+        const currentLvl = selectedLevels[topic.id];
+
+        card.innerHTML =
+          '<div class="topic-head">' +
+            '<span class="topic-name">' + escapeHtml(topic.name) + '</span>' +
+            '<span class="topic-cat">' + escapeHtml(topic.category || 'DSA') + '</span>' +
+          '</div>' +
+          '<div class="level-pills">' +
+            '<button class="pill-btn ' + (currentLvl === 'easy' ? 'active-easy' : '') + '" onclick="setTopicLevel(\'' + topic.id + '\', \'easy\')">Easy</button>' +
+            '<button class="pill-btn ' + (currentLvl === 'mid' || currentLvl === 'medium' ? 'active-mid' : '') + '" onclick="setTopicLevel(\'' + topic.id + '\', \'mid\')">Mid</button>' +
+            '<button class="pill-btn ' + (currentLvl === 'hard' ? 'active-hard' : '') + '" onclick="setTopicLevel(\'' + topic.id + '\', \'hard\')">Hard</button>' +
+          '</div>';
+        container.appendChild(card);
+      });
+
+      calculateProjectedRating();
+    }
+
+    function setTopicLevel(topicId, level) {
+      selectedLevels[topicId] = level;
+      renderTopics();
+    }
+
+    function resetToAllEasy() {
+      dsaTopicList.forEach(function(t) { selectedLevels[t.id] = 'easy'; });
+      renderTopics();
+    }
+
+    function calculateProjectedRating() {
+      const map = { easy: 800, mid: 1200, medium: 1200, hard: 1600 };
+      const keys = Object.keys(selectedLevels);
+      if (keys.length === 0) return;
+
+      let sum = 0;
+      let easyCount = 0, midCount = 0, hardCount = 0;
+
+      keys.forEach(function(k) {
+        const lvl = selectedLevels[k];
+        sum += map[lvl] || 800;
+        if (lvl === 'easy') easyCount++;
+        else if (lvl === 'mid' || lvl === 'medium') midCount++;
+        else if (lvl === 'hard') hardCount++;
+      });
+
+      const avg = Math.round(sum / keys.length);
+      document.getElementById('projectedRating').textContent = avg;
+
+      let diff = 'EASY';
+      if (avg >= 1400) diff = 'HARD';
+      else if (avg >= 1000) diff = 'MEDIUM';
+      document.getElementById('projectedDifficulty').textContent = diff + ' LEVEL';
+
+      document.getElementById('ratingBreakdown').textContent =
+        keys.length + ' Topics Selected (' + easyCount + ' Easy, ' + midCount + ' Mid, ' + hardCount + ' Hard)';
+    }
+
+    async function applyBeginnerMode() {
+      if (!authToken) {
+        await autoRegisterDemoUser();
+      }
+
+      logConsole('APPLYING BEGINNER PRESET', { mode: 'beginner', description: 'Setting all DSA topics to Easy' });
+
+      try {
+        const res = await fetch('/onboarding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken
+          },
+          body: JSON.stringify({ beginner: true })
+        });
+        const data = await res.json();
+        logConsole('BEGINNER ONBOARDING SUCCESS', data);
+
+        if (data.user) {
+          currentUser = data.user;
+          (currentUser.topics || []).forEach(function(t) {
+            selectedLevels[t.topicId] = t.level || 'easy';
+          });
+          renderTopics();
+          updateAuthUI();
+        }
+      } catch (err) {
+        logConsole('ERROR', err.message);
+      }
+    }
+
+    async function saveTopicLevels() {
+      if (!authToken) {
+        await autoRegisterDemoUser();
+      }
+
+      const topicLevelsPayload = Object.keys(selectedLevels).map(function(id) {
+        return {
+          topicId: id,
+          level: selectedLevels[id]
+        };
+      });
+
+      logConsole('SAVING TOPIC LEVELS', { count: topicLevelsPayload.length, topicLevels: topicLevelsPayload });
+
+      try {
+        const res = await fetch('/onboarding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken
+          },
+          body: JSON.stringify({ topicLevels: topicLevelsPayload })
+        });
+        const data = await res.json();
+        logConsole('ONBOARDING SAVED', data);
+
+        if (data.user) {
+          currentUser = data.user;
+          updateAuthUI();
+        }
+      } catch (err) {
+        logConsole('ERROR', err.message);
+      }
+    }
+
+    async function handleRegister() {
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value || ('user_' + Math.floor(Math.random() * 10000) + '@calibr8.dev');
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const res = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, password: password })
+        });
+        const data = await res.json();
+        logConsole('REGISTER RESPONSE', data);
+
+        if (data.token) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('calibr8_token', data.token);
+          updateAuthUI();
+        }
+      } catch (err) {
+        logConsole('REGISTER ERROR', err.message);
+      }
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        logConsole('LOGIN FAILED', 'Please enter email and password.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+        const data = await res.json();
+        logConsole('LOGIN RESPONSE', data);
+
+        if (data.token) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('calibr8_token', data.token);
+          updateAuthUI();
+          syncUserTopics(currentUser);
+        }
+      } catch (err) {
+        logConsole('LOGIN ERROR', err.message);
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        const res = await fetch('/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + authToken }
+        });
+        const data = await res.json();
+        logConsole('LOGOUT SUCCESS', data);
+      } catch (_) {}
+
+      authToken = '';
+      currentUser = null;
+      localStorage.removeItem('calibr8_token');
+      updateAuthUI();
+    }
+
+    async function fetchProfile() {
+      if (!authToken) {
+        logConsole('PROFILE', 'No active token. Please log in.');
+        return;
+      }
+      try {
+        const res = await fetch('/me', {
+          headers: { 'Authorization': 'Bearer ' + authToken }
+        });
+        const data = await res.json();
+        logConsole('PROFILE (/me)', data);
+        if (data.user) {
+          currentUser = data.user;
+          updateAuthUI();
+          syncUserTopics(currentUser);
+        }
+      } catch (err) {
+        logConsole('PROFILE ERROR', err.message);
+      }
+    }
+
+    function syncUserTopics(user) {
+      if (user && user.topics) {
+        user.topics.forEach(function(t) {
+          selectedLevels[t.topicId] = t.level || 'easy';
+        });
+        renderTopics();
+      }
+    }
+
+    async function handleChangePassword() {
+      if (!authToken) {
+        logConsole('PASSWORD CHANGE', 'Please log in first.');
+        return;
+      }
+      const oldPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+
+      try {
+        const res = await fetch('/auth/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken
+          },
+          body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword })
+        });
+        const data = await res.json();
+        logConsole('PASSWORD CHANGE RESPONSE', data);
+      } catch (err) {
+        logConsole('ERROR', err.message);
+      }
+    }
+
+    async function autoRegisterDemoUser() {
+      const testEmail = 'user_' + Math.floor(Math.random() * 100000) + '@calibr8.dev';
+      const res = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Demo Student',
+          email: testEmail,
+          password: 'Password123!'
+        })
+      });
+      const data = await res.json();
+      if (data.token) {
+        authToken = data.token;
+        currentUser = data.user;
+        localStorage.setItem('calibr8_token', data.token);
+        updateAuthUI();
+      }
+    }
+
+    async function testEndpoint(path, isProtected) {
+      const headers = {};
+      if (isProtected && authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      try {
+        const res = await fetch(path, { headers: headers });
+        const data = await res.json();
+        logConsole('GET ' + path, data);
+      } catch (err) {
+        logConsole('ERROR on ' + path, err.message);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async function() {
+      const emailField = document.getElementById('regEmail');
+      if (emailField) {
+        emailField.value = 'user_' + Math.floor(Math.random() * 10000) + '@calibr8.dev';
+      }
+      await loadTopics();
+      if (authToken) {
+        await fetchProfile();
+      }
+    });
+  </script>
+</body>
+</html>
