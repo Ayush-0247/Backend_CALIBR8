@@ -1,8 +1,8 @@
-import prisma from '../config/db.js';
-import { hashPassword, comparePassword } from '../utils/bcrypt.js';
-import { signToken } from '../utils/jwt.js';
-import { ApiError } from '../utils/ApiError.js';
-import { blacklistToken } from '../utils/tokenBlacklist.js';
+import prisma from "../config/db.js";
+import { hashPassword, comparePassword } from "../utils/bcrypt.js";
+import { signToken } from "../utils/jwt.js";
+import { ApiError } from "../utils/ApiError.js";
+import { blacklistToken } from "../utils/tokenBlacklist.js";
 
 /**
  * Sanitize a user object — strip passwordHash before sending to client.
@@ -21,9 +21,11 @@ export const sanitizeUser = (user) => {
  */
 export const registerUser = async ({ email, password, name }) => {
   const normalizedEmail = email.trim().toLowerCase();
-  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  const existing = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
   if (existing) {
-    throw new ApiError(409, 'An account with this email already exists.');
+    throw new ApiError(409, "An account with this email already exists.");
   }
 
   const passwordHash = await hashPassword(password);
@@ -31,6 +33,7 @@ export const registerUser = async ({ email, password, name }) => {
   const user = await prisma.user.create({
     data: { email: normalizedEmail, passwordHash, name: name.trim() },
     include: {
+      socialAccounts: true,
       topics: {
         include: {
           topic: true,
@@ -53,6 +56,7 @@ export const loginUser = async ({ email, password }) => {
   const user = await prisma.user.findUnique({
     where: { email: normalizedEmail },
     include: {
+      socialAccounts: true,
       topics: {
         include: {
           topic: true,
@@ -61,12 +65,12 @@ export const loginUser = async ({ email, password }) => {
     },
   });
   if (!user) {
-    throw new ApiError(401, 'Invalid email or password.');
+    throw new ApiError(401, "Invalid email or password.");
   }
 
   const isMatch = await comparePassword(password, user.passwordHash);
   if (!isMatch) {
-    throw new ApiError(401, 'Invalid email or password.');
+    throw new ApiError(401, "Invalid email or password.");
   }
 
   const token = signToken({ id: user.id });
@@ -82,7 +86,7 @@ export const logoutUser = (token) => {
   if (token) {
     blacklistToken(token);
   }
-  return { success: true, message: 'Logged out successfully.' };
+  return { success: true, message: "Logged out successfully." };
 };
 
 /**
@@ -90,19 +94,22 @@ export const logoutUser = (token) => {
  * @param {string} userId
  * @param {{ oldPassword: string, newPassword: string }} data
  */
-export const changeUserPassword = async (userId, { oldPassword, newPassword }) => {
+export const changeUserPassword = async (
+  userId,
+  { oldPassword, newPassword },
+) => {
   if (!newPassword || newPassword.length < 6) {
-    throw new ApiError(400, 'New password must be at least 6 characters.');
+    throw new ApiError(400, "New password must be at least 6 characters.");
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
-    throw new ApiError(404, 'User not found.');
+    throw new ApiError(404, "User not found.");
   }
 
   const isMatch = await comparePassword(oldPassword, user.passwordHash);
   if (!isMatch) {
-    throw new ApiError(400, 'Current password is incorrect.');
+    throw new ApiError(400, "Current password is incorrect.");
   }
 
   const newHash = await hashPassword(newPassword);
@@ -111,7 +118,7 @@ export const changeUserPassword = async (userId, { oldPassword, newPassword }) =
     data: { passwordHash: newHash },
   });
 
-  return { success: true, message: 'Password updated successfully.' };
+  return { success: true, message: "Password updated successfully." };
 };
 
 /**
@@ -130,6 +137,7 @@ export const getUserProfile = async (userId) => {
       onboarded: true,
       createdAt: true,
       updatedAt: true,
+      socialAccounts: true,
       topics: {
         include: {
           topic: true,
@@ -139,7 +147,7 @@ export const getUserProfile = async (userId) => {
   });
 
   if (!user) {
-    throw new ApiError(404, 'User not found.');
+    throw new ApiError(404, "User not found.");
   }
 
   return user;

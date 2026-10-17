@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import indexRouter from './routers/index.router.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -31,5 +32,7 @@ app.use('/', indexRouter);
 
 // Global error handler (must be last)
 app.use(errorHandler);
+
+
 
 export default app;
