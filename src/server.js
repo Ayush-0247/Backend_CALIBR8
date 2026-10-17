@@ -6,16 +6,19 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    // Verify database connection
+    // Attempt database connection
     try {
       await prisma.$connect();
       console.log('✅ Connected to database');
     } catch (dbErr) {
-      console.warn('⚠️ Database connection warning:', dbErr.message);
+      console.warn('⚠️ Could not connect to external DB, using fallback mock store:', dbErr.message);
+      if (typeof prisma.$fallback === 'function') {
+        prisma.$fallback();
+      }
     }
 
     const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Calibr8 server running at http://0.0.0.0:${PORT}`);
+      console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
     });
 
     // Graceful shutdown

@@ -20,6 +20,7 @@ router.get('/health', (req, res) =>
 // Feature routers
 router.use('/auth', authRouter);
 router.use('/topics', topicRouter);
+router.use('/topic', topicRouter);
 router.use('/onboarding', onboardingRouter);
 router.use('/', userRouter);
 
