@@ -1,4 +1,5 @@
-import { completeOnboarding } from "../services/onboarding.service.js";
+import prisma from '../config/db.js';
+import { completeOnboarding } from '../services/onboarding.service.js';
 
 /**
  * POST /onboarding
@@ -7,11 +8,7 @@ import { completeOnboarding } from "../services/onboarding.service.js";
 export const onboard = async (req, res, next) => {
   try {
     const { difficulty, topicIds, topicSelections } = req.body;
-    const user = await completeOnboarding(req.user.id, {
-      difficulty,
-      topicIds,
-      topicSelections,
-    });
+    const user = await completeOnboarding(req.user.id, { difficulty, topicIds, topicSelections });
     res.status(200).json({ success: true, user });
   } catch (err) {
     next(err);
@@ -20,11 +17,28 @@ export const onboard = async (req, res, next) => {
 
 /**
  * GET /onboarding/status
- * Protected — return the authenticated user's onboarding state.
+ * Protected — get onboarding status and selected topics for the authenticated user.
  */
-export const getStatus = (req, res) => {
-  const { onboarded, difficulty, rating, topics } = req.user;
-  res
-    .status(200)
-    .json({ success: true, onboarded, difficulty, rating, topics });
+export const getStatus = async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        difficulty: true,
+        rating: true,
+        onboarded: true,
+        topics: {
+          include: {
+            topic: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
 };
