@@ -10,18 +10,24 @@ export const getAllTopics = async (req, res, next) => {
       orderBy: { name: 'asc' },
     });
 
-    const dsaTopics = all.filter(
-      (t) => t.category === 'DSA' || t.slug.startsWith('dsa')
-    );
-    const coreTopics = all.filter(
-      (t) => t.category !== 'DSA' && !t.slug.startsWith('dsa')
-    );
+    const isDsa = (t) =>
+      (t.category && t.category.toUpperCase() === 'DSA') ||
+      t.slug.toLowerCase().startsWith('dsa');
 
-    const { category } = req.query;
+    const dsaTopics = all.filter(isDsa);
+    const coreTopics = all.filter((t) => !isDsa(t));
+
+    const rawCategory = Array.isArray(req.query.category)
+      ? req.query.category[0]
+      : req.query.category;
+    const categoryParam = rawCategory
+      ? String(rawCategory).trim().toLowerCase()
+      : null;
+
     let returnTopics = all;
-    if (category === 'dsa') {
+    if (categoryParam === 'dsa') {
       returnTopics = dsaTopics;
-    } else if (category === 'core') {
+    } else if (categoryParam === 'core') {
       returnTopics = coreTopics;
     }
 
@@ -47,7 +53,7 @@ export const getDsaTopics = async (req, res, next) => {
       orderBy: { name: 'asc' },
     });
     const dsaTopics = all.filter(
-      (t) => t.category === 'DSA' || t.slug.startsWith('dsa')
+      (t) => (t.category && t.category.toUpperCase() === 'DSA') || t.slug.toLowerCase().startsWith('dsa')
     );
     res.status(200).json({
       success: true,

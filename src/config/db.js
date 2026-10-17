@@ -48,8 +48,23 @@ export function createMockPrisma() {
     topic: {
       findMany: async (args = {}) => {
         let list = Array.from(topicsStore.values());
-        if (args?.where?.id?.in) {
-          list = list.filter((t) => args.where.id.in.includes(t.id));
+        if (args?.where) {
+          if (args.where.id?.in) {
+            list = list.filter((t) => args.where.id.in.includes(t.id));
+          }
+          if (args.where.category) {
+            const raw = typeof args.where.category === 'string'
+              ? args.where.category
+              : (args.where.category.equals || '');
+            const target = raw.trim().toLowerCase();
+            if (target === 'dsa') {
+              list = list.filter((t) => (t.category && t.category.toLowerCase() === 'dsa') || t.slug.toLowerCase().startsWith('dsa'));
+            } else if (target === 'core') {
+              list = list.filter((t) => (t.category && t.category.toLowerCase() === 'core') || (!t.slug.toLowerCase().startsWith('dsa') && t.category !== 'DSA'));
+            } else {
+              list = list.filter((t) => t.category && t.category.toLowerCase() === target);
+            }
+          }
         }
         if (args?.orderBy?.name === 'asc') {
           list.sort((a, b) => a.name.localeCompare(b.name));
@@ -169,17 +184,75 @@ if (connectionString) {
   prismaInstance = createMockPrisma();
 }
 
-// Proxy wrapper so if runtime operations fail on real client, fallback can take over
+const mockPrisma = createMockPrisma();
 let activePrisma = prismaInstance;
 
+// Helper to wrap model methods with automatic fallback to mock store
+function wrapModel(modelName) {
+  return new Proxy({}, {
+    get(_, method) {
+      return async (...args) => {
+        try {
+          if (activePrisma && activePrisma !== mockPrisma && activePrisma[modelName] && typeof activePrisma[modelName][method] === 'function') {
+            return await activePrisma[modelName][method](...args);
+          }
+        } catch (dbErr) {
+          console.warn(`[AI Studio] Database call ${modelName}.${method} failed (${dbErr.message || 'connection error'}), switching permanently to in-memory store.`);
+          activePrisma = mockPrisma;
+        }
+        if (mockPrisma[modelName] && typeof mockPrisma[modelName][method] === 'function') {
+          return mockPrisma[modelName][method](...args);
+        }
+        return null;
+      };
+    }
+  });
+}
+
 export function setPrismaFallback() {
-  activePrisma = createMockPrisma();
+  activePrisma = mockPrisma;
 }
 
 const proxy = new Proxy({}, {
   get(_, prop) {
     if (prop === '$fallback') return setPrismaFallback;
-    return activePrisma[prop];
+    if (prop === '$connect') {
+      return async () => {
+        if (activePrisma && activePrisma !== mockPrisma && typeof activePrisma.$connect === 'function') {
+          try {
+            await activePrisma.$connect();
+            // Test a quick query to verify network reachability
+            await activePrisma.topic.findMany({ take: 1 });
+            return;
+          } catch (err) {
+            console.warn('[AI Studio] Live database unreachable, using in-memory store:', err.message || err);
+            activePrisma = mockPrisma;
+          }
+        }
+      };
+    }
+    if (prop === '$disconnect') {
+      return async () => {
+        if (activePrisma && typeof activePrisma.$disconnect === 'function') {
+          try { await activePrisma.$disconnect(); } catch (_) {}
+        }
+      };
+    }
+    if (prop === '$transaction') {
+      return async (fn) => {
+        try {
+          if (activePrisma && activePrisma !== mockPrisma && typeof activePrisma.$transaction === 'function') {
+            return await activePrisma.$transaction(fn);
+          }
+        } catch (err) {
+          console.warn('[AI Studio] Transaction failed on live DB, falling back to mock:', err.message || err);
+          activePrisma = mockPrisma;
+        }
+        return mockPrisma.$transaction(fn);
+      };
+    }
+    // Model proxies: topic, user, userTopic, etc.
+    return wrapModel(prop);
   }
 });
 
