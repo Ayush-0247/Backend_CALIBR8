@@ -67,3 +67,31 @@ model SocialAccount {
   @@unique([provider, providerUserId])
   @@map("social_accounts")
 }
+
+
+model Problem {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug         String     @unique
+  title        String
+  description  String
+  difficulty   String?
+  timeLimit    Int        @default(1000) @map("time_limit")
+  memoryLimit  Int        @default(256) @map("memory_limit")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  testcases    Testcase[]
+  @@map("problems")
+}
+model Testcase {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  problemId     String  @map("problem_id") @db.Uuid
+  testIndex     Int     @map("test_index")
+  isVisible     Boolean @default(false) @map("is_visible")
+  sizeBytes     Int     @map("size_bytes")
+  stdinSmall    String? @map("stdin_small") @db.Text
+  expectedSmall String? @map("expected_small") @db.Text
+  r2InputKey    String? @map("r2_input_key")
+  r2OutputKey   String? @map("r2_output_key")
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  @@index([problemId])
+  @@map("testcases")
+}

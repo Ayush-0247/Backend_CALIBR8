@@ -1,0 +1,25 @@
+{
+  "slug": "two-sum-001",
+  "title": "Two Sum",
+  "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+  "difficulty": "Easy",
+  "time_limit": 1000,
+  "memory_limit": 256,
+  "testcases": [
+    {
+      "input": "4\n2 7 11 15\n9",
+      "output": "0 1",
+      "visible": true
+    },
+    {
+      "input": "3\n3 2 4\n6",
+      "output": "1 2",
+      "visible": true
+    },
+    {
+      "input": "2\n3 3\n6",
+      "output": "0 1",
+      "visible": false
+    }
+  ]
+}
