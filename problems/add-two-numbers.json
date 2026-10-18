@@ -1,0 +1,35 @@
+{
+  "slug": "add-two-numbers-001",
+  "title": "Add Two Numbers",
+  "description": "Given two integers A and B, print their sum. Input: first line contains T? No - for this problem, input is just two space separated integers A and B. Output single integer - sum of A and B. Constraints: -10^9 <= A, B <= 10^9",
+  "difficulty": "Easy",
+  "time_limit": 1000,
+  "memory_limit": 256,
+  "testcases": [
+    {
+      "input": "2 3",
+      "output": "5",
+      "visible": true
+    },
+    {
+      "input": "10 20",
+      "output": "30",
+      "visible": true
+    },
+    {
+      "input": "-5 5",
+      "output": "0",
+      "visible": false
+    },
+    {
+      "input": "1000000000 1000000000",
+      "output": "2000000000",
+      "visible": false
+    },
+    {
+      "input": "-1000000000 -1000000000",
+      "output": "-2000000000",
+      "visible": false
+    }
+  ]
+}
