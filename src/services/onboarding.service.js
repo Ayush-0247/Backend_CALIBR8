@@ -119,15 +119,13 @@ export const completeOnboarding = async (userId, payload = {}) => {
     // Remove existing topic selections
     await tx.userTopic.deleteMany({ where: { userId } });
 
-    // Create new topic selections (attach level only for mock store to prevent schema mismatch on live DB)
+    // Create new topic selections with their calibrated level
     await tx.userTopic.createMany({
-      data: resolvedTopicIds.map((topicId) => {
-        const base = { userId, topicId };
-        if (isMock) {
-          base.level = levelByTopicId.get(topicId) || normalizedDifficulty;
-        }
-        return base;
-      }),
+      data: resolvedTopicIds.map((topicId) => ({
+        userId,
+        topicId,
+        level: levelByTopicId.get(topicId) || normalizedDifficulty || 'easy',
+      })),
     });
 
     // Return the fully populated user

@@ -36,6 +36,7 @@ model UserTopic {
   id      String @id @default(uuid())
   userId  String
   topicId String
+   level   String  @default("easy") // <--- "easy", "medium", or "hard"
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)

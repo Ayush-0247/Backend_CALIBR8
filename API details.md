@@ -582,3 +582,48 @@ All errors return a predictable JSON payload format:
 | `404` | Not Found | Target user or resource was not found | `"User not found."` |
 | `409` | Conflict | Email already registered | `"An account with this email already exists."` |
 | `500` | Internal Error | Unexpected unhandled server or database exception | `"Internal server error."` |
+
+
+
+
+### Ayush raj k gyan le lo, kaam ayga
+In the users table (prisma/schema.prisma & src/services/onboarding.service.js), the difficulty and rating columns represent the user's initial skill calibration for Data Structures & Algorithms (DSA) and technical interview preparation.
+1. What Each Column Represents
+Column	Type	Default	Description
+difficulty	String?	null	The user's overall skill tier. Normalized into one of three standard values: "easy", "medium", or "hard".
+rating	Int	800	A numerical baseline skill score (analogous to competitive programming or chess ratings), used for matching problem recommendations.
+2. How They Are Selected & Calculated
+A. Initial State (Registration)
+When a user registers (POST /auth/register):
+difficulty is initially null because the user has not yet completed the calibration onboarding.
+rating defaults to 800 (defined by @default(800) in schema.prisma).
+onboarded is false.
+B. During Onboarding / Calibration (POST /onboarding)
+Users calibrate their profile through one of three modes:
+If the user sets individual difficulty levels for each DSA topic (e.g. Arrays = Hard, Trees = Medium, Linked Lists = Easy):
+Per-topic point scores:
+easy (or beginner) = 800
+medium (or mid, intermediate) = 1200
+hard (or advanced) = 1600
+Average Composite Rating:
+Difficulty Tier Mapping:
+If 
+ 
+ "hard"
+If 
+ 
+ "medium"
+If 
+ 
+ "easy"
+If a user selects a single difficulty across chosen topics:
+Selecting "easy" 
+ rating = 800, difficulty = "easy"
+Selecting "medium" 
+ rating = 1200, difficulty = "medium"
+Selecting "hard" 
+ rating = 1600, difficulty = "hard"
+Sending { "beginner": true } or { "topicIds": "all", "difficulty": "easy" }:
+Automatically selects all topics.
+Sets difficulty = "easy" and rating = 800.
+Sets onboarded = true.

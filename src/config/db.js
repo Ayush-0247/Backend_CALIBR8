@@ -92,6 +92,7 @@ export function createMockPrisma() {
         id: ut.id,
         userId: ut.userId,
         topicId: ut.topicId,
+        level: ut.level || 'easy',
         topic: topicsStore.get(ut.topicId) || null,
       }));
     return {
