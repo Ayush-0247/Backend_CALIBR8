@@ -1,0 +1,46 @@
+{
+  "slug": "valid-palindrome-string-001",
+  "title": "Valid Palindrome String",
+  "description": "Given a string S, check if it is a palindrome. Consider only alphanumeric characters and ignore case.\n\nA palindrome reads same forward and backward after removing non-alphanumeric characters.\n\nInput Format:\nSingle line containing string S (may contain spaces)\n\nOutput Format:\nPrint \"true\" if palindrome else \"false\" (lowercase)\n\nConstraints:\n1 <= |S| <= 10^5\n\nExample 1:\nInput:\nA man, a plan, a canal: Panama\nOutput:\ntrue\n\nExample 2:\nInput:\nrace a car\nOutput:\nfalse",
+  "difficulty": "Easy",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "A man, a plan, a canal: Panama",
+      "output": "true"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "race a car",
+      "output": "false"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": " ",
+      "output": "true"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "0P",
+      "output": "false"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "Madam",
+      "output": "true"
+    },
+    {
+      "testIndex": 5,
+      "isVisible": false,
+      "input": "No 'x' in Nixon",
+      "output": "true"
+    }
+  ]
+}

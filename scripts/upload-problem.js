@@ -35,7 +35,7 @@ async function uploadProblem(jsonPath) {
 
   for (let i = 0; i < data.testcases.length; i++) {
     const tc = data.testcases[i]
-    const size = Buffer.byteLength(tc.input, 'utf8')
+    const inputText = tc.input || tc.stdinSmall || tc.stdin || '';
     const hasR2 = process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_ACCOUNT_ID
 
     if (size < 64000) {

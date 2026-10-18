@@ -71,6 +71,7 @@ model SocialAccount {
 
 model Problem {
   id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  problemNumber Int        @unique @default(autoincrement())
   slug         String     @unique
   title        String
   description  String

@@ -13,9 +13,10 @@ const prisma = new PrismaClient({ adapter });
 router.get("/", async (req, res, next) => {
   try {
     const problems = await prisma.problem.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { problemNumber: "asc" },
       select: {
         id: true,
+        problemNumber: true,
         slug: true,
         title: true,
         difficulty: true,
@@ -30,12 +31,15 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// GET /api/problems/:slug -> detail + only visible TCs
-router.get("/:slug", async (req, res, next) => {
+// GET /api/problems/:slugOrNumber - WORKS WITH BOTH slug and number
+router.get("/:slugOrNumber", async (req, res, next) => {
   try {
-    const { slug } = req.params;
-    const problem = await prisma.problem.findUnique({
-      where: { slug },
+    const { slugOrNumber } = req.params;
+    const isNumber = /^\d+$/.test(slugOrNumber);
+    const problem = await prisma.problem.findFirst({
+      where: isNumber
+        ? { problemNumber: Number(slugOrNumber) }
+        : { slug: slugOrNumber },
       include: {
         testcases: {
           where: { isVisible: true },
@@ -49,5 +53,4 @@ router.get("/:slug", async (req, res, next) => {
     next(e);
   }
 });
-
 export default router;
