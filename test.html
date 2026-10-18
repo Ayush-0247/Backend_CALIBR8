@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Piston Run/Submit</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #fff; }
+    select, textarea, button { padding: 10px; margin: 5px; width: 100%; max-width: 600px; }
+    button { cursor: pointer; background: #007acc; color: white; border: none; font-weight: bold; }
+    button:nth-child(2) { background: #0e9f0e; }
+    pre { background: #000; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+    .pass { color: #4ec9b0; } .fail { color: #f44747; }
+  </style>
+</head>
+<body>
+  <h2>🧪 Test Piston API - calibr8</h2>
+  
+  <label>Problem Slug:</label>
+  <select id="slug">
+    <option value="add-two-numbers-001">add-two-numbers-001</option>
+    <option value="second-largest-001">second-largest-001</option>
+    <option value="sum-of-array-001">sum-of-array-001</option>
+    <option value="two-sum-001">two-sum-001</option>
+  </select>
+  <label>Language:</label>
+  <select id="lang">
+    <option value="python">python</option>
+    <option value="javascript">javascript</option>
+    <option value="cpp">cpp</option>
+    <option value="java">java</option>
+  </select>
+  <label>Code (Full program with input handling):</label>
+  <textarea id="code" rows="10"># Python example for add-two-numbers
+# Input: "2 3" -> Output: "5"
+a,b = map(int, input().split())
+print(a+b)</textarea>
+  <button onclick="testRun()">▶️ RUN (3 visible TCs)</button>
+  <button onclick="testSubmit()">🚀 SUBMIT (All TCs)</button>
+  <h3>Result:</h3>
+  <pre id="result">Click Run or Submit...</pre>
+<script>
+const BASE = 'http://localhost:3000/api/problems';
+async function testRun() {
+  const slug = document.getElementById('slug').value;
+  const language = document.getElementById('lang').value;
+  const code = document.getElementById('code').value;
+  
+  document.getElementById('result').textContent = '⏳ Running...';
+  
+  try {
+    const res = await fetch(`${BASE}/${slug}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language, code })
+    });
+    const data = await res.json();
+    document.getElementById('result').innerHTML = formatResult(data);
+  } catch (e) {
+    document.getElementById('result').textContent = 'Error: ' + e.message;
+  }
+}
+async function testSubmit() {
+  const slug = document.getElementById('slug').value;
+  const language = document.getElementById('lang').value;
+  const code = document.getElementById('code').value;
+  
+  document.getElementById('result').textContent = '⏳ Submitting... (may take 5-10 sec for all TCs)';
+  
+  try {
+    const res = await fetch(`${BASE}/${slug}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language, code, userId: 'test-user' })
+    });
+    const data = await res.json();
+    document.getElementById('result').innerHTML = formatResult(data);
+  } catch (e) {
+    document.getElementById('result').textContent = 'Error: ' + e.message;
+  }
+}
+function formatResult(data) {
+  if (!data.success) return '❌ Failed: ' + JSON.stringify(data, null, 2);
+  
+  let html = `<b>Verdict: ${data.data.verdict || (data.data.allPassed ? 'Passed' : 'Failed')}</b>\n`;
+  html += `Passed: ${data.data.passedCount || ''} / Total: ${data.data.totalCount || ''} - All Passed: ${data.data.allPassed}\n\n`;
+  
+  if (data.data.results) {
+    data.data.results.forEach(r => {
+      const cls = r.passed ? 'pass' : 'fail';
+      html += `<span class="${cls}">Test #${r.testIndex} - ${r.status} - ${r.passed ? '✅' : '❌'}</span>\n`;
+      if (r.input) html += `  Input: ${r.input}\n`;
+      if (r.expected !== undefined) html += `  Expected: ${r.expected}\n`;
+      if (r.actual !== undefined) html += `  Actual: ${r.actual}\n`;
+      if (r.stderr) html += `  Error: ${r.stderr}\n`;
+      html += '\n';
+    });
+  }
+  
+  return html + '\n\nFull JSON:\n' + JSON.stringify(data, null, 2);
+}
+// Auto-change code examples based on language
+document.getElementById('lang').addEventListener('change', (e) => {
+  const lang = e.target.value;
+  const examples = {
+    python: `# Python example for add-two-numbers\n# Input: "2 3" -> Output: "5"\na,b = map(int, input().split())\nprint(a+b)`,
+    javascript: `// JS example for add-two-numbers\nconst fs = require('fs');\nconst [a,b] = fs.readFileSync(0,'utf-8').trim().split(' ').map(Number);\nconsole.log(a+b);`,
+    cpp: `#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int a,b; cin>>a>>b;\n  cout<<a+b;\n  return 0;\n}`,
+    java: `import java.util.*;\npublic class Main{\n  public static void main(String[] args){\n    Scanner sc = new Scanner(System.in);\n    int a = sc.nextInt();\n    int b = sc.nextInt();\n    System.out.print(a+b);\n  }\n}`
+  };
+  document.getElementById('code').value = examples[lang] || examples.python;
+});
+</script>
+</body>
+</html>

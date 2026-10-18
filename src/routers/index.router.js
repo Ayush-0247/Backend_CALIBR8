@@ -6,6 +6,7 @@ import userRouter from "./user.router.js";
 import topicRouter from "./topic.router.js";
 import onboardingRouter from "./onboarding.router.js";
 import socialRoutes from "./social.routes.js";
+import problemRoutes from "./problems.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,9 @@ router.use("/topic", topicRouter);
 router.use("/onboarding", onboardingRouter);
 router.use("/", userRouter);
 router.use("/api/social", socialRoutes);
+router.use("/api/problems", problemRoutes);
+
+
 // Root endpoint: API info & interactive UI
 router.get("/", (req, res) => {
   if (req.accepts("html")) {
