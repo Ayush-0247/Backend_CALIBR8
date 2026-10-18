@@ -20,27 +20,39 @@
     },
     {
       "testIndex": 2,
-      "isVisible": false,
+      "isVisible": true,
       "input": " ",
       "output": "true"
     },
     {
       "testIndex": 3,
-      "isVisible": false,
+      "isVisible": true,
       "input": "0P",
       "output": "false"
     },
     {
       "testIndex": 4,
-      "isVisible": false,
+      "isVisible": true,
       "input": "Madam",
       "output": "true"
     },
     {
       "testIndex": 5,
-      "isVisible": false,
+      "isVisible": true,
       "input": "No 'x' in Nixon",
       "output": "true"
+    },
+    {
+      "testIndex": 6,
+      "isVisible": true,
+      "input": "ab_a",
+      "output": "true"
     }
-  ]
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    bool isPalindrome(string s) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public boolean isPalindrome(String s) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def isPalindrome(self, s):\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    isPalindrome(s) {\n        // write code here\n    }\n}"
+  }
 }

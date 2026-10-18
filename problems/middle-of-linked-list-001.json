@@ -20,27 +20,33 @@
     },
     {
       "testIndex": 2,
-      "isVisible": false,
+      "isVisible": true,
       "input": "1\n99",
       "output": "99"
     },
     {
       "testIndex": 3,
-      "isVisible": false,
+      "isVisible": true,
       "input": "3\n10 20 30",
       "output": "20"
     },
     {
       "testIndex": 4,
-      "isVisible": false,
+      "isVisible": true,
       "input": "4\n-5 -10 -20 -30",
       "output": "-20"
     },
     {
       "testIndex": 5,
-      "isVisible": false,
+      "isVisible": true,
       "input": "7\n2 4 6 8 10 12 14",
       "output": "8"
     }
-  ]
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    int middleOfLinkedList(vector<int>& arr) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public int middleOfLinkedList(int[] arr) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def middleOfLinkedList(self, arr):\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    middleOfLinkedList(arr) {\n        // write code here\n    }\n}"
+  }
 }

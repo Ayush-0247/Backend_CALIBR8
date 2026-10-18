@@ -7,29 +7,48 @@
   "memory_limit": 256,
   "testcases": [
     {
+      "testIndex": 0,
+      "isVisible": true,
       "input": "2 3",
-      "output": "5",
-      "visible": true
+      "output": "5"
     },
     {
+      "testIndex": 1,
+      "isVisible": true,
       "input": "10 20",
-      "output": "30",
-      "visible": true
+      "output": "30"
     },
     {
+      "testIndex": 2,
+      "isVisible": true,
       "input": "-5 5",
-      "output": "0",
-      "visible": false
+      "output": "0"
     },
     {
+      "testIndex": 3,
+      "isVisible": true,
       "input": "1000000000 1000000000",
-      "output": "2000000000",
-      "visible": false
+      "output": "2000000000"
     },
     {
+      "testIndex": 4,
+      "isVisible": true,
       "input": "-1000000000 -1000000000",
-      "output": "-2000000000",
-      "visible": false
+      "output": "-2000000000"
+    },
+    {
+      "testIndex": 5,
+      "isVisible": true,
+      "input": "0 0",
+      "output": "0"
     }
-  ]
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    int addTwoNumbers(int a, int b) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public int addTwoNumbers(int a, int b) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def addTwoNumbers(self, a, b):\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    addTwoNumbers(a, b) {\n        // write code here\n    }\n}"
+  },
+  "timeLimit": 1000,
+  "memoryLimit": 256
 }

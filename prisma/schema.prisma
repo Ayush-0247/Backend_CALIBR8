@@ -7,16 +7,16 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String
-  name         String
-  difficulty   String?
-  rating       Int        @default(800)
-  onboarded    Boolean    @default(false)
-  topics       UserTopic[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String          @id @default(uuid())
+  email          String          @unique
+  passwordHash   String
+  name           String
+  difficulty     String?
+  rating         Int             @default(800)
+  onboarded      Boolean         @default(false)
+  topics         UserTopic[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   socialAccounts SocialAccount[]
 
   @@map("users")
@@ -36,7 +36,7 @@ model UserTopic {
   id      String @id @default(uuid())
   userId  String
   topicId String
-   level   String  @default("easy") // <--- "easy", "medium", or "hard"
+  level   String @default("easy")
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
@@ -45,7 +45,6 @@ model UserTopic {
   @@map("user_topics")
 }
 
-// SocialAccount model to store social account information for users
 model SocialAccount {
   id             String   @id @default(cuid())
   userId         String
@@ -68,31 +67,61 @@ model SocialAccount {
   @@map("social_accounts")
 }
 
-
 model Problem {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  problemNumber Int        @unique @default(autoincrement())
-  slug         String     @unique
-  title        String
-  description  String
-  difficulty   String?
-  timeLimit    Int        @default(1000) @map("time_limit")
-  memoryLimit  Int        @default(256) @map("memory_limit")
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  testcases    Testcase[]
+  id            String         @id @default(cuid())
+  problemNumber Int            @unique @default(autoincrement()) @map("problemNumber")
+  slug          String         @unique
+  title         String
+  description   String         @db.Text
+  difficulty    String         @default("Easy")
+  timeLimit     Int            @default(1000) @map("timeLimit")
+  memoryLimit   Int            @default(256) @map("memoryLimit")
+  testcases     Testcase[]
+  templates     CodeTemplate[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
   @@map("problems")
 }
+
 model Testcase {
-  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  problemId     String  @map("problem_id") @db.Uuid
-  testIndex     Int     @map("test_index")
-  isVisible     Boolean @default(false) @map("is_visible")
-  sizeBytes     Int     @map("size_bytes")
-  stdinSmall    String? @map("stdin_small") @db.Text
-  expectedSmall String? @map("expected_small") @db.Text
-  r2InputKey    String? @map("r2_input_key")
-  r2OutputKey   String? @map("r2_output_key")
-  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  @@index([problemId])
+  id            String  @id @default(cuid())
+  problemId     String  @map("problemId")
+  testIndex     Int     @map("testIndex")
+  isVisible     Boolean @default(false) @map("isVisible")
+  stdinSmall    String  @map("stdinSmall") @db.Text
+  expectedSmall String  @map("expectedSmall") @db.Text
+  sizeBytes     Int     @default(0) @map("sizeBytes")
+  r2Key         String? @map("r2Key")
+  problem       Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, testIndex])
   @@map("testcases")
+}
+
+model CodeTemplate {
+  id        String  @id @default(cuid())
+  problemId String  @map("problemId")
+  language  String
+  code      String  @db.Text
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
+  @@map("code_templates")
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  problemId   String   @map("problemId")
+  userId      String?  @map("userId")
+  language    String
+  code        String   @db.Text
+  status      String
+  passedCount Int      @default(0) @map("passedCount")
+  totalCount  Int      @default(0) @map("totalCount")
+  time        String?
+  memory      Int?
+  createdAt   DateTime @default(now())
+
+  @@map("submissions")
 }
