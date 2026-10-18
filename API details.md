@@ -1,6 +1,293 @@
 # Calibr8 Backend API Documentation
 
 Base URL: `http://localhost:3000` (or your deployed server URL)  
+All protected endpoints require: `Authorization: Bearer <jwt-token>`
+All endpoints accepting request bodies require: `Content-Type: application/json`
+
+---
+
+## Table of Contents
+1. [Overview & Project Status](#1-overview--project-status)
+2. [Health & System Endpoints](#2-health--system-endpoints)
+3. [Topics API](#3-topics-api)
+4. [Authentication API](#4-authentication-api)
+5. [User Profile API](#5-user-profile-api)
+6. [Onboarding & Calibration API](#6-onboarding--calibration-api)
+7. [Problems API](#7-problems-api)
+8. [Social / OAuth API](#8-social--oauth-api)
+9. [Error Handling & Status Codes](#9-error-handling--status-codes)
+
+---
+
+## 1. Overview & Project Status
+
+- **Service**: Calibr8 Backend API (`v1.1.0`)
+- **Runtime**: Node.js (ES Modules), Express.js
+- **Database / ORM**: PostgreSQL via Neon Serverless Adapter with Prisma Client
+- **Authentication**: JWT with in-memory token revocation on logout
+- **Features Implemented**:
+  - Full Auth Lifecycle: Registration, Login, Logout, Verify, Change Password
+  - GitHub OAuth: Link/unlink GitHub account to user profile
+  - Topics Categorization: DSA + Core subjects
+  - Flexible Onboarding: Beginner preset, uniform difficulty, granular per-topic levels (`UserTopic.level` added in recent commit)
+  - User Profile: View & update profile
+  - Problems: List all problems, fetch by slug or problem number, with testcases & code templates
+  - Submissions model (schema only, no route yet)
+
+---
+
+## 2. Health & System Endpoints
+
+### `GET /`
+Returns interactive UI (HTML) or API metadata (JSON).
+- **Auth**: None
+- **Headers**: `Accept: application/json` for JSON response
+- **Response (200 OK)**:
+```json
+{
+  "service": "Calibr8 Backend API",
+  "status": "online",
+  "version": "1.1.0",
+  "features": ["User Registration, Login, Logout & Token Revocation","DSA Topic Level Calibration (Easy, Mid, Hard)","Beginner 1‑Click Preset (Auto‑sets all DSA topics to Easy, rating 800)","Composite Rating Calculation & Difficulty Mapping","Profile Management & Password Change"],
+  "endpoints": [
+    { "method": "GET", "path": "/health", "description": "Health check" },
+    { "method": "GET", "path": "/ping", "description": "Ping check" },
+    { "method": "GET", "path": "/topics", "description": "List all topics" }
+  ]
+}
+```
+---
+### `GET /ping`
+- **Auth**: None
+- **Response (200 OK)**: Plain text `pong`
+---
+### `GET /health`
+- **Auth**: None
+- **Response (200 OK)**:
+```json
+{ "status": "ok", "service": "Calibr8 Backend", "timestamp": "2026-10-18T15:00:00.000Z" }
+```
+---
+## 3. Topics API
+
+### `GET /topics` or `GET /topic`
+Returns all topics grouped by category.
+- **Auth**: None
+- **Query Params (Optional)**: `?category=dsa` or `?category=core`
+- **Response (200 OK)**:
+```json
+{
+  "success": true,
+  "count": 9,
+  "topics": [
+    { "id": "682fa01e-c76b-4b5f-a59e-9ce3ac56f259", "slug": "dsa-arrays", "name": "DSA - Arrays", "category": "DSA" },
+    { "id": "core-dbms", "slug": "dbms", "name": "DBMS", "category": "CORE" }
+  ],
+  "dsaTopics": [ "...5 DSA topics..." ],
+  "coreTopics": [ "...4 Core topics..." ]
+}
+```
+#### DSA Topic IDs (use in onboarding):
+| ID | Slug | Name |
+|---|---|---|
+| `682fa01e-c76b-4b5f-a59e-9ce3ac56f259` | `dsa-arrays` | DSA - Arrays |
+| `129c373a-45b9-4394-9a53-fedd8e720401` | `dsa-graphs-dp` | DSA - Graphs & DP |
+| `d0184833-be8d-467b-81e4-ebc4e2ccbd9d` | `dsa-linked-list` | DSA - Linked List |
+| `307747ce-a84c-44b9-9369-918891d20e3a` | `dsa-stack-queue` | DSA - Stack & Queue |
+| `379beec5-41a6-4dc8-b3b4-1beb98fe186d` | `dsa-trees` | DSA - Trees |
+---
+### `GET /topics/dsa` or `GET /topic/dsa`
+Returns only DSA topics.
+- **Auth**: None
+- **Response (200 OK)**:
+```json
+{ "success": true, "count": 5, "topics": [ "...5 DSA topics..." ] }
+```
+---
+## 4. Authentication API
+
+### `POST /auth/register`
+Creates a new user.
+- **Auth**: None
+- **Request Body**:
+```json
+{ "name": "Jane Doe", "email": "jane@example.com", "password": "password123" }
+```
+- **Response (201 Created)**:
+```json
+{
+  "success": true,
+  "user": { "id": "6170e73b-b9c5-4e11-b73c-6781ee571ceb", "email": "jane@example.com", "name": "Jane Doe", "difficulty": null, "rating": 800, "onboarded": false, "createdAt": "2026-10-17T05:12:48.611Z", "updatedAt": "2026-10-17T05:12:48.611Z", "topics": [] },
+  "token": "<jwt>"
+}
+```
+- **Errors**: `400` missing fields, `409` email exists
+---
+### `POST /auth/login`
+- **Auth**: None
+- **Request Body**:
+```json
+{ "email": "jane@example.com", "password": "password123" }
+```
+- **Response (200 OK)**:
+```json
+{ "success": true, "user": { "id": "...", "email": "jane@example.com", "name": "Jane Doe", "difficulty": "easy", "rating": 800, "onboarded": true, "topics": [] }, "token": "<jwt>" }
+```
+---
+### `POST /auth/logout`
+- **Auth**: Bearer Token
+- **Response (200 OK)**:
+```json
+{ "success": true, "message": "Logged out successfully." }
+```
+---
+### `GET /auth/me`
+- **Auth**: Bearer Token
+- **Response (200 OK)** includes full `UserTopic` objects with `level`.
+---
+### `POST /auth/change-password`
+- **Auth**: Bearer Token
+- **Request Body**:
+```json
+{ "oldPassword": "old", "newPassword": "newStrong123" }
+```
+- **Response (200 OK)**:
+```json
+{ "success": true, "message": "Password updated successfully." }
+```
+---
+## 5. User Profile API
+
+### `GET /me`
+- **Auth**: Bearer Token
+- **Response (200 OK)**: Same shape as `/auth/me` – includes `topics` with `level`.
+---
+### `PUT /me`
+- **Auth**: Bearer Token
+- **Request Body**: `{ "name": "New Name" }`
+- **Response (200 OK)**: Updated user object.
+---
+## 6. Onboarding & Calibration API
+
+### `POST /onboarding` (or `PUT /onboarding/levels`)
+Saves user difficulty and per‑topic levels. `UserTopic.level` now stored.
+- **Auth**: Bearer Token
+- **Payload Options**:
+  - **Beginner preset** (all DSA topics → `easy`): `{ "difficulty": "beginner", "topicIds": "all" }`
+  - **Uniform difficulty** across selected topics: `{ "difficulty": "medium", "topicIds": ["id1","id2"] }`
+  - **Granular per‑topic levels**:
+    ```json
+    {
+      "topicSelections": [
+        { "topicId": "682fa01e-c76b-4b5f-a59e-9ce3ac56f259", "difficulty": "easy" },
+        { "topicId": "129c373a-45b9-4394-9a53-fedd8e720401", "difficulty": "hard" }
+      ]
+    }
+    ```
+- **Response (200 OK)** includes updated `User` with `topics` array where each entry now contains `level`.
+- **Errors**: `400` invalid difficulty, `400` no topics, `400` invalid IDs.
+---
+### `GET /onboarding/status`
+- **Auth**: Bearer Token
+- **Response (200 OK)**: Same user object as above.
+---
+## 7. Problems API
+
+Base path: `/api/problems`
+
+### `GET /api/problems`
+- **Auth**: None
+- **Response (200 OK)**:
+```json
+{ "success": true, "data": [ { "id": "xyz", "problemNumber": 1, "slug": "two-sum", "title": "Two Sum", "difficulty": "Easy", "timeLimit": 1000, "memoryLimit": 256, "_count": { "testcases": 3, "templates": 2 } } ] }
+```
+---
+### `GET /api/problems/:slugOrNumber`
+- **Auth**: None
+- **URL Param**: slug or numeric problemNumber.
+- **Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "xyz",
+    "problemNumber": 1,
+    "slug": "two-sum",
+    "title": "Two Sum",
+    "description": "...",
+    "difficulty": "Easy",
+    "timeLimit": 1000,
+    "memoryLimit": 256,
+    "testcases": [ { "testIndex": 0, "isVisible": true, "stdinSmall": "4\n2 7 11 15\n9", "expectedSmall": "0 1" } ],
+    "templates": { "python": "def solution(nums, target):\n    pass", "cpp": "#include<bits/stdc++.h>\nint main(){...}" }
+  }
+}
+```
+- **Errors**: `404` not found, `500` server error.
+---
+## 8. Social / OAuth API
+
+Base path: `/api/social` (GitHub only).
+
+### `GET /api/social/:provider/link-url`
+- **Auth**: Bearer Token (protected)
+- **Response (200 OK)**:
+```json
+{ "url": "https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=read:user+user:email&state=..." }
+```
+---
+### `GET /api/social/:provider/callback`
+OAuth callback – handled internally. On success redirects to `FRONTEND_URL/?linked=github`; on error redirects with `link_error` query.
+---
+### `DELETE /api/social/:provider`
+Unlinks provider.
+- **Auth**: Bearer Token
+- **Response (200 OK)**:
+```json
+{ "success": true }
+```
+---
+## 9. Error Handling & Status Codes
+All errors follow:
+```json
+{ "success": false, "message": "Description" }
+```
+| Code | Meaning |
+|---|---|
+| 200 | OK |
+| 201 | Created |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 404 | Not Found |
+| 409 | Conflict |
+| 500 | Server Error |
+---
+## Data Model Notes
+
+### `UserTopic.level`
+Added in recent commit – stores calibrated difficulty per topic (`"easy"`, `"medium"`, `"hard"`).
+
+### Difficulty ↔ Rating Mapping
+| difficulty | rating |
+|---|---|
+| `null` | 800 |
+| `easy` | 800 |
+| `medium` | 1200 |
+| `hard` | 1600 |
+Composite rating for granular mode = average of per‑topic scores.
+
+### Problem Schema Highlights
+| Field | Type | Description |
+|---|---|---|
+| `problemNumber` | Int (unique) | Human readable index |
+| `slug` | String (unique) | URL‑safe identifier |
+| `difficulty` | String | "Easy", "Medium", "Hard" |
+| `testcases` | Array | Input/Output pairs, `isVisible` for samples |
+| `templates` | Object | Language → starter code |
+```
+
+
+Base URL: `http://localhost:3000` (or your deployed server URL)  
 All protected endpoints require the HTTP header:  
 `Authorization: Bearer <jwt-token>`  
 All endpoints accepting request bodies require:  
