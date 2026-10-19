@@ -1,5 +1,5 @@
-import prisma from '../config/db.js';
-import { completeOnboarding } from '../services/onboarding.service.js';
+import prisma from "../config/db.js";
+import { completeOnboarding } from "../services/onboarding.service.js";
 
 /**
  * POST /onboarding
@@ -42,7 +42,7 @@ export const getStatus = async (req, res, next) => {
   }
 };
 
-export const updateLanguage = async (req, res) => {
+export const updateLanguage = async (req, res, next) => {
   try {
     const { language } = req.body;
 
@@ -51,23 +51,20 @@ export const updateLanguage = async (req, res) => {
     if (!allowedLanguages.includes(language)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid language"
+        message: "Invalid language",
       });
     }
 
     const user = await prisma.user.update({
       where: { id: req.user.id },
-      data: { language }
+      data: { preferredLanguage: language },
     });
 
     res.json({
       success: true,
-      language: user.language
+      language: user.preferredLanguage,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update language"
-    });
+    next(error);
   }
 };
