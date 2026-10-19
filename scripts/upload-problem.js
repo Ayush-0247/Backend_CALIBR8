@@ -1,106 +1,98 @@
-import dotenv from "dotenv"
-dotenv.config()
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PutObjectCommand } from "@aws-sdk/client-s3"
-import { r2 } from "../lib/storage.js"
-import fs from "fs"
-import pg from "pg"
+import 'dotenv/config';
+import pkg from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+import fs from 'fs';
+import path from 'path';
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+const { PrismaClient } = pkg;
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function uploadProblem(jsonPath) {
-  const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+  const raw = fs.readFileSync(jsonPath, 'utf8');
+  const data = JSON.parse(raw);
+  const slug = data.slug || path.basename(jsonPath, '.json');
 
-  const existing = await prisma.problem.findUnique({ where: { slug: data.slug } })
+  // Agar already hai to SKIP - yehi tujhe chahiye
+  const existing = await prisma.problem.findUnique({ where: { slug } });
   if (existing) {
-    console.log(`SKIP ${data.slug} - already exists, keeping old one`);
-    return
+    console.log(`⏭️  SKIP ${slug} - already exists in DB, keeping old one`);
+    return { skipped: true, slug };
   }
 
-  const problem = await prisma.problem.create({
+  const timeLimit = data.timeLimit || data.time_limit || 1000;
+  const memoryLimit = data.memoryLimit || data.memory_limit || 256;
+
+  const testcases = (data.testcases || []).map((tc, idx) => {
+    const input = tc.input ?? tc.stdinSmall ?? tc.stdin ?? tc.stdin_small ?? '';
+    const output = tc.output ?? tc.expectedSmall ?? tc.expected ?? tc.expected_small ?? '';
+    const inputStr = typeof input === 'object' ? JSON.stringify(input) : String(input);
+    const outputStr = typeof output === 'object' ? JSON.stringify(output) : String(output);
+    return {
+      testIndex: tc.testIndex ?? tc.index ?? idx,
+      isVisible: tc.isVisible ?? tc.visible ?? true,
+      stdinSmall: inputStr,
+      expectedSmall: outputStr,
+      sizeBytes: Buffer.byteLength(inputStr, 'utf8'),
+      r2Key: tc.r2Key || null
+    };
+  });
+
+  const templates = Object.entries(data.templates || {}).map(([lang, code]) => ({
+    language: lang,
+    code: String(code)
+  }));
+
+  const created = await prisma.problem.create({
     data: {
-      slug: data.slug,
-      title: data.title,
-      description: data.description,
-      difficulty: data.difficulty,
-      timeLimit: data.time_limit || 1000,
-      memoryLimit: data.memory_limit || 256,
-    }
-  })
+      slug,
+      title: data.title || slug,
+      description: data.description || data.title || 'No description',
+      difficulty: data.difficulty || 'Easy',
+      timeLimit,
+      memoryLimit,
+      testcases: { create: testcases },
+      templates: { create: templates }
+    },
+    include: { _count: { select: { testcases: true, templates: true } } }
+  });
 
-  console.log(`Created ${data.slug} (${problem.id})`)
-
-  for (let i = 0; i < data.testcases.length; i++) {
-    const tc = data.testcases[i]
-    const inputText = tc.input || tc.stdinSmall || tc.stdin || '';
-    const hasR2 = process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_ACCOUNT_ID
-
-    if (size < 64000) {
-      await prisma.testcase.create({
-        data: {
-          problemId: problem.id,
-          testIndex: i + 1,
-          isVisible: tc.visible,
-          sizeBytes: size,
-          stdinSmall: tc.input,
-          expectedSmall: tc.output,
-        }
-      })
-      console.log(`  TC ${i + 1}: small -> Neon`)
-    } else {
-      if (!hasR2) {
-        console.log(`  TC ${i + 1}: large (${size}B) -> SKIPPED (R2 not configured, placeholder saved)`)
-        await prisma.testcase.create({
-          data: {
-            problemId: problem.id,
-            testIndex: i + 1,
-            isVisible: tc.visible,
-            sizeBytes: size,
-            r2InputKey: `PENDING_${problem.id}_${i+1}`,
-            r2OutputKey: `PENDING_${problem.id}_${i+1}`,
-          }
-        })
-        continue
-      }
-      const inputKey = `problems/${problem.id}/input_${i + 1}.txt`
-      const outputKey = `problems/${problem.id}/output_${i + 1}.txt`
-      await r2.send(new PutObjectCommand({ Bucket: process.env.R2_BUCKET, Key: inputKey, Body: tc.input }))
-      await r2.send(new PutObjectCommand({ Bucket: process.env.R2_BUCKET, Key: outputKey, Body: tc.output }))
-      await prisma.testcase.create({
-        data: {
-          problemId: problem.id,
-          testIndex: i + 1,
-          isVisible: tc.visible,
-          sizeBytes: size,
-          r2InputKey: inputKey,
-          r2OutputKey: outputKey,
-        }
-      })
-      console.log(`  TC ${i + 1}: large -> R2`)
-    }
-  }
-  console.log(`  DONE ${data.testcases.length} testcases\n`)
+  console.log(`✅ NEW ${created.slug} (#${created.problemNumber}) - ${created._count.testcases} TCs, ${created._count.templates} templates`);
+  return { skipped: false, slug: created.slug };
 }
 
-const target = process.argv[2]
+const target = process.argv[2];
 if (!target) {
-  console.log("Usage: node scripts/upload-problem.js ./problems/problem.json OR ./problems")
-  process.exit(1)
+  console.log("Usage: node scripts/upload-problem.js ./problems");
+  process.exit(1);
 }
 
-if (fs.statSync(target).isDirectory()) {
-  const files = fs.readdirSync(target).filter(f => f.endsWith('.json'))
-  console.log(`Found ${files.length} problems in ${target}\n`)
+let results = { added: 0, skipped: 0 };
+
+if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+  const files = fs.readdirSync(target).filter(f => f.endsWith('.json')).sort();
+  console.log(`📂 Found ${files.length} JSON files in ${target}\n`);
   for (const f of files) {
-    await uploadProblem(`${target}/${f}`)
+    const fullPath = path.join(target, f);
+    const res = await uploadProblem(fullPath);
+    if (res.skipped) results.skipped++;
+    else results.added++;
   }
 } else {
-  await uploadProblem(target)
+  const res = await uploadProblem(target);
+  if (res.skipped) results.skipped++;
+  else results.added++;
 }
 
-await prisma.$disconnect()
-await pool.end()
-console.log("ALL DONE - old problems kept, new ones uploaded")
+await prisma.$disconnect();
+await pool.end();
+
+console.log(`\n🎉 DONE - Added: ${results.added}, Skipped: ${results.skipped}`);
+
+
+
+// check for new file in problems folder and upload latest one, skip old ones
+ //node scripts/upload-problem.js ./problems

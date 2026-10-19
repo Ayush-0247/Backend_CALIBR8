@@ -1,5 +1,5 @@
-import prisma from '../config/db.js';
-import { completeOnboarding } from '../services/onboarding.service.js';
+import prisma from "../config/db.js";
+import { completeOnboarding } from "../services/onboarding.service.js";
 
 /**
  * POST /onboarding
@@ -39,5 +39,32 @@ export const getStatus = async (req, res, next) => {
     res.status(200).json({ success: true, user });
   } catch (err) {
     next(err);
+  }
+};
+
+export const updateLanguage = async (req, res, next) => {
+  try {
+    const { language } = req.body;
+
+    const allowedLanguages = ["cpp", "c", "java", "python", "javascript"];
+
+    if (!allowedLanguages.includes(language)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid language",
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { preferredLanguage: language },
+    });
+
+    res.json({
+      success: true,
+      language: user.preferredLanguage,
+    });
+  } catch (error) {
+    next(error);
   }
 };

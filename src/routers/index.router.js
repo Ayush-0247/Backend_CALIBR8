@@ -31,6 +31,7 @@ router.use("/onboarding", onboardingRouter);
 router.use("/", userRouter);
 router.use("/api/social", socialRoutes);
 router.use("/api/problems", problemRoutes);
+router.use("/api/users", onboardingRouter);
 
 
 // Root endpoint: API info & interactive UI
