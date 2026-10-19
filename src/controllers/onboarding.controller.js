@@ -41,3 +41,33 @@ export const getStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateLanguage = async (req, res) => {
+  try {
+    const { language } = req.body;
+
+    const allowedLanguages = ["cpp", "c", "java", "python", "javascript"];
+
+    if (!allowedLanguages.includes(language)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid language"
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { language }
+    });
+
+    res.json({
+      success: true,
+      language: user.language
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update language"
+    });
+  }
+};
