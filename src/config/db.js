@@ -1,11 +1,17 @@
 import dotenv from "dotenv";
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export function createMockPrisma() {
   const topicsStore = new Map([
-    // DSA topics for dropdown
+    // DSA topics
     [
       "682fa01e-c76b-4b5f-a59e-9ce3ac56f259",
       {
@@ -83,6 +89,76 @@ export function createMockPrisma() {
   const usersStore = new Map();
   const userTopicsStore = new Map();
   const socialAccountsStore = new Map();
+  const problemsStore = new Map();
+  const testcasesStore = new Map();
+  const templatesStore = new Map();
+  const submissionsStore = new Map();
+
+  // Pre-load problems from problems directory
+  try {
+    const problemsDir = path.resolve(__dirname, "../../problems");
+    if (fs.existsSync(problemsDir)) {
+      const files = fs.readdirSync(problemsDir).filter((f) => f.endsWith(".json"));
+      let probNum = 1;
+
+      for (const file of files) {
+        try {
+          const raw = fs.readFileSync(path.join(problemsDir, file), "utf-8");
+          const data = JSON.parse(raw);
+          const slug = data.slug || path.basename(file, ".json").toLowerCase();
+          const probId = `prob-${slug}`;
+
+          const problem = {
+            id: probId,
+            problemNumber: data.problemNumber || probNum++,
+            slug,
+            title: data.title || slug,
+            description: data.description || "",
+            difficulty: data.difficulty || "Easy",
+            timeLimit: data.timeLimit || data.time_limit || 1000,
+            memoryLimit: data.memoryLimit || data.memory_limit || 256,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          problemsStore.set(problem.id, problem);
+
+          // Testcases
+          const tcs = data.testcases || [];
+          tcs.forEach((tc, idx) => {
+            const input = tc.input ?? tc.stdinSmall ?? tc.stdin ?? "";
+            const output = tc.output ?? tc.expectedSmall ?? tc.expected ?? "";
+            const tcId = `tc-${problem.id}-${idx}`;
+            testcasesStore.set(tcId, {
+              id: tcId,
+              problemId: problem.id,
+              testIndex: tc.testIndex ?? idx,
+              isVisible: tc.isVisible ?? true,
+              stdinSmall: typeof input === "object" ? JSON.stringify(input) : String(input),
+              expectedSmall: typeof output === "object" ? JSON.stringify(output) : String(output),
+              sizeBytes: Buffer.byteLength(String(input), "utf-8"),
+              r2Key: tc.r2Key || null,
+            });
+          });
+
+          // Code Templates
+          const tpls = data.templates || {};
+          Object.entries(tpls).forEach(([lang, code]) => {
+            const tplId = `tpl-${problem.id}-${lang}`;
+            templatesStore.set(tplId, {
+              id: tplId,
+              problemId: problem.id,
+              language: lang,
+              code: String(code),
+            });
+          });
+        } catch (e) {
+          console.warn(`[Mock DB] Failed to parse problem file ${file}:`, e.message);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("[Mock DB] Error reading problems directory:", err.message);
+  }
 
   const populateUser = (u) => {
     if (!u) return null;
@@ -92,16 +168,33 @@ export function createMockPrisma() {
         id: ut.id,
         userId: ut.userId,
         topicId: ut.topicId,
-        level: ut.level || 'easy',
+        level: ut.level || "easy",
         topic: topicsStore.get(ut.topicId) || null,
       }));
     return {
       ...u,
+      preferredLanguage: u.preferredLanguage || "cpp",
       topics: uTopics,
       socialAccounts: Array.from(socialAccountsStore.values()).filter(
         (account) => account.userId === u.id,
       ),
     };
+  };
+
+  const populateProblem = (p, include = {}) => {
+    if (!p) return null;
+    const res = { ...p };
+    const tcs = Array.from(testcasesStore.values())
+      .filter((tc) => tc.problemId === p.id)
+      .sort((a, b) => a.testIndex - b.testIndex);
+    const tpls = Array.from(templatesStore.values()).filter(
+      (tpl) => tpl.problemId === p.id,
+    );
+
+    if (include.testcases) res.testcases = tcs;
+    if (include.templates) res.templates = tpls;
+    res._count = { testcases: tcs.length, templates: tpls.length };
+    return res;
   };
 
   const mock = {
@@ -175,7 +268,7 @@ export function createMockPrisma() {
       },
     },
     user: {
-      findUnique: async ({ where, select }) => {
+      findUnique: async ({ where, select, include }) => {
         let u = null;
         if (where?.email) {
           u = Array.from(usersStore.values()).find(
@@ -206,6 +299,7 @@ export function createMockPrisma() {
           difficulty: data.difficulty || null,
           rating: data.rating || 800,
           onboarded: data.onboarded || false,
+          preferredLanguage: data.preferredLanguage || "cpp",
           createdAt: now,
           updatedAt: now,
         };
@@ -220,11 +314,19 @@ export function createMockPrisma() {
         }
         return populated;
       },
-      update: async ({ where, data }) => {
+      update: async ({ where, data, select }) => {
         const u = usersStore.get(where.id);
         if (!u) throw new Error("User not found");
         Object.assign(u, data, { updatedAt: new Date() });
-        return populateUser(u);
+        const populated = populateUser(u);
+        if (select) {
+          const res = {};
+          for (const key of Object.keys(select)) {
+            if (select[key]) res[key] = populated[key];
+          }
+          return res;
+        }
+        return populated;
       },
     },
     userTopic: {
@@ -295,6 +397,161 @@ export function createMockPrisma() {
         return { count };
       },
     },
+    problem: {
+      findMany: async (args = {}) => {
+        let list = Array.from(problemsStore.values()).map((p) =>
+          populateProblem(p, args.include),
+        );
+        if (args?.where) {
+          if (args.where.difficulty) {
+            const diff = String(args.where.difficulty).toLowerCase();
+            list = list.filter((p) => p.difficulty?.toLowerCase() === diff);
+          }
+          if (args.where.slug) {
+            list = list.filter((p) => p.slug === args.where.slug);
+          }
+        }
+        if (args?.orderBy?.problemNumber === "asc") {
+          list.sort((a, b) => a.problemNumber - b.problemNumber);
+        }
+        if (args?.select) {
+          return list.map((p) => {
+            const res = {};
+            for (const key of Object.keys(args.select)) {
+              if (args.select[key]) res[key] = p[key];
+            }
+            return res;
+          });
+        }
+        return list;
+      },
+      findUnique: async ({ where, include }) => {
+        let p = null;
+        if (where?.id) p = problemsStore.get(where.id);
+        else if (where?.slug) {
+          p = Array.from(problemsStore.values()).find(
+            (item) => item.slug === where.slug || item.slug.toLowerCase() === where.slug.toLowerCase(),
+          );
+        } else if (where?.problemNumber !== undefined) {
+          p = Array.from(problemsStore.values()).find(
+            (item) => item.problemNumber === Number(where.problemNumber),
+          );
+        }
+        return p ? populateProblem(p, include || { testcases: true, templates: true }) : null;
+      },
+      findFirst: async ({ where, include }) => {
+        return mock.problem.findUnique({ where, include });
+      },
+      create: async ({ data, include }) => {
+        const id = data.id || crypto.randomUUID();
+        const problemNumber =
+          data.problemNumber || problemsStore.size + 1;
+        const problem = {
+          id,
+          problemNumber,
+          slug: data.slug,
+          title: data.title,
+          description: data.description,
+          difficulty: data.difficulty || "Easy",
+          timeLimit: data.timeLimit || 1000,
+          memoryLimit: data.memoryLimit || 256,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        problemsStore.set(id, problem);
+
+        if (data.testcases?.create) {
+          data.testcases.create.forEach((tc, idx) => {
+            const tcId = `tc-${id}-${idx}`;
+            testcasesStore.set(tcId, {
+              id: tcId,
+              problemId: id,
+              testIndex: tc.testIndex ?? idx,
+              isVisible: tc.isVisible ?? true,
+              stdinSmall: tc.stdinSmall ?? "",
+              expectedSmall: tc.expectedSmall ?? "",
+              sizeBytes: tc.sizeBytes ?? 0,
+              r2Key: tc.r2Key ?? null,
+            });
+          });
+        }
+        if (data.templates?.create) {
+          data.templates.create.forEach((tpl) => {
+            const tplId = `tpl-${id}-${tpl.language}`;
+            templatesStore.set(tplId, {
+              id: tplId,
+              problemId: id,
+              language: tpl.language,
+              code: tpl.code,
+            });
+          });
+        }
+        return populateProblem(problem, include || { testcases: true, templates: true });
+      },
+      count: async () => problemsStore.size,
+    },
+    testcase: {
+      findMany: async ({ where, orderBy }) => {
+        let list = Array.from(testcasesStore.values());
+        if (where?.problemId) {
+          list = list.filter((tc) => tc.problemId === where.problemId);
+        }
+        if (where?.isVisible !== undefined) {
+          list = list.filter((tc) => tc.isVisible === where.isVisible);
+        }
+        if (orderBy?.testIndex === "asc") {
+          list.sort((a, b) => a.testIndex - b.testIndex);
+        }
+        return list;
+      },
+    },
+    codeTemplate: {
+      findMany: async ({ where }) => {
+        let list = Array.from(templatesStore.values());
+        if (where?.problemId) {
+          list = list.filter((tpl) => tpl.problemId === where.problemId);
+        }
+        return list;
+      },
+    },
+    submission: {
+      create: async ({ data }) => {
+        const id = crypto.randomUUID();
+        const submission = {
+          id,
+          createdAt: new Date(),
+          passedCount: 0,
+          totalCount: 0,
+          time: null,
+          memory: null,
+          ...data,
+        };
+        submissionsStore.set(id, submission);
+        return submission;
+      },
+      findUnique: async ({ where }) => {
+        return submissionsStore.get(where.id) || null;
+      },
+      update: async ({ where, data }) => {
+        const sub = submissionsStore.get(where.id);
+        if (!sub) throw new Error("Submission not found");
+        Object.assign(sub, data);
+        return sub;
+      },
+      findMany: async ({ where, orderBy }) => {
+        let list = Array.from(submissionsStore.values());
+        if (where?.userId) {
+          list = list.filter((s) => s.userId === where.userId);
+        }
+        if (where?.problemId) {
+          list = list.filter((s) => s.problemId === where.problemId);
+        }
+        if (orderBy?.createdAt === "desc") {
+          list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        }
+        return list;
+      },
+    },
   };
 
   return mock;
@@ -314,7 +571,7 @@ if (connectionString) {
     prismaInstance = new PrismaClient({ adapter });
   } catch (err) {
     console.warn(
-      "[AI Studio] Failed to initialize Neon Prisma client, using mock fallback:",
+      "[AI Studio] Failed to initialize live Prisma client, using mock fallback:",
       err.message,
     );
     prismaInstance = createMockPrisma();
@@ -343,7 +600,7 @@ function wrapModel(modelName) {
               try {
                 return await activePrisma[modelName][method](...args);
               } catch (innerErr) {
-                // If query failed on topics table because category column is not yet in the DB table, fallback to selecting id, slug, name
+                // Topic category column schema fallback
                 if (
                   modelName === "topic" &&
                   method === "findMany" &&
@@ -367,7 +624,7 @@ function wrapModel(modelName) {
             }
           } catch (dbErr) {
             console.warn(
-              `[AI Studio] Database call ${modelName}.${method} failed (${dbErr.message || "connection error"}), switching permanently to in-memory store.`,
+              `[AI Studio] Database call ${modelName}.${method} failed (${dbErr.message || "connection error"}), using in-memory store.`,
             );
             activePrisma = mockPrisma;
           }
@@ -404,7 +661,6 @@ const proxy = new Proxy(
           ) {
             try {
               await activePrisma.$connect();
-              // Test a quick query to verify network reachability and schema compatibility
               try {
                 await activePrisma.topic.findMany({ take: 1 });
               } catch (queryErr) {
@@ -412,14 +668,10 @@ const proxy = new Proxy(
                   queryErr.message &&
                   queryErr.message.toLowerCase().includes("column")
                 ) {
-                  // Table exists but category column might not have been pushed yet
                   await activePrisma.topic.findMany({
                     select: { id: true, slug: true, name: true },
                     take: 1,
                   });
-                  console.warn(
-                    '⚠️ Warning: "topics" table is missing the "category" column in your live database. Run "npm run db:push" to synchronize schema.',
-                  );
                   return;
                 }
                 throw queryErr;
@@ -427,11 +679,10 @@ const proxy = new Proxy(
               return;
             } catch (err) {
               console.warn(
-                "[AI Studio] Live database unreachable or schema mismatch:",
+                "[AI Studio] Live database unreachable, using in-memory store:",
                 err.message || err,
               );
               activePrisma = mockPrisma;
-              throw err;
             }
           }
         };
@@ -465,7 +716,6 @@ const proxy = new Proxy(
           return mockPrisma.$transaction(fn);
         };
       }
-      // Model proxies: topic, user, userTopic, etc.
       return wrapModel(prop);
     },
   },

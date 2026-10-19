@@ -1,9 +1,10 @@
 import prisma from "../config/db.js";
 import { completeOnboarding } from "../services/onboarding.service.js";
+import { updateUserLanguage } from "../services/user.service.js";
 
 /**
  * POST /onboarding
- * Protected — complete the authenticated user's onboarding.
+ * Protected — complete the authenticated user's onboarding & calibration.
  */
 export const onboard = async (req, res, next) => {
   try {
@@ -29,6 +30,7 @@ export const getStatus = async (req, res, next) => {
         difficulty: true,
         rating: true,
         onboarded: true,
+        preferredLanguage: true,
         topics: {
           include: {
             topic: true,
@@ -42,29 +44,16 @@ export const getStatus = async (req, res, next) => {
   }
 };
 
+/**
+ * PATCH /onboarding/language
+ * Protected — update preferred programming language during or after onboarding.
+ */
 export const updateLanguage = async (req, res, next) => {
   try {
     const { language } = req.body;
-
-    const allowedLanguages = ["cpp", "c", "java", "python", "javascript"];
-
-    if (!allowedLanguages.includes(language)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid language",
-      });
-    }
-
-    const user = await prisma.user.update({
-      where: { id: req.user.id },
-      data: { preferredLanguage: language },
-    });
-
-    res.json({
-      success: true,
-      language: user.preferredLanguage,
-    });
-  } catch (error) {
-    next(error);
+    const result = await updateUserLanguage(req.user.id, language);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
   }
 };

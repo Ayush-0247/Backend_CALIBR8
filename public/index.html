@@ -442,6 +442,26 @@
         </div>
 
         <div class="endpoint">
+          <div><span class="method get">GET</span><span>/api/problems</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Coding problems catalogue (15 problems)</span></div>
+          <button class="btn" onclick="testEndpoint('/api/problems')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/api/problems/two-sum-001</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Two Sum problem details & templates</span></div>
+          <button class="btn" onclick="testEndpoint('/api/problems/two-sum-001')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method get">GET</span><span>/api/v1/languages</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Supported execution languages</span></div>
+          <button class="btn" onclick="testEndpoint('/api/v1/languages')">Test</button>
+        </div>
+
+        <div class="endpoint">
+          <div><span class="method post">POST</span><span>/api/v1/runs</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Test code execution against sample cases</span></div>
+          <button class="btn" onclick="testCodeRun()">Test Run</button>
+        </div>
+
+        <div class="endpoint">
           <div><span class="method post">POST</span><span>/auth/logout</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Revoke current auth token (Protected)</span></div>
           <button class="btn btn-danger" onclick="handleLogout()">Test Logout</button>
         </div>
@@ -829,6 +849,26 @@
         logConsole('GET ' + path, data);
       } catch (err) {
         logConsole('ERROR on ' + path, err.message);
+      }
+    }
+
+    async function testCodeRun() {
+      try {
+        const payload = {
+          slug: 'two-sum-001',
+          language: 'python',
+          code: 'class Solution:\n    def twoSum(self, nums, target):\n        lookup = {}\n        for i, n in enumerate(nums):\n            diff = target - n\n            if diff in lookup:\n                return [lookup[diff], i]\n            lookup[n] = i\n        return []'
+        };
+        logConsole('POST /api/v1/runs (Running code...)', payload);
+        const res = await fetch('/api/v1/runs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        logConsole('RUN RESULT (/api/v1/runs)', data);
+      } catch (err) {
+        logConsole('ERROR running code', err.message);
       }
     }
 

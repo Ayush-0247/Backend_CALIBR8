@@ -1,46 +1,45 @@
-import prisma from '../config/db.js';
-import { ApiError } from '../utils/ApiError.js';
+import {
+  getUserProfile,
+  updateUserProfile,
+  updateUserLanguage,
+} from "../services/user.service.js";
 
 /**
  * GET /me
- * Returns the currently authenticated user (populated by protect middleware).
+ * Returns the currently authenticated user with topics, calibration, and preferences.
  */
-export const getMe = (req, res) => {
-  res.status(200).json({ success: true, user: req.user });
+export const getMe = async (req, res, next) => {
+  try {
+    const user = await getUserProfile(req.user.id);
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
 };
 
 /**
  * PUT /me
- * Updates the currently authenticated user's profile.
+ * Updates the currently authenticated user's profile details.
  */
 export const updateMe = async (req, res, next) => {
   try {
     const { name } = req.body;
-    if (!name || !name.trim()) {
-      throw new ApiError(400, 'Name cannot be empty.');
-    }
-
-    const updated = await prisma.user.update({
-      where: { id: req.user.id },
-      data: { name: name.trim() },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        difficulty: true,
-        rating: true,
-        onboarded: true,
-        createdAt: true,
-        updatedAt: true,
-        topics: {
-          include: {
-            topic: true,
-          },
-        },
-      },
-    });
-
+    const updated = await updateUserProfile(req.user.id, { name });
     res.status(200).json({ success: true, user: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * PATCH /users/language or PATCH /me/language
+ * Update user's preferred programming language
+ */
+export const updateLanguage = async (req, res, next) => {
+  try {
+    const { language } = req.body;
+    const result = await updateUserLanguage(req.user.id, language);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
