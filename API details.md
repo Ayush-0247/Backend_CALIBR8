@@ -914,3 +914,199 @@ Sending { "beginner": true } or { "topicIds": "all", "difficulty": "easy" }:
 Automatically selects all topics.
 Sets difficulty = "easy" and rating = 800.
 Sets onboarded = true.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Here is a detailed breakdown of all the changes made to the codebase:
+1. Architectural Restructuring
+Before the refactor, route definitions and controller logic were mixed in several places, and naming conventions were inconsistent (problems.js, social.routes.js vs auth.router.js). The codebase has now been standardized into a 4-tier architecture:
+code
+Code
+Request ──▶ Router (*.router.js) ──▶ Controller (*.controller.js) ──▶ Service (*.service.js) ──▶ Database / Client (Prisma)
+2. File-by-File Changes
+A. Routers (src/routers/)
+src/routers/problem.router.js (Created):
+Old: src/routers/problems.js contained direct pg.Pool, PrismaClient initialization, and database query logic inside route handlers.
+New: Pure routing file with zero business logic. Routes requests to problem.controller.js:
+GET / ──▶ getAllProblems
+POST / ──▶ addProblem
+GET /:slug ──▶ getProblemBySlug
+src/routers/problems.js (Updated):
+Preserved as a backward-compatibility re-export pointing to problem.router.js so external scripts or imports do not break.
+src/routers/social.router.js (Created):
+Old: src/routers/social.routes.js contained inline OAuth URL generation, GitHub token exchanges, and database upserts.
+New: Pure router delegating to social.controller.js:
+GET /:provider/link-url (Protected) ──▶ getLinkUrl
+GET /:provider/callback ──▶ handleCallback
+DELETE /:provider (Protected) ──▶ unlinkProvider
+src/routers/social.routes.js (Updated):
+Preserved as a backward-compatibility re-export pointing to social.router.js.
+src/routers/execution.router.js (Created):
+Implemented the Phase 2 PRD endpoints (code execution run , submit and function templates.md):
+GET /languages ──▶ getAvailableLanguages
+POST /runs ──▶ runCode
+POST /submissions ──▶ submitCode
+GET /submissions/:id ──▶ getSubmission
+src/routers/user.router.js (Updated):
+Added routes for reading and updating profile and preferred programming language (GET /me, PUT /me, PATCH /me/language, PATCH /language).
+src/routers/topic.router.js (Updated):
+Added GET /topics/:identifier for fetching individual topics by ID or slug in addition to /dsa and /.
+src/routers/index.router.js (Refactored):
+Standardized route mounts with consistent /api/... prefixes and root aliases:
+/auth and /api/auth
+/topics, /topic, and /api/topics
+/onboarding and /api/onboarding
+/users, /api/users, and /me
+/problems and /api/problems
+/social and /api/social
+/api/v1 and /api (for /languages, /runs, /submissions)
+Updated the root GET / documentation payload to list all endpoints and architecture specifications.
+B. Controllers (src/controllers/)
+src/controllers/problem.controller.js (Created):
+Extracts request parameters (req.query.difficulty, req.query.search, req.params.slug, req.body).
+Calls problem.service.js.
+Sends clean JSON responses: { success: true, data: ... } or passes errors to next(err).
+src/controllers/social.controller.js (Created):
+Handles getLinkUrl, handleCallback (with URL redirection to frontend), and unlinkProvider.
+src/controllers/execution.controller.js (Created):
+Handles language catalog retrieval, running sample test cases, creating asynchronous submissions, and polling status.
+src/controllers/user.controller.js (Refactored):
+Decoupled database queries into user.service.js.
+Added updateLanguage handler to update preferred programming language.
+src/controllers/topic.controller.js (Refactored):
+Decoupled query filtering and DSA/Core classification into topic.service.js.
+src/controllers/onboarding.controller.js (Refactored):
+Kept onboarding calibration (onboard, getStatus) focused and delegated language preference updates to user.service.js.
+C. Services (src/services/)
+src/services/problem.service.js (Created):
+listProblems(options): Queries problems with difficulty and keyword search filters, sorts by problemNumber: 'asc', and counts testcases and code templates.
+getProblemDetails(identifier): Resolves by slug or numeric ID, formats test cases (isVisible, input/output), and structures starter templates (cpp, java, python, javascript).
+createProblem(data): Handles problem creation with related testcases and templates.
+src/services/social.service.js (Created):
+getProviderAuthUrl(provider, userId): Generates signed JWT state tokens and builds provider OAuth URLs.
+processOAuthCallback(provider, query): Validates JWT state tokens, executes code-for-token exchanges, retrieves profile data, and upserts social accounts.
+unlinkSocialAccount(userId, provider): Removes linked account.
+src/services/user.service.js (Created):
+getUserProfile(userId): Returns user details with topic calibrations, difficulty, rating, and language.
+updateUserProfile(userId, data): Validates and updates user profile fields.
+updateUserLanguage(userId, language): Validates against allowed languages (['cpp', 'c', 'java', 'python', 'javascript']) and saves to users.preferred_language.
+src/services/topic.service.js (Created):
+fetchTopics(category): Retrieves topics grouped by DSA vs Core subjects.
+fetchDsaTopics(): Filters and returns only DSA topics.
+fetchTopicByIdOrSlug(id): Fetches a single topic by ID or slug.
+src/services/execution.service.js (Created):
+Implements the Phase 2 code runner.
+getLanguages(): Returns enabled languages (Python 3.10, Node.js 22, GCC 13, OpenJDK 17).
+executeRun({ slug, language, code }): Validates code size (<= 64KB), retrieves sample testcases, evaluates test results, and returns formatted case reports.
+submitSolution({ ... }): Creates submission entries, checks testcases, assigns scores, and records execution metrics.
+D. Database & Fallback Layer (src/config/db.js)
+Problem & Submission Mock Models Added:
+createMockPrisma() previously only contained mock stores for topic, user, userTopic, and socialAccount.
+Added stores and proxy methods for problem, testcase, codeTemplate, and submission.
+Preloading 15 JSON Problems:
+The mock database now automatically reads all 15 problem files from the /problems/*.json folder on startup.
+When running without a live external PostgreSQL connection (such as local dev or preview), GET /api/problems immediately returns all 15 problems with real testcases and templates without failing.
+Fail-Safe Dynamic Import:
+Encapsulated @prisma/client and @prisma/adapter-neon initialization in try/catch to ensure that if the external database is unreachable or Prisma Client is regenerating, the app falls back to the populated in-memory store instead of crashing.
+E. Build & Dependencies (package.json)
+Added "postinstall": "prisma generate" to scripts so that npm install automatically compiles the Prisma Client into node_modules/@prisma/client.
+F. Visual API Explorer (public/index.html)
+Added interactive action buttons to test:
+GET /api/problems (15 Problems Catalogue)
+GET /api/problems/two-sum-001 (Two Sum problem details)
+GET /api/v1/languages (Runner languages)
+POST /api/v1/runs (Test code execution)
+3. Verification & Test Results
+The changes were tested end-to-end with automated script runs:
+GET /health ──▶ 200 OK
+GET /topics ──▶ 200 OK (9 topics: 5 DSA, 4 Core)
+GET /api/problems ──▶ 200 OK (15 problems loaded)
+GET /api/problems/two-sum-001 ──▶ 200 OK (Returns testcases and templates for C++, Java, Python, JS)
+GET /api/v1/languages ──▶ 200 OK
+POST /api/v1/runs ──▶ 200 OK (Sample tests evaluated and passed)
+POST /auth/register ──▶ 201 Created
+POST /onboarding ──▶ 200 OK (Rating calibrated to 800, 9 topics mapped)
+PATCH /me/language ──▶ 200 OK (preferredLanguage updated)
+GET /me ──▶ 200 OK (Hydrated profile with calibrated topics)
+POST /api/v1/submissions ──▶ 202 Accepted
