@@ -1,0 +1,47 @@
+{
+  "slug": "backspace-string-compare",
+  "title": "Backspace String Compare",
+  "difficulty": "Easy",
+  "topic": "String",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "Given two strings s and t, return true if they are equal when both are typed into empty text editors where '#' means a backspace character.\n\nInput Format:\nFirst line: s\nSecond line: t\n\nOutput Format:\ntrue or false",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "ab#c\nad#c",
+      "output": "true"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "ab##\nc#d#",
+      "output": "true"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "a#c\nb",
+      "output": "false"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "y#fo##f\ny#f#o##f",
+      "output": "true"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "a\na",
+      "output": "true"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    bool backspaceCompare(string s, string t) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public boolean backspaceCompare(String s, String t) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def backspaceCompare(self, s: str, t: str) -> bool:\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    backspaceCompare(s, t) {\n        // write code here\n    }\n}"
+  }
+}

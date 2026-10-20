@@ -114,3 +114,6 @@ await prisma.$disconnect();
  * 3. Or run with an explicit DATABASE_URL inline:
  *    $ DATABASE_URL="postgresql://user:pass@host/db" node scripts/reset-and-upload.js
  */
+
+
+// node scripts/reset-and-upload.js

@@ -1,0 +1,47 @@
+{
+  "slug": "best-time-to-buy-and-sell-stock",
+  "title": "Best Time to Buy and Sell Stock",
+  "difficulty": "Easy",
+  "topic": "Array",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "You are given an array prices where prices[i] is the price of a given stock on the ith day. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated prices\n\nOutput Format:\nMaximum profit integer",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "6\n7 1 5 3 6 4",
+      "output": "5"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "5\n7 6 4 3 1",
+      "output": "0"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "2\n2 4",
+      "output": "2"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "5\n2 1 2 1 0",
+      "output": "1"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "6\n3 2 6 5 0 3",
+      "output": "4"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    int maxProfit(vector<int>& prices) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public int maxProfit(int[] prices) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def maxProfit(self, prices: list[int]) -> int:\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    maxProfit(prices) {\n        // write code here\n    }\n}"
+  }
+}
