@@ -1,15 +1,7 @@
 import 'dotenv/config';
-import pkg from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
-
-const { PrismaClient } = pkg;
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+import prisma from '../src/config/db.js';
 
 console.log('🔥 Step 1: Deleting all old problems & resetting...');
 
@@ -85,4 +77,40 @@ console.log('\n🎉 FINAL LIST:');
 console.table(all);
 
 await prisma.$disconnect();
-await pool.end();
+
+// ==============================================================================
+// SCRIPT DOCUMENTATION & USAGE GUIDE
+// ==============================================================================
+/**
+ * WHAT IS THE NEED FOR THIS SCRIPT:
+ * ---------------------------------
+ * 1. Clean Slate Seeding / Database Reset:
+ *    During development, testing, or database schema migrations, existing problem
+ *    testcases, templates, or submissions might get into an inconsistent state.
+ *    This script completely wipes (TRUNCATES or DELETES) all problems, testcases,
+ *    code templates, and submissions tables, and restarts auto-incrementing IDs.
+ *
+ * 2. Complete Fresh Import of the Problem Catalogue:
+ *    After cleaning, it iterates through all 15 JSON problem files in `./problems/`
+ *    in sorted order and performs a fresh bulk creation with all testcases, starter
+ *    templates, and limits, printing a formatted summary table at the end.
+ *
+ * ⚠️ WARNING:
+ * -----------
+ * This script is DESTRUCTIVE. It wipes existing problem data and testcases from the
+ * connected database. Only run this in development, staging, or during initial setup.
+ *
+ * PREREQUISITES:
+ * --------------
+ * - A valid DATABASE_URL must be configured in your `.env` file.
+ * - Database tables must be provisioned (`npm run db:push` or Prisma migrations).
+ *
+ * HOW TO USE THIS SCRIPT:
+ * -----------------------
+ * 1. Ensure `.env` has your DATABASE_URL set.
+ * 2. Run the script via Node:
+ *    $ node scripts/reset-and-upload.js
+ *
+ * 3. Or run with an explicit DATABASE_URL inline:
+ *    $ DATABASE_URL="postgresql://user:pass@host/db" node scripts/reset-and-upload.js
+ */

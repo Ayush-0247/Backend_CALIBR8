@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calibr8 — Developer API & Interactive Dashboard</title>
+  <meta name="description" content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management.">
+  <meta property="og:title" content="Calibr8 — Developer API & Interactive Dashboard">
+  <meta property="og:description" content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management.">
   <style>
     :root {
       --bg: #0b0f19;
@@ -387,7 +390,7 @@
       <div class="card">
         <div class="card-title">
           <span>Active Session & Profile</span>
-          <button class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;" onclick="fetchProfile()">Refresh Profile (/me)</button>
+          <button class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;" onclick="fetchProfile()">Refresh Profile (/api/users/me)</button>
         </div>
         <div id="profileDetails" style="color: var(--text-muted); font-size: 0.88rem;">
           No active user session. Please register or log in.
@@ -422,23 +425,23 @@
         </div>
 
         <div class="endpoint">
-          <div><span class="method get">GET</span><span>/topics/dsa</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List DSA topics specifically</span></div>
-          <button class="btn" onclick="testEndpoint('/topics/dsa')">Test</button>
+          <div><span class="method get">GET</span><span>/api/topics/dsa</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List DSA topics specifically</span></div>
+          <button class="btn" onclick="testEndpoint('/api/topics/dsa')">Test</button>
         </div>
 
         <div class="endpoint">
-          <div><span class="method get">GET</span><span>/topics</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List all topics (DSA + Core)</span></div>
-          <button class="btn" onclick="testEndpoint('/topics')">Test</button>
+          <div><span class="method get">GET</span><span>/api/topics</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List all topics (DSA + Core)</span></div>
+          <button class="btn" onclick="testEndpoint('/api/topics')">Test</button>
         </div>
 
         <div class="endpoint">
-          <div><span class="method get">GET</span><span>/onboarding/status</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— User onboarding & topic levels (Protected)</span></div>
-          <button class="btn" onclick="testEndpoint('/onboarding/status', true)">Test</button>
+          <div><span class="method get">GET</span><span>/api/onboarding/status</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— User onboarding & topic levels (Protected)</span></div>
+          <button class="btn" onclick="testEndpoint('/api/onboarding/status', true)">Test</button>
         </div>
 
         <div class="endpoint">
-          <div><span class="method get">GET</span><span>/me</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Current user profile (Protected)</span></div>
-          <button class="btn" onclick="testEndpoint('/me', true)">Test</button>
+          <div><span class="method get">GET</span><span>/api/users/me</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Current user profile (Protected)</span></div>
+          <button class="btn" onclick="testEndpoint('/api/users/me', true)">Test</button>
         </div>
 
         <div class="endpoint">
@@ -452,17 +455,7 @@
         </div>
 
         <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/v1/languages</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Supported execution languages</span></div>
-          <button class="btn" onclick="testEndpoint('/api/v1/languages')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method post">POST</span><span>/api/v1/runs</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Test code execution against sample cases</span></div>
-          <button class="btn" onclick="testCodeRun()">Test Run</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method post">POST</span><span>/auth/logout</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Revoke current auth token (Protected)</span></div>
+          <div><span class="method post">POST</span><span>/api/auth/logout</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Revoke current auth token (Protected)</span></div>
           <button class="btn btn-danger" onclick="handleLogout()">Test Logout</button>
         </div>
       </div>
@@ -548,7 +541,7 @@
 
     async function loadTopics() {
       try {
-        const res = await fetch('/topics');
+        const res = await fetch('/api/topics');
         const data = await res.json();
         dsaTopicList = data.dsaTopics || data.topics || [];
         renderTopics();
@@ -634,7 +627,7 @@
       logConsole('APPLYING BEGINNER PRESET', { mode: 'beginner', description: 'Setting all DSA topics to Easy' });
 
       try {
-        const res = await fetch('/onboarding', {
+        const res = await fetch('/api/onboarding', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -673,7 +666,7 @@
       logConsole('SAVING TOPIC LEVELS', { count: topicLevelsPayload.length, topicLevels: topicLevelsPayload });
 
       try {
-        const res = await fetch('/onboarding', {
+        const res = await fetch('/api/onboarding', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -699,7 +692,7 @@
       const password = document.getElementById('regPassword').value;
 
       try {
-        const res = await fetch('/auth/register', {
+        const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: name, email: email, password: password })
@@ -728,7 +721,7 @@
       }
 
       try {
-        const res = await fetch('/auth/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email, password: password })
@@ -750,7 +743,7 @@
 
     async function handleLogout() {
       try {
-        const res = await fetch('/auth/logout', {
+        const res = await fetch('/api/auth/logout', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + authToken }
         });
@@ -770,11 +763,11 @@
         return;
       }
       try {
-        const res = await fetch('/me', {
+        const res = await fetch('/api/users/me', {
           headers: { 'Authorization': 'Bearer ' + authToken }
         });
         const data = await res.json();
-        logConsole('PROFILE (/me)', data);
+        logConsole('PROFILE (/api/users/me)', data);
         if (data.user) {
           currentUser = data.user;
           updateAuthUI();
@@ -803,7 +796,7 @@
       const newPassword = document.getElementById('newPassword').value;
 
       try {
-        const res = await fetch('/auth/change-password', {
+        const res = await fetch('/api/auth/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -820,7 +813,7 @@
 
     async function autoRegisterDemoUser() {
       const testEmail = 'user_' + Math.floor(Math.random() * 100000) + '@calibr8.dev';
-      const res = await fetch('/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -849,26 +842,6 @@
         logConsole('GET ' + path, data);
       } catch (err) {
         logConsole('ERROR on ' + path, err.message);
-      }
-    }
-
-    async function testCodeRun() {
-      try {
-        const payload = {
-          slug: 'two-sum-001',
-          language: 'python',
-          code: 'class Solution:\n    def twoSum(self, nums, target):\n        lookup = {}\n        for i, n in enumerate(nums):\n            diff = target - n\n            if diff in lookup:\n                return [lookup[diff], i]\n            lookup[n] = i\n        return []'
-        };
-        logConsole('POST /api/v1/runs (Running code...)', payload);
-        const res = await fetch('/api/v1/runs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        logConsole('RUN RESULT (/api/v1/runs)', data);
-      } catch (err) {
-        logConsole('ERROR running code', err.message);
       }
     }
 

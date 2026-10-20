@@ -11,6 +11,8 @@
     "lint": "node -e \"console.log('Lint check passed')\"",
     "db:push": "npx prisma db push",
     "db:seed": "node prisma/seed.js",
+    "seed": "node prisma/seed.js",
+    "problems:seed": "node scripts/seedProblems.js",
     "prisma:generate": "npx prisma generate",
     "postinstall": "prisma generate"
   },
