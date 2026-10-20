@@ -121,3 +121,6 @@ console.log(`\n🎉 DONE - Added: ${results.added}, Skipped: ${results.skipped}`
  * 3. To run with custom environment variables:
  *    $ DATABASE_URL="postgresql://user:pass@host/db" node scripts/upload-problem.js ./problems
  */
+
+
+// node scripts/upload-problem.js ./problems

@@ -1,0 +1,48 @@
+{
+  "slug": "4sum",
+  "title": "4Sum",
+  "difficulty": "Medium",
+  "topic": "Array",
+  "source": "LeetCode 18",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "[Source: LeetCode 18]\nGiven an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that the sum is equal to target. Return the count of unique quadruplets.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nNumber of unique quadruplets",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "6 0\n1 0 -1 0 -2 2",
+      "output": "3"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "5 8\n2 2 2 2 2",
+      "output": "1"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "4 0\n0 0 0 0",
+      "output": "1"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "4 1\n1 2 3 4",
+      "output": "0"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "7 0\n-3 -2 -1 0 0 1 2",
+      "output": "3"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    vector<vector<int>> fourSum(vector<int>& nums, int target) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public List<List<Integer>> fourSum(int[] nums, int target) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def fourSum(self, nums: list[int], target: int) -> list[list[int]]:\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    fourSum(nums, target) {\n        // write code here\n    }\n}"
+  }
+}

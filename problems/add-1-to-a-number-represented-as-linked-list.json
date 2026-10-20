@@ -1,0 +1,48 @@
+{
+  "slug": "add-1-to-a-number-represented-as-linked-list",
+  "title": "Add 1 to a Number Represented as Linked List",
+  "difficulty": "Easy",
+  "topic": "Linked List",
+  "source": "GFG Classic",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "[Source: GFG Classic]\nA number N is represented in Linked List such that each digit corresponds to a node in linked list. You need to add 1 to it and return the head of modified list.\n\nInput Format:\nFirst line: n (digit count)\nSecond line: n space-separated digits\n\nOutput Format:\nSpace-separated result digits",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "4\n4 5 6 7",
+      "output": "4 5 6 8"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "3\n9 9 9",
+      "output": "1 0 0 0"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "1\n0",
+      "output": "1"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "1\n9",
+      "output": "1 0"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "4\n1 9 9 9",
+      "output": "2 0 0 0"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    Node* addOne(Node *head) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public Node addOne(Node head) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def addOne(head):\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    addOne(head) {\n        // write code here\n    }\n}"
+  }
+}
