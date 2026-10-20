@@ -27,7 +27,7 @@ model Topic {
   id       String      @id @default(uuid())
   slug     String      @unique
   name     String
-  category String?     @default("CORE")
+  category String      @default("CORE")
   users    UserTopic[]
 
   @@map("topics")

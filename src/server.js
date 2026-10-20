@@ -1,4 +1,3 @@
-
 import 'dotenv/config';
 import app from './app.js';
 import prisma from './config/db.js';
@@ -10,26 +9,8 @@ let shuttingDown = false;
 
 async function startServer() {
   try {
-    try {
-      await prisma.$connect();
-
-      if (typeof prisma.$isMock === 'function' && prisma.$isMock()) {
-        console.log('ℹ️ Running with in-memory database store (data will reset on restart)');
-      } else {
-        console.log('✅ Connected to database');
-      }
-    } catch (dbErr) {
-      console.warn(
-        '⚠️ Could not connect to external DB, using fallback mock store:',
-        dbErr.message
-      );
-
-      if (typeof prisma.$fallback === 'function') {
-        prisma.$fallback();
-      }
-
-      console.log('ℹ️ Running with in-memory database store (data will reset on restart)');
-    }
+    await prisma.$connect();
+    console.log('✅ Connected to database');
 
     server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);

@@ -1,15 +1,7 @@
 import 'dotenv/config';
-import pkg from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
-
-const { PrismaClient } = pkg;
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+import prisma from '../src/config/db.js';
 
 async function uploadProblem(jsonPath) {
   const raw = fs.readFileSync(jsonPath, 'utf8');
@@ -88,11 +80,44 @@ if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
 }
 
 await prisma.$disconnect();
-await pool.end();
 
 console.log(`\n🎉 DONE - Added: ${results.added}, Skipped: ${results.skipped}`);
 
 
 
-// check for new file in problems folder and upload latest one, skip old ones
- //node scripts/upload-problem.js ./problems
+// ==============================================================================
+// SCRIPT DOCUMENTATION & USAGE GUIDE
+// ==============================================================================
+/**
+ * WHAT IS THE NEED FOR THIS SCRIPT:
+ * ---------------------------------
+ * 1. Incremental Problem Ingestion:
+ *    When you add a new problem JSON file or multiple problem definitions to the
+ *    `./problems` directory, this script reads each JSON file, parses its metadata,
+ *    testcases, and starter templates, and inserts them into PostgreSQL via Prisma.
+ *
+ * 2. Idempotent & Safe against Duplication:
+ *    Unlike naive insert scripts, `upload-problem.js` checks if the problem slug
+ *    already exists in the database. If it exists, it safely SKIPS it, ensuring
+ *    existing problem records and primary keys are preserved without P2002 errors.
+ *
+ * 3. Supports Single File or Entire Folder:
+ *    Allows developers to either ingest one specific problem or bulk-process all
+ *    JSON files present in a target folder.
+ *
+ * PREREQUISITES:
+ * --------------
+ * - A valid DATABASE_URL must be defined in your `.env` file.
+ * - Database tables must exist (run `npm run db:push` or apply Prisma migrations).
+ *
+ * HOW TO USE THIS SCRIPT:
+ * -----------------------
+ * 1. To upload/sync all JSON problem files in the problems directory:
+ *    $ node scripts/upload-problem.js ./problems
+ *
+ * 2. To upload a single problem JSON file:
+ *    $ node scripts/upload-problem.js ./problems/two-sum.json
+ *
+ * 3. To run with custom environment variables:
+ *    $ DATABASE_URL="postgresql://user:pass@host/db" node scripts/upload-problem.js ./problems
+ */
