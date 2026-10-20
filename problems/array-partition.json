@@ -1,0 +1,48 @@
+{
+  "slug": "array-partition",
+  "title": "Array Partition",
+  "difficulty": "Easy",
+  "topic": "Array",
+  "source": "LeetCode 561",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "[Source: LeetCode 561]\nGiven an integer array nums of 2n integers, group these integers into n pairs (a1, b1), (a2, b2), ..., (an, bn) such that the sum of min(ai, bi) for all i is maximized. Return the maximized sum.\n\nInput Format:\nFirst line: size\nSecond line: size space-separated integers\n\nOutput Format:\nMaximized pair sum",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "4\n1 4 3 2",
+      "output": "4"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "6\n6 2 6 5 1 2",
+      "output": "9"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "2\n1 2",
+      "output": "1"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "4\n5 5 5 5",
+      "output": "10"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "6\n-1 -2 -3 -4 -5 -6",
+      "output": "-12"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    int arrayPairSum(vector<int>& nums) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public int arrayPairSum(int[] nums) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def arrayPairSum(self, nums: list[int]) -> int:\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    arrayPairSum(nums) {\n        // write code here\n    }\n}"
+  }
+}

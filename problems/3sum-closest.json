@@ -1,0 +1,48 @@
+{
+  "slug": "3sum-closest",
+  "title": "3Sum Closest",
+  "difficulty": "Medium",
+  "topic": "Array",
+  "source": "LeetCode 16",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "description": "[Source: LeetCode 16]\nGiven an integer array nums of length n and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nClosest sum integer",
+  "testcases": [
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "input": "4 1\n-1 2 1 -4",
+      "output": "2"
+    },
+    {
+      "testIndex": 1,
+      "isVisible": true,
+      "input": "3 1\n0 0 0",
+      "output": "0"
+    },
+    {
+      "testIndex": 2,
+      "isVisible": false,
+      "input": "4 100\n1 1 1 0",
+      "output": "3"
+    },
+    {
+      "testIndex": 3,
+      "isVisible": false,
+      "input": "5 0\n-3 -2 -5 3 -4",
+      "output": "-2"
+    },
+    {
+      "testIndex": 4,
+      "isVisible": false,
+      "input": "4 -1\n1 1 1 1",
+      "output": "3"
+    }
+  ],
+  "templates": {
+    "cpp": "class Solution {\npublic:\n    int threeSumClosest(vector<int>& nums, int target) {\n        // write code here\n    }\n};",
+    "java": "class Solution {\n    public int threeSumClosest(int[] nums, int target) {\n        // write code here\n    }\n}",
+    "python": "class Solution:\n    def threeSumClosest(self, nums: list[int], target: int) -> int:\n        # write code here\n        pass",
+    "javascript": "class Solution {\n    threeSumClosest(nums, target) {\n        // write code here\n    }\n}"
+  }
+}
