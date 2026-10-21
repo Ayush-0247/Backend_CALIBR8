@@ -13,7 +13,7 @@
         "Disabling load balancers"
       ],
       "correctIndex": 1,
-      "explanation": "Stateless application servers allow any server to handle any incoming request, enabling seamless auto-scaling.",
+      "explanation": "Stateless application servers allow any server to handle any incoming request, enabling seamless auto-scaling. ok hai ji",
       "difficulty": "Easy",
       "order": 1
     }

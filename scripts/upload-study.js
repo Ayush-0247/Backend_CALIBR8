@@ -29,10 +29,6 @@ function getNameFromSlug(slug) {
 
 async function main() {
   console.log(`🚀 Starting Full Sync from: ${STUDY_DIR}\n`);
-  if (!fs.existsSync(STUDY_DIR)) {
-    console.error("❌ study-material folder not found!");
-    return;
-  }
 
   const subjectFolders = fs.readdirSync(STUDY_DIR).filter(f => 
     fs.statSync(path.join(STUDY_DIR, f)).isDirectory()
@@ -79,23 +75,28 @@ async function main() {
         try {
           data = JSON.parse(fileContent);
         } catch (e) {
-          console.log(`    ❌ Invalid JSON: ${topicFile} - ${e.message}`);
-          continue;
-        }
-
-        if (!data.topic || !data.content) {
-          console.log(`   ❌ Skipped ${topicFile}: missing 'topic' or 'content' field`);
+          console.log(`    ❌ Invalid JSON: ${topicFile}`);
           continue;
         }
 
         const existingTopic = await prisma.studyTopic.findUnique({
-          where: { chapterId_slug: { chapterId: chapter.id, slug: data.topic } }
+          where: { chapterId_slug: { chapterId: chapter.id, slug: data.topic } },
+          include: { mcqs: true }
         });
+
+        // --- YAHAN FIX HAI ---
+        // Ab pura file ka hash check karega, sirf content nahi
+        const newMcqString = JSON.stringify(data.mcqs || []);
+        const oldMcqString = JSON.stringify(existingTopic?.mcqs.map(m => ({
+          question: m.question, options: m.options, correctIndex: m.correctIndex, explanation: m.explanation, difficulty: m.difficulty, order: m.order
+        })) || []);
 
         const isChanged = !existingTopic || 
                           existingTopic.content !== data.content || 
-                          existingTopic.name !== data.topicName;
+                          existingTopic.name !== data.topicName ||
+                          newMcqString !== oldMcqString;
 
+        // Topic hamesha upsert - latest content
         const topic = await prisma.studyTopic.upsert({
           where: { chapterId_slug: { chapterId: chapter.id, slug: data.topic } },
           update: { name: data.topicName, content: data.content, order: data.order || 0 },
@@ -109,7 +110,6 @@ async function main() {
         });
 
         if (isChanged) {
-          // MCQs ko full replace - taki purane galat MCQs delete ho jaye
           await prisma.studyMCQ.deleteMany({ where: { topicId: topic.id } });
           if (data.mcqs && data.mcqs.length > 0) {
             await prisma.studyMCQ.createMany({
@@ -132,8 +132,11 @@ async function main() {
       }
     }
   }
-  console.log('\n🎉 Full Sync Completed! All subjects/chapters/topics are up-to-date.');
+  console.log('\n🎉 Full Sync Completed!');
 }
 
 main().catch(e => { console.error(e); process.exit(1); })
 .finally(async () => { await prisma.$disconnect(); await pool.end(); });
+
+
+// node scripts/upload-study.js
