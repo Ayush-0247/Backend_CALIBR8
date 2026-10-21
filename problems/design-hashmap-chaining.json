@@ -3,10 +3,9 @@
   "title": "Design HashMap with Linked List Chaining",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "LeetCode 706",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 706]\nDesign a HashMap without using any built-in hash table libraries, utilizing linked lists for collision buckets.\n\nInput Format:\nFirst line: numOps\nNext lines: op key [val]\n\nOutput Format:\nResults of get queries",
+  "description": "Design a HashMap without using any built-in hash table libraries, utilizing linked lists for collision buckets.\n\nInput Format:\nFirst line: numOps\nNext lines: op key [val]\n\nOutput Format:\nResults of get queries",
   "testcases": [
     {
       "testIndex": 0,

@@ -3,10 +3,9 @@
   "title": "Find First and Last Position of Element in Sorted Array",
   "difficulty": "Medium",
   "topic": "Array",
-  "source": "LeetCode 34",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 34]\nGiven an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value in O(log n) time.\n\nInput Format:\nFirst line: n\nSecond line: n sorted integers\nThird line: target\n\nOutput Format:\nTwo space-separated indices: start end",
+  "description": "Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value in O(log n) time.\n\nInput Format:\nFirst line: n\nSecond line: n sorted integers\nThird line: target\n\nOutput Format:\nTwo space-separated indices: start end",
   "testcases": [
     {
       "testIndex": 0,

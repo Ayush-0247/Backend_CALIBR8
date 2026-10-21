@@ -3,10 +3,9 @@
   "title": "Double a Number Represented as a Linked List",
   "difficulty": "Medium",
   "topic": "Linked List",
-  "source": "LeetCode 2816",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2816]\nYou are given the head of a non-empty linked list representing a non-negative integer without leading zeroes. Return the head of the linked list after doubling it.\n\nInput Format:\nFirst line: n (digit count)\nSecond line: n space-separated digits\n\nOutput Format:\nSpace-separated digits of doubled number",
+  "description": "You are given the head of a non-empty linked list representing a non-negative integer without leading zeroes. Return the head of the linked list after doubling it.\n\nInput Format:\nFirst line: n (digit count)\nSecond line: n space-separated digits\n\nOutput Format:\nSpace-separated digits of doubled number",
   "testcases": [
     {
       "testIndex": 0,

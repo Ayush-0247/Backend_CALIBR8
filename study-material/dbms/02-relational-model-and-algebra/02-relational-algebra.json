@@ -1,0 +1,34 @@
+{
+  "topic": "relational-algebra",
+  "topicName": "Relational Algebra Operators",
+  "order": 2,
+  "content": "# Relational Algebra\n\n**Relational Algebra** is a procedural query language that takes one or two relations as input and produces a new relation as output.\n\n---\n\n## 1. Fundamental Operators\n\n### A. Selection ($\\sigma$)\n- **Symbol**: $\\sigma_{condition}(R)$\n- **Purpose**: Filters horizontal rows (tuples) that satisfy a given predicate condition.\n- *SQL Equivalent*: `WHERE` clause.\n- *Example*: $\\sigma_{salary > 50000}(Employee)$\n\n### B. Projection ($\\pi$)\n- **Symbol**: $\\pi_{A_1, A_2, ..., A_n}(R)$\n- **Purpose**: Selects vertical columns (attributes) and discards duplicates (set semantics).\n- *SQL Equivalent*: `SELECT DISTINCT col1, col2`.\n- *Example*: $\\pi_{name, department}(Employee)$\n\n### C. Cartesian Product ($\\times$)\n- **Symbol**: $R_1 \\times R_2$\n- **Purpose**: Combines every tuple of $R_1$ with every tuple of $R_2$.\n- If $R_1$ has $n_1$ tuples and degree $d_1$, and $R_2$ has $n_2$ tuples and degree $d_2$:\n  - Result cardinality = $n_1 \\times n_2$\n  - Result degree = $d_1 + d_2$\n\n### D. Set Union ($\\cup$), Intersection ($\\cap$), Difference ($-$)\n- Both relations must be **Union-Compatible**:\n  1. Same degree (number of attributes).\n  2. Corresponding attributes must have identical/compatible data domains.\n\n### E. Rename ($\\rho$)\n- **Symbol**: $\\rho_{S(B_1, B_2, ...)}(R)$\n- **Purpose**: Renames relation $R$ to $S$ or renames its attributes.\n\n---\n\n## 2. Derived & Join Operators\n\n### A. Theta Join ($\\Join_\\theta$)\nCartesian product followed by a selection condition $\\theta$:\n$$R \\Join_\\theta S = \\sigma_\\theta(R \\times S)$$\n\n### B. Natural Join ($\\Join$)\nEqui-join on all common attribute names between two relations, with redundant duplicate columns removed from the final result.\n\n### C. Division ($R \\div S$)\nUsed for queries with **\"ALL\"** or **\"EVERY\"** semantics (e.g., \"Find students who enrolled in *all* courses offered by CS department\").",
+  "mcqs": [
+    {
+      "question": "Which relational algebra operation corresponds to filtering rows according to a boolean predicate?",
+      "options": [
+        "Projection (π)",
+        "Selection (σ)",
+        "Cartesian Product (×)",
+        "Division (÷)"
+      ],
+      "correctIndex": 1,
+      "explanation": "Selection (sigma) retrieves tuples that satisfy a given condition (horizontal subsetting).",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "If relation R has 4 tuples and degree 3, and relation S has 5 tuples and degree 2, what is the cardinality and degree of R × S?",
+      "options": [
+        "Cardinality: 20, Degree: 5",
+        "Cardinality: 9, Degree: 6",
+        "Cardinality: 20, Degree: 6",
+        "Cardinality: 9, Degree: 5"
+      ],
+      "correctIndex": 0,
+      "explanation": "Cardinality = 4 * 5 = 20. Degree = 3 + 2 = 5.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

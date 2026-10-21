@@ -3,10 +3,9 @@
   "title": "Detect Capital",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 520",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 520]\nWe define the usage of capitals in a word to be right when either all letters are capitals, all letters are lowercase, or only the first letter is capital. Return true if word usage is right.\n\nInput Format:\nA string word\n\nOutput Format:\ntrue or false",
+  "description": "We define the usage of capitals in a word to be right when either all letters are capitals, all letters are lowercase, or only the first letter is capital. Return true if word usage is right.\n\nInput Format:\nA string word\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

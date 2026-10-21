@@ -1,0 +1,34 @@
+{
+  "topic": "normal-forms-1nf-to-bcnf",
+  "topicName": "Normal Forms: 1NF, 2NF, 3NF & BCNF",
+  "order": 2,
+  "content": "# Database Normalization (1NF to BCNF)\n\nNormalization is the systematic process of organizing data in a relational database to minimize redundancy and eliminate insertion, update, and deletion anomalies.\n\n---\n\n## 1. The Normal Forms Hierarchy\n\n$$1NF \\subset 2NF \\subset 3NF \\subset BCNF$$\n\n### 1NF (First Normal Form)\n- All attribute values must be **atomic** (no multi-valued or composite attributes).\n- Each column must contain values of a single data type.\n- Each row must be uniquely identifiable.\n\n### 2NF (Second Normal Form)\n- Relation must be in **1NF**.\n- **No Partial Dependency**: No non-prime attribute should be functionally dependent on a proper subset of any candidate key.\n- Every non-prime attribute must depend on the whole candidate key.\n\n### 3NF (Third Normal Form)\n- Relation must be in **2NF**.\n- **No Transitive Dependency**: No non-prime attribute should depend on another non-prime attribute.\n- Formal rule: For every non-trivial FD $X \\rightarrow A$:\n  - Either $X$ is a **Super Key**, **OR**\n  - $A$ is a **Prime Attribute** (part of some candidate key).\n\n### BCNF (Boyce-Codd Normal Form / 3.5NF)\n- Stricter version of 3NF.\n- For every non-trivial functional dependency $X \\rightarrow A$:\n  - $X$ **MUST be a Super Key**.\n- Unlike 3NF, BCNF does not allow $A$ to be a prime attribute if $X$ is not a super key.\n\n---\n\n## 2. Properties of Good Decomposition\n1. **Lossless Join Decomposition**: Rejoining decomposed tables using Natural Join ($R_1 \\Join R_2$) yields exactly the original relation $R$ without generating spurious tuples:\n   $$R_1 \\cap R_2 \\rightarrow R_1 \\quad \\text{OR} \\quad R_1 \\cap R_2 \\rightarrow R_2$$\n2. **Dependency Preservation**: All functional dependencies of $R$ can be verified directly on individual decomposed relations without computing joins.",
+  "mcqs": [
+    {
+      "question": "A relation is in 2NF if it is in 1NF and contains no:",
+      "options": [
+        "Transitive dependencies",
+        "Partial dependencies",
+        "Multivalued dependencies",
+        "Foreign keys"
+      ],
+      "correctIndex": 1,
+      "explanation": "2NF eliminates partial dependencies, where a non-prime attribute depends on part of a composite candidate key.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "In BCNF, for every functional dependency X -> A, what condition must hold for X?",
+      "options": [
+        "X must be a candidate key or A must be a prime attribute",
+        "X must be a super key",
+        "X must be a foreign key",
+        "X must be a single column"
+      ],
+      "correctIndex": 1,
+      "explanation": "In BCNF, every determinant X must be a super key.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

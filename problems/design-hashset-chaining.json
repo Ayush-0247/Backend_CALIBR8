@@ -3,10 +3,9 @@
   "title": "Design HashSet with Linked List Chaining",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "LeetCode 705",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 705]\nDesign a HashSet without using any built-in hash table libraries, implementing separate chaining collision resolution with linked lists.\n\nInput Format:\nFirst line: numOps\nNext lines: op key\n\nOutput Format:\nResults of contains checks",
+  "description": "Design a HashSet without using any built-in hash table libraries, implementing separate chaining collision resolution with linked lists.\n\nInput Format:\nFirst line: numOps\nNext lines: op key\n\nOutput Format:\nResults of contains checks",
   "testcases": [
     {
       "testIndex": 0,

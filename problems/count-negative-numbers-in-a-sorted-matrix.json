@@ -3,10 +3,9 @@
   "title": "Count Negative Numbers in a Sorted Matrix",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "LeetCode 1351",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1351]\nGiven a m x n matrix grid which is sorted in non-increasing order both row-wise and column-wise, return the number of negative numbers in grid in O(n + m) time.\n\nInput Format:\nFirst line: m n\nNext m lines: n space-separated integers\n\nOutput Format:\nCount of negative numbers",
+  "description": "Given a m x n matrix grid which is sorted in non-increasing order both row-wise and column-wise, return the number of negative numbers in grid in O(n + m) time.\n\nInput Format:\nFirst line: m n\nNext m lines: n space-separated integers\n\nOutput Format:\nCount of negative numbers",
   "testcases": [
     {
       "testIndex": 0,

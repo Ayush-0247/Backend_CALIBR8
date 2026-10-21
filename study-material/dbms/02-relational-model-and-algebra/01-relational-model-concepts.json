@@ -1,0 +1,34 @@
+{
+  "topic": "relational-model-concepts",
+  "topicName": "Relational Model Concepts & Integrity",
+  "order": 1,
+  "content": "# Relational Model Concepts & Integrity Constraints\n\nIntroduced by E.F. Codd in 1970, the **Relational Model** represents database data as a collection of relations (tables) governed by mathematical set theory.\n\n---\n\n## 1. Key Terminology\n\n| Mathematical Concept | Relational Database Term | Definition |\n| :--- | :--- | :--- |\n| **Relation** | Table | Two-dimensional structure with rows and columns |\n| **Tuple** | Row / Record | Single entity instance in the relation |\n| **Attribute** | Column / Field | Named property describing the relation |\n| **Domain** | Data Type & Constraint | Set of permitted atomic values for an attribute |\n| **Degree** | Number of Columns | Number of attributes in a relation schema |\n| **Cardinality** | Number of Rows | Number of tuples currently stored in the relation |\n\n---\n\n## 2. Keys in Relational Model\n\n1. **Super Key**: Any set of attributes that uniquely identifies a tuple within a relation.\n2. **Candidate Key**: A minimal super key (no proper subset is a super key). A relation can have multiple candidate keys.\n3. **Primary Key (PK)**: The candidate key explicitly chosen by the database designer to uniquely identify tuples. Cannot contain NULL.\n4. **Alternate / Secondary Key**: Any candidate key not selected as the primary key.\n5. **Foreign Key (FK)**: An attribute or collection of attributes in one relation whose values must either match a candidate key of another relation or be NULL.\n6. **Composite Key**: A key composed of two or more attributes.\n\n---\n\n## 3. Relational Integrity Constraints\n\n### A. Domain Integrity\nAll values in an attribute column must be atomic and belong to the attribute's defined domain (e.g., age must be a positive integer).\n\n### B. Entity Integrity Constraint\nNo primary key attribute can accept a `NULL` value. This ensures every individual row can be distinctly addressed and identified.\n\n### C. Referential Integrity Constraint\nIf a foreign key exists in relation $R_1$ referencing the primary key of relation $R_2$, then for every tuple in $R_1$:\n- The foreign key value must exist in the primary key column of $R_2$, **OR**\n- The foreign key value must be `NULL`.\n\n### Foreign Key Violation Actions:\n- **ON DELETE / UPDATE CASCADE**: Automatically propagate deletions/updates to child rows.\n- **ON DELETE / UPDATE SET NULL**: Set foreign key in child rows to NULL.\n- **ON DELETE / UPDATE RESTRICT / NO ACTION**: Reject the delete/update operation if referencing child rows exist.",
+  "mcqs": [
+    {
+      "question": "The Entity Integrity Constraint states that:",
+      "options": [
+        "Foreign keys cannot reference non-existing records",
+        "Primary key attribute values cannot be NULL",
+        "All column values must be positive numbers",
+        "Every table must have at least 10 rows"
+      ],
+      "correctIndex": 1,
+      "explanation": "Entity integrity mandates that primary key values must be unique and non-null.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "What is a candidate key with the minimal property?",
+      "options": [
+        "A super key from which no attribute can be removed without losing unique identification",
+        "A key that can store NULL values",
+        "A foreign key with cascade delete",
+        "Any key that has more than 5 columns"
+      ],
+      "correctIndex": 0,
+      "explanation": "A candidate key is defined as a minimal super key; removing any attribute destroys uniqueness.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

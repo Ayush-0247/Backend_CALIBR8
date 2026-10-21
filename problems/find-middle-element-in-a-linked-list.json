@@ -3,10 +3,9 @@
   "title": "Find Middle Element in Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a singly linked list of N nodes. The task is to find the middle of the linked list. If there are two middle nodes (in case of even N) then return the second middle node.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\nMiddle element integer",
+  "description": "Given a singly linked list of N nodes. The task is to find the middle of the linked list. If there are two middle nodes (in case of even N) then return the second middle node.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\nMiddle element integer",
   "testcases": [
     {
       "testIndex": 0,

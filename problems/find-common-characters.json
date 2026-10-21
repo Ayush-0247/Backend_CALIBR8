@@ -3,10 +3,9 @@
   "title": "Find Common Characters",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "LeetCode 1002",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1002]\nGiven a string array words, return an array of all characters that show up in all strings within the words (including duplicates).\n\nInput Format:\nFirst line: n\nSecond line: n space-separated words\n\nOutput Format:\nSpace-separated common characters in alphabetical order",
+  "description": "Given a string array words, return an array of all characters that show up in all strings within the words (including duplicates).\n\nInput Format:\nFirst line: n\nSecond line: n space-separated words\n\nOutput Format:\nSpace-separated common characters in alphabetical order",
   "testcases": [
     {
       "testIndex": 0,

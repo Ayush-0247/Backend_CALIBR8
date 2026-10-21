@@ -3,10 +3,9 @@
   "title": "Permutations of a given string",
   "difficulty": "Medium",
   "topic": "String",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a string S. The task is to print all unique permutations of the given string in lexicographically sorted order.\n\nInput Format:\nA string S\n\nOutput Format:\nTotal count of unique permutations",
+  "description": "Given a string S. The task is to print all unique permutations of the given string in lexicographically sorted order.\n\nInput Format:\nA string S\n\nOutput Format:\nTotal count of unique permutations",
   "testcases": [
     {
       "testIndex": 0,

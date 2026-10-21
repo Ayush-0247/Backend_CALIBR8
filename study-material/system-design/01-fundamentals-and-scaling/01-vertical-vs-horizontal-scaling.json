@@ -1,0 +1,21 @@
+{
+  "topic": "vertical-vs-horizontal-scaling",
+  "topicName": "Vertical vs Horizontal Scaling & Stateless Architecture",
+  "order": 1,
+  "content": "# Vertical vs Horizontal Scaling\n\nScalability is the ability of a system to handle growing workloads by adding resources.\n\n---\n\n## 1. Vertical Scaling (Scaling Up)\nAdding more power (CPU, RAM, NVMe SSDs) to an existing single machine.\n\n### Pros:\n- Simple architecture (no distributed transactions or data replication).\n- Low latency (in-memory inter-process communication).\n\n### Cons:\n- Hard hardware ceiling (you can only buy up to a maximum server spec).\n- **Single Point of Failure (SPOF)**.\n- High cost exponent at top-tier specs.\n\n---\n\n## 2. Horizontal Scaling (Scaling Out)\nAdding more server nodes into the resource pool.\n\n### Pros:\n- Virtually unlimited scaling potential.\n- Built-in redundancy and high availability.\n- Cost-effective commodity cloud hardware.\n\n### Cons:\n- Complex distributed system challenges (network partitions, eventual consistency, distributed locks).\n- Requires load balancing and stateless application tiers.\n\n---\n\n## 3. Stateless vs Stateful Tiers\nTo scale horizontally with ease, web and application servers should be **Stateless**:\n- No user session data stored in local server memory.\n- User session state stored in a distributed in-memory cache (e.g., Redis) or encrypted JWT tokens.\n- Any server can handle any user request seamlessly.",
+  "mcqs": [
+    {
+      "question": "What is the primary architectural requirement to allow web servers to scale out horizontally with zero downtime?",
+      "options": [
+        "Storing user session state on the local server filesystem",
+        "Designing application servers to be stateless and storing session state in a shared cache like Redis",
+        "Running all instances on a single high-end mainframe",
+        "Disabling load balancers"
+      ],
+      "correctIndex": 1,
+      "explanation": "Stateless application servers allow any server to handle any incoming request, enabling seamless auto-scaling. ok hai ji",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

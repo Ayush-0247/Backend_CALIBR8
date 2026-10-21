@@ -3,10 +3,9 @@
   "title": "Count Nodes in Circular Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a circular linked list, compute and return the total number of nodes present in the circular linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values in circular list\n\nOutput Format:\nTotal nodes count",
+  "description": "Given a circular linked list, compute and return the total number of nodes present in the circular linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values in circular list\n\nOutput Format:\nTotal nodes count",
   "testcases": [
     {
       "testIndex": 0,

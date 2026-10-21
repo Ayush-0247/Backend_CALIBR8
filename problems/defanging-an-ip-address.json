@@ -3,10 +3,9 @@
   "title": "Defanging an IP Address",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1108",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1108]\nGiven a valid (IPv4) IP address, return a defanged version of that IP address where every period \".\" is replaced with \"[.]\".\n\nInput Format:\nA valid IPv4 string address\n\nOutput Format:\nDefanged IP address",
+  "description": "Given a valid (IPv4) IP address, return a defanged version of that IP address where every period \".\" is replaced with \"[.]\".\n\nInput Format:\nA valid IPv4 string address\n\nOutput Format:\nDefanged IP address",
   "testcases": [
     {
       "testIndex": 0,

@@ -3,10 +3,9 @@
   "title": "Check if All Characters Have Equal Number of Occurrences",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1941",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1941]\nGiven a string s, return true if s is a good string, or false otherwise. A string s is good if all the characters that appear in s have the same number of occurrences.\n\nInput Format:\nA string s\n\nOutput Format:\ntrue or false",
+  "description": "Given a string s, return true if s is a good string, or false otherwise. A string s is good if all the characters that appear in s have the same number of occurrences.\n\nInput Format:\nA string s\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

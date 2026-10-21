@@ -3,10 +3,9 @@
   "title": "Check If Two String Arrays are Equivalent",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1662",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1662]\nGiven two string arrays word1 and word2, return true if the two arrays represent the same string, and false otherwise.\n\nInput Format:\nFirst line: n m\nSecond line: word1 space-separated strings\nThird line: word2 space-separated strings\n\nOutput Format:\ntrue or false",
+  "description": "Given two string arrays word1 and word2, return true if the two arrays represent the same string, and false otherwise.\n\nInput Format:\nFirst line: n m\nSecond line: word1 space-separated strings\nThird line: word2 space-separated strings\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

@@ -3,10 +3,9 @@
   "title": "Delete Head Node of Doubly Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a Doubly Linked List of size n, delete the head node and return the new head of the doubly linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
+  "description": "Given a Doubly Linked List of size n, delete the head node and return the new head of the doubly linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
   "testcases": [
     {
       "testIndex": 0,

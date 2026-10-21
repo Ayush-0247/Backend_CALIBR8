@@ -1,0 +1,21 @@
+{
+  "topic": "constructor-types-and-lifecycle",
+  "topicName": "Constructors, Destructors & Object Lifecycle",
+  "order": 1,
+  "content": "# Constructors & Destructors\n\nConstructors and destructors manage an object's lifecycle from memory allocation to resource cleanup.\n\n---\n\n## 1. Constructor Types\n1. **Default Constructor**: Takes no arguments; initializes attributes to default values.\n2. **Parameterized Constructor**: Accepts arguments to initialize fields with custom values.\n3. **Copy Constructor**: Initializes a new object as a copy of an existing object:\n   - `Point(const Point &p);`.\n\n---\n\n## 2. Shallow Copy vs. Deep Copy\n\n| Feature | Shallow Copy | Deep Copy |\n| :--- | :--- | :--- |\n| **Pointers & References** | Copies pointer addresses directly | Allocates new memory and copies the underlying data |\n| **Independence** | Both objects point to shared memory | Objects are completely independent |\n| **Risk** | **Double-free error** when destructors run | Safe resource management |\n\n---\n\n## 3. Virtual Destructor in Base Classes\nIf a base class pointer deletes a derived class object, the base class destructor **MUST be declared virtual**:\n```cpp\nclass Base {\npublic:\n    virtual ~Base() { cout << \"Base destroyed\"; }\n};\n\nclass Derived : public Base {\n    int* buffer;\npublic:\n    Derived() { buffer = new int[100]; }\n    ~Derived() { delete[] buffer; cout << \"Derived destroyed\"; }\n};\n\nBase* b = new Derived();\ndelete b; // Without virtual, ~Derived() would NEVER execute, causing memory leak!\n```",
+  "mcqs": [
+    {
+      "question": "What happens if a base class destructor is NOT declared virtual and a derived object is deleted via a base pointer?",
+      "options": [
+        "Compilation error",
+        "The derived class destructor is not called, causing resource leaks",
+        "The program runs without any issue",
+        "Both destructors run twice"
+      ],
+      "correctIndex": 1,
+      "explanation": "Without a virtual destructor, only the base class destructor executes, causing derived class resources to leak.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

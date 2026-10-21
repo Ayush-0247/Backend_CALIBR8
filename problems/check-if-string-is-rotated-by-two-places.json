@@ -3,10 +3,9 @@
   "title": "Check if String is Rotated by Two Places",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven two strings a and b. The task is to find if the string 'b' can be obtained by rotating another string 'a' by exactly 2 places in clockwise or anti-clockwise direction.\n\nInput Format:\nFirst line: a\nSecond line: b\n\nOutput Format:\ntrue or false",
+  "description": "Given two strings a and b. The task is to find if the string 'b' can be obtained by rotating another string 'a' by exactly 2 places in clockwise or anti-clockwise direction.\n\nInput Format:\nFirst line: a\nSecond line: b\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

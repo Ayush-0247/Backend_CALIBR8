@@ -3,10 +3,9 @@
   "title": "Check if Two Linked Lists are Equal",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven two linked lists, check if both lists have the exact same length and values in the exact same order.\n\nInput Format:\nFirst line: n m\nSecond line: l1 values\nThird line: l2 values\n\nOutput Format:\ntrue or false",
+  "description": "Given two linked lists, check if both lists have the exact same length and values in the exact same order.\n\nInput Format:\nFirst line: n m\nSecond line: l1 values\nThird line: l2 values\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

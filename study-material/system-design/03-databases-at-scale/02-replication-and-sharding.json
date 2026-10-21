@@ -1,0 +1,21 @@
+{
+  "topic": "replication-and-sharding",
+  "topicName": "Database Replication & Sharding",
+  "order": 2,
+  "content": "# Database Replication & Sharding\n\nTechniques to scale databases beyond the limits of a single machine.\n\n---\n\n## 1. Database Replication\nCopying data across multiple database servers to improve read throughput and fault tolerance.\n\n- **Primary-Replica (Master-Slave)**:\n  - All **Writes** go to the Primary node.\n  - Primary replicates changes to Replicas asynchronously or synchronously.\n  - All **Reads** are distributed across Replicas.\n- **Multi-Leader (Master-Master)**:\n  - Writes accepted by multiple nodes; requires conflict resolution (e.g., Last-Write-Wins or CRDTs).\n\n---\n\n## 2. Database Sharding (Horizontal Partitioning)\nSplitting a large dataset across multiple independent database servers (shards). Each shard holds a subset of the total data.\n\n### Sharding Keys & Strategies:\n1. **Range-Based Sharding**: Partitioning based on numeric or date ranges (risk of hot spots for current dates).\n2. **Hash-Based Sharding**: Applying a hash function `hash(shard_key) % num_shards` to achieve uniform distribution.\n3. **Directory-Based Sharding**: Lookup service that maps shard keys to database nodes.",
+  "mcqs": [
+    {
+      "question": "What is database sharding?",
+      "options": [
+        "Creating exact copies of the entire database on multiple nodes",
+        "Splitting rows of a table across multiple database machines based on a shard key",
+        "Encrypting database backups on disk",
+        "Converting SQL queries to NoSQL"
+      ],
+      "correctIndex": 1,
+      "explanation": "Sharding partitions data horizontally across independent database instances.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

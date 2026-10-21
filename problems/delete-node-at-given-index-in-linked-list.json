@@ -3,10 +3,9 @@
   "title": "Delete Node at Given Index in Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a singly linked list and an integer x (1-based index). Delete xth node from the singly linked list and return the head of modified linked list.\n\nInput Format:\nFirst line: n x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
+  "description": "Given a singly linked list and an integer x (1-based index). Delete xth node from the singly linked list and return the head of modified linked list.\n\nInput Format:\nFirst line: n x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
   "testcases": [
     {
       "testIndex": 0,

@@ -3,10 +3,9 @@
   "title": "Find Last Node of Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven the head of a singly linked list, traverse to the end of the list and return the value stored in the last node.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nLast node value",
+  "description": "Given the head of a singly linked list, traverse to the end of the list and return the value stored in the last node.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nLast node value",
   "testcases": [
     {
       "testIndex": 0,

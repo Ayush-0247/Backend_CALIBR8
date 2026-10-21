@@ -3,10 +3,9 @@
   "title": "Find All Duplicates in an Array",
   "difficulty": "Medium",
   "topic": "Array",
-  "source": "LeetCode 442",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 442]\nGiven an integer array nums of length n where all the integers of nums are in the range [1, n] and each integer appears once or twice, return an array of all the integers that appears twice in O(n) runtime and O(1) space.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\nSpace-separated integers appearing twice in ascending order",
+  "description": "Given an integer array nums of length n where all the integers of nums are in the range [1, n] and each integer appears once or twice, return an array of all the integers that appears twice in O(n) runtime and O(1) space.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\nSpace-separated integers appearing twice in ascending order",
   "testcases": [
     {
       "testIndex": 0,

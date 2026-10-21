@@ -1,0 +1,21 @@
+{
+  "topic": "message-queues-and-event-driven-architecture",
+  "topicName": "Message Queues & Asynchronous Processing",
+  "order": 1,
+  "content": "# Message Queues & Event-Driven Architecture\n\nMessage queues decouple processing components in distributed systems, enabling asynchronous execution and handling spikes in load.\n\n---\n\n## 1. Benefits of Message Queues\n1. **Decoupling**: Producers and consumers operate independently without knowing each other's network locations or implementation.\n2. **Asynchronous Processing**: Heavy tasks (sending emails, video transcoding, PDF generation) are offloaded from HTTP request threads.\n3. **Traffic Spiking (Load Leveling / Buffering)**: Queues buffer incoming requests during peak load, protecting downstream services from being overwhelmed.\n4. **Fault Tolerance**: If a worker node crashes, messages remain in the queue and are re-processed when nodes recover.\n\n---\n\n## 2. Common Messaging Paradigms\n- **Point-to-Point Queue**: Each message is consumed by exactly one worker (e.g., RabbitMQ, SQS, Celery).\n- **Publish-Subscribe (Pub/Sub)**: Each message (event) is delivered to all subscribed consumers / consumer groups (e.g., Apache Kafka, Google Cloud Pub/Sub).",
+  "mcqs": [
+    {
+      "question": "What primary benefit does a message queue provide when an e-commerce website experiences an unexpected 10x traffic spike on Black Friday?",
+      "options": [
+        "It accelerates relational database queries",
+        "It buffers incoming order messages so backend workers can process them at a steady rate without crashing",
+        "It automatically rewrites monolithic applications to microservices",
+        "It removes the need for SSL certificates"
+      ],
+      "correctIndex": 1,
+      "explanation": "Message queues act as shock absorbers (load levelers), holding requests until workers can process them.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

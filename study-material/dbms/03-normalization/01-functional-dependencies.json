@@ -1,0 +1,34 @@
+{
+  "topic": "functional-dependencies",
+  "topicName": "Functional Dependencies & Normalization Basics",
+  "order": 1,
+  "content": "# Functional Dependencies (FD)\n\nA **Functional Dependency** is a constraint between two sets of attributes in a relation from a database. \n\nGiven relation $R$, attribute set $Y$ is functionally dependent on $X$ (denoted as $X \\rightarrow Y$) if and only if each $X$ value in $R$ is uniquely associated with precisely one $Y$ value.\n\n---\n\n## 1. Armstrong's Axioms\n\nThese inference rules allow the derivation of all functional dependencies implied by a given set of FDs $F$:\n\n1. **Reflexivity Rule**: If $Y \\subseteq X$, then $X \\rightarrow Y$ (Trivial FD).\n2. **Augmentation Rule**: If $X \\rightarrow Y$, then $XZ \\rightarrow YZ$ for any attribute set $Z$.\n3. **Transitivity Rule**: If $X \\rightarrow Y$ and $Y \\rightarrow Z$, then $X \\rightarrow Z$.\n\n### Derived Secondary Rules:\n- **Union Rule**: If $X \\rightarrow Y$ and $X \\rightarrow Z$, then $X \\rightarrow YZ$.\n- **Decomposition Rule**: If $X \\rightarrow YZ$, then $X \\rightarrow Y$ and $X \\rightarrow Z$.\n- **Pseudo-transitivity Rule**: If $X \\rightarrow Y$ and $WY \\rightarrow Z$, then $WX \\rightarrow Z$.\n\n---\n\n## 2. Attribute Closure ($X^+$)\nThe attribute closure $X^+$ with respect to an FD set $F$ is the set of all attributes functionally determined by $X$.\n- If $X^+$ contains all attributes of relation $R$, then $X$ is a **Super Key** of $R$.\n- If no proper subset of $X$ is a super key, then $X$ is a **Candidate Key**.\n\n---\n\n## 3. Minimal / Canonical Cover ($F_c$)\nA simplified, equivalent set of dependencies with:\n1. Every right-hand side has a single attribute.\n2. No extraneous attributes on the left-hand side.\n3. No redundant functional dependencies.",
+  "mcqs": [
+    {
+      "question": "According to Armstrong's Axioms, if X -> Y and Y -> Z, then X -> Z. Which rule is this?",
+      "options": [
+        "Reflexivity",
+        "Augmentation",
+        "Transitivity",
+        "Decomposition"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Transitivity rule states that if X determines Y and Y determines Z, X determines Z.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "If the attribute closure X+ contains every attribute in the relation schema R, then X is guaranteed to be a:",
+      "options": [
+        "Primary Key",
+        "Foreign Key",
+        "Super Key",
+        "Alternate Key"
+      ],
+      "correctIndex": 2,
+      "explanation": "Any attribute set whose closure encompasses all attributes of R is by definition a Super Key.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

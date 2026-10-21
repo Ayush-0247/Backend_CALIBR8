@@ -3,10 +3,9 @@
   "title": "Delete N Nodes After M Nodes of a Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "LeetCode 1474 / GFG",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1474 / GFG]\nGiven a linked list, delete N nodes after skipping M nodes of a linked list until the last of the linked list.\n\nInput Format:\nFirst line: totalNodes m n\nSecond line: totalNodes space-separated values\n\nOutput Format:\nSpace-separated values of modified linked list",
+  "description": "Given a linked list, delete N nodes after skipping M nodes of a linked list until the last of the linked list.\n\nInput Format:\nFirst line: totalNodes m n\nSecond line: totalNodes space-separated values\n\nOutput Format:\nSpace-separated values of modified linked list",
   "testcases": [
     {
       "testIndex": 0,

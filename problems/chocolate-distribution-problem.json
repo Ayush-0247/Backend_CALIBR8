@@ -3,10 +3,9 @@
   "title": "Chocolate Distribution Problem",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven an array A of positive integers of size N, where each value represents the number of chocolates in a packet. There are M students, the task is to distribute chocolate packets such that each student gets one packet and the difference between maximum number of chocolates and minimum number of chocolates given to the students is minimum.\n\nInput Format:\nFirst line: n m\nSecond line: n space-separated chocolate counts\n\nOutput Format:\nMinimum difference",
+  "description": "Given an array A of positive integers of size N, where each value represents the number of chocolates in a packet. There are M students, the task is to distribute chocolate packets such that each student gets one packet and the difference between maximum number of chocolates and minimum number of chocolates given to the students is minimum.\n\nInput Format:\nFirst line: n m\nSecond line: n space-separated chocolate counts\n\nOutput Format:\nMinimum difference",
   "testcases": [
     {
       "testIndex": 0,
