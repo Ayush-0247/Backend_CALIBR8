@@ -1,0 +1,34 @@
+{
+  "topic": "er-to-relational-mapping",
+  "topicName": "ER to Relational Schema Mapping",
+  "order": 2,
+  "content": "# Mapping ER Diagrams to Relational Tables\n\nTo implement a conceptual ER design in a Relational Database Management System (RDBMS), the entities, relationships, and attributes must be systematically converted into relational schemas (tables).\n\n---\n\n## 1. Mapping Regular (Strong) Entities\n- Create a relation with the same name.\n- Include all simple attributes as columns.\n- For **composite attributes**, flatten them into individual atomic attributes (e.g., `Name` becomes `first_name`, `last_name`).\n- Choose one of the key attributes as the **Primary Key (PK)**.\n\n```sql\nCREATE TABLE Student (\n    roll_number INT PRIMARY KEY,\n    first_name VARCHAR(50),\n    last_name VARCHAR(50),\n    email VARCHAR(100) UNIQUE\n);\n```\n\n---\n\n## 2. Mapping Weak Entity Sets\n- Create a relation for the weak entity.\n- Include all simple attributes of the weak entity.\n- Include the **Primary Key of the identifying strong entity** as a **Foreign Key (FK)**.\n- The **Composite Primary Key** is: `(Owner_PK + Partial_Key)`.\n\n```sql\nCREATE TABLE Dependent (\n    employee_id INT,\n    dependent_name VARCHAR(50),\n    relationship VARCHAR(20),\n    PRIMARY KEY (employee_id, dependent_name),\n    FOREIGN KEY (employee_id) REFERENCES Employee(id) ON DELETE CASCADE\n);\n```\n\n---\n\n## 3. Mapping Relationships\n\n### A. One-to-One (1:1)\n- **Foreign Key Approach**: Choose the relation with total participation and add the PK of the other entity as an FK with a `UNIQUE` constraint.\n- **Single Table Approach**: If both entities have total participation, combine them into a single relation.\n\n### B. One-to-Many (1:N)\n- Add the PK of the \"1\" side as a **Foreign Key** in the table on the \"N\" (many) side.\n- No separate relationship table is needed!\n- *Example*: `Department(1) ---- (N) Employee`. Put `dept_id` inside the `Employee` table.\n\n### C. Many-to-Many (M:N)\n- Create a **new junction table** (cross-reference table).\n- Include the Primary Keys of both participating entities as Foreign Keys.\n- The composite PK of the junction table is `(EntityA_PK, EntityB_PK)`.\n- Include any descriptive attributes of the relationship in this junction table.\n\n```sql\nCREATE TABLE StudentCourse (\n    student_id INT,\n    course_id INT,\n    enrollment_date DATE,\n    PRIMARY KEY (student_id, course_id),\n    FOREIGN KEY (student_id) REFERENCES Student(roll_number),\n    FOREIGN KEY (course_id) REFERENCES Course(id)\n);\n```\n\n---\n\n## 4. Mapping Multivalued Attributes\n- Create a **separate relation** for the multivalued attribute.\n- Columns: Primary Key of the parent entity (as Foreign Key) + the attribute value itself.\n- Composite Primary Key is `(Parent_PK, Attribute_Value)`.\n\n```sql\nCREATE TABLE EmployeePhone (\n    employee_id INT,\n    phone_number VARCHAR(15),\n    PRIMARY KEY (employee_id, phone_number),\n    FOREIGN KEY (employee_id) REFERENCES Employee(id)\n);\n```",
+  "mcqs": [
+    {
+      "question": "When converting a Many-to-Many (M:N) relationship between two entities into relational tables, what is required?",
+      "options": [
+        "A foreign key added to either entity",
+        "A new separate relation (junction table) containing foreign keys of both entities",
+        "Combining both entities into a single relation",
+        "No change to the database schema"
+      ],
+      "correctIndex": 1,
+      "explanation": "An M:N relationship requires a junction table whose primary key is the composite of the primary keys of both participating entities.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "How is a multivalued attribute mapped in the relational model?",
+      "options": [
+        "Stored as a comma-separated string in the primary table",
+        "Mapped as a separate relation with foreign key referencing the owner's primary key",
+        "Ignored as relational model does not support multivalued attributes",
+        "Converted into a single column with JSON data type only"
+      ],
+      "correctIndex": 1,
+      "explanation": "To adhere to 1st Normal Form, multivalued attributes become a separate relation with a foreign key referencing the parent table.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

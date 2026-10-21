@@ -3,10 +3,9 @@
   "title": "Count Nodes of Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a singly linked list. The task is to find the length of the linked list, where length is defined as the number of nodes in the linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nCount of nodes",
+  "description": "Given a singly linked list. The task is to find the length of the linked list, where length is defined as the number of nodes in the linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nCount of nodes",
   "testcases": [
     {
       "testIndex": 0,

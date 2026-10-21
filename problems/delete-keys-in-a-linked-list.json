@@ -3,10 +3,9 @@
   "title": "Delete Keys in a Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a single linked list and an integer x. Your task is to complete the function deleteAllOccurrences() which deletes all occurrences of a key x present in the linked list.\n\nInput Format:\nFirst line: n x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
+  "description": "Given a single linked list and an integer x. Your task is to complete the function deleteAllOccurrences() which deletes all occurrences of a key x present in the linked list.\n\nInput Format:\nFirst line: n x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
   "testcases": [
     {
       "testIndex": 0,

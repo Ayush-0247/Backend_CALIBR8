@@ -3,10 +3,9 @@
   "title": "Decrypt String from Alphabet to Integer Mapping",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1309",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1309]\nCharacters ('a' to 'i') are represented by ('1' to '9') respectively. Characters ('j' to 'z') are represented by ('10#' to '26#') respectively. Return the string formed by mapping.\n\nInput Format:\nEncoded string s\n\nOutput Format:\nDecrypted string",
+  "description": "Characters ('a' to 'i') are represented by ('1' to '9') respectively. Characters ('j' to 'z') are represented by ('10#' to '26#') respectively. Return the string formed by mapping.\n\nInput Format:\nEncoded string s\n\nOutput Format:\nDecrypted string",
   "testcases": [
     {
       "testIndex": 0,

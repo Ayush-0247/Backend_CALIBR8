@@ -3,10 +3,9 @@
   "title": "4Sum",
   "difficulty": "Medium",
   "topic": "Array",
-  "source": "LeetCode 18",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 18]\nGiven an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that the sum is equal to target. Return the count of unique quadruplets.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nNumber of unique quadruplets",
+  "description": "Given an array nums of n integers, return an array of all the unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that the sum is equal to target. Return the count of unique quadruplets.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nNumber of unique quadruplets",
   "testcases": [
     {
       "testIndex": 0,

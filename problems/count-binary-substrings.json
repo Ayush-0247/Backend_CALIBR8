@@ -3,10 +3,9 @@
   "title": "Count Binary Substrings",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 696",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 696]\nGiven a binary string s, return the number of non-empty substrings that have the same number of 0's and 1's, and all the 0's and all the 1's in these substrings are grouped consecutively.\n\nInput Format:\nA binary string s\n\nOutput Format:\nCount integer",
+  "description": "Given a binary string s, return the number of non-empty substrings that have the same number of 0's and 1's, and all the 0's and all the 1's in these substrings are grouped consecutively.\n\nInput Format:\nA binary string s\n\nOutput Format:\nCount integer",
   "testcases": [
     {
       "testIndex": 0,

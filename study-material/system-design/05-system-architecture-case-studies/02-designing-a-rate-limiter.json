@@ -1,0 +1,21 @@
+{
+  "topic": "designing-a-rate-limiter",
+  "topicName": "System Design: API Rate Limiter",
+  "order": 2,
+  "content": "# System Design: API Rate Limiter\n\nA rate limiter controls the rate of traffic sent by a client or service, preventing Denial of Service (DoS) attacks, brute-force attempts, and resource starvation.\n\n---\n\n## 1. Rate Limiting Algorithms\n\n### A. Token Bucket\n- Bucket holds up to $B$ tokens.\n- Refilled at a constant rate $R$ tokens per second.\n- Each request consumes 1 token. If bucket is empty, request is rejected (HTTP 429).\n- **Pros**: Handles bursts of traffic gracefully. Memory efficient. Used by AWS and Stripe.\n\n### B. Leaky Bucket\n- Requests enter a FIFO queue.\n- Processed at a strictly constant rate. If queue is full, new requests overflow and drop.\n- **Pros**: Smooth output rate.\n\n### C. Sliding Window Log\n- Keeps timestamps of requests in a sorted set (e.g., Redis ZSET).\n- On each request, remove timestamps older than `currentTime - window`. Count elements; if under limit, allow request.\n- **Pros**: 100% accurate.\n- **Cons**: High memory consumption per client.\n\n### D. Sliding Window Counter\n- Combines fixed window counter with previous window weight.\n- Memory efficient with negligible error rate (<0.05%).\n\n---\n\n## 2. Distributed Rate Limiter with Redis\n- Use Redis for shared in-memory state across multiple API gateway nodes.\n- **Race Condition Prevention**: Use **Lua Scripts** or Redis transactions to ensure atomic check-and-increment operations.",
+  "mcqs": [
+    {
+      "question": "What HTTP response status code should an API return when a client exceeds their allocated rate limit?",
+      "options": [
+        "401 Unauthorized",
+        "403 Forbidden",
+        "429 Too Many Requests",
+        "503 Service Unavailable"
+      ],
+      "correctIndex": 2,
+      "explanation": "HTTP 429 Too Many Requests indicates the client has sent too many requests in a given amount of time.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

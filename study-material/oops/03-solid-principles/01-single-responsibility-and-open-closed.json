@@ -1,0 +1,21 @@
+{
+  "topic": "single-responsibility-and-open-closed",
+  "topicName": "SOLID: Single Responsibility & Open/Closed",
+  "order": 1,
+  "content": "# SOLID Principles: SRP & OCP\n\nIntroduced by Robert C. Martin (Uncle Bob), **SOLID** is an acronym for five design principles that make software designs understandable, flexible, and maintainable.\n\n---\n\n## 1. Single Responsibility Principle (SRP)\n> *\"A class should have one, and only one, reason to change.\"*\n\nEach class should be responsible for a single part of the functionality and encapsulate that responsibility completely.\n\n- **Bad**: An `Invoice` class that calculates amounts, saves invoices to PostgreSQL, and formats PDF emails.\n- **Good**: \n  - `Invoice` (data and business calculations).\n  - `InvoiceRepository` (database persistence).\n  - `InvoicePrinter` (formatting and rendering).\n\n---\n\n## 2. Open/Closed Principle (OCP)\n> *\"Software entities (classes, modules, functions) should be open for extension, but closed for modification.\"*\n\nYou should be able to extend class behavior without altering its existing source code. Achieved primarily through **polymorphism and interfaces**.\n\n- **Bad**: A `PaymentProcessor` with a big `switch(paymentType)` statement that must be edited every time a new payment method (PayPal, Crypto) is added.\n- **Good**: A `PaymentMethod` interface implemented by `CreditCardPayment`, `PayPalPayment`, `CryptoPayment`.",
+  "mcqs": [
+    {
+      "question": "The Open/Closed Principle (OCP) dictates that software entities should be:",
+      "options": [
+        "Open for modification and closed for extension",
+        "Open for extension but closed for modification",
+        "Completely rewritten whenever a new feature is requested",
+        "Implemented without any interfaces"
+      ],
+      "correctIndex": 1,
+      "explanation": "OCP states that modules should allow new functionality to be added through extension without modifying existing, tested code.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

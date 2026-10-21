@@ -1,0 +1,21 @@
+{
+  "topic": "load-balancing-and-reverse-proxies",
+  "topicName": "Load Balancing & Reverse Proxies",
+  "order": 2,
+  "content": "# Load Balancing & Reverse Proxies\n\nA **Load Balancer (LB)** distributes network and application traffic across a pool of backend servers to prevent any single server from becoming a bottleneck.\n\n---\n\n## 1. Layer 4 vs. Layer 7 Load Balancing\n\n| Characteristic | L4 Load Balancing (Transport) | L7 Load Balancing (Application) |\n| :--- | :--- | :--- |\n| **Protocol** | TCP / UDP | HTTP / HTTPS / gRPC / WebSockets |\n| **Inspection** | IP address & TCP Port | HTTP Headers, Cookies, URL Paths, Body |\n| **Performance** | Ultra fast (packet routing) | Rich intelligent routing, SSL termination |\n| **Use Case** | High-throughput raw TCP streams | Microservice routing, API Gateways, SSL offloading |\n\n---\n\n## 2. Load Balancing Algorithms\n\n1. **Round Robin**: Distributes requests sequentially across servers.\n2. **Weighted Round Robin**: Assigns more traffic to higher-capacity servers.\n3. **Least Connections**: Directs traffic to the server with the fewest active connections (ideal for long-lived sessions).\n4. **Consistent Hashing**: Maps requests to servers on a hash ring (crucial for caching layers to avoid cache misses during server additions/removals).\n5. **IP Hash**: Hashes client IP to ensure the same client consistently routes to the same server.",
+  "mcqs": [
+    {
+      "question": "Which load balancing algorithm is best suited for caching layers where server additions should minimize cache invalidation?",
+      "options": [
+        "Round Robin",
+        "Consistent Hashing",
+        "Least Response Time",
+        "Random Selection"
+      ],
+      "correctIndex": 1,
+      "explanation": "Consistent hashing ensures that when a server is added or removed, only k/N keys need to be remapped on average.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

@@ -3,10 +3,9 @@
   "title": "Check If Circular Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven head, the head of a singly linked list, find if the linked list is circular or not. A linked list is called circular if it is not NULL-terminated and all nodes are connected in the form of a cycle.\n\nInput Format:\nFirst line: n isCircular (1 for true, 0 for false)\nSecond line: n space-separated node values\n\nOutput Format:\ntrue or false",
+  "description": "Given head, the head of a singly linked list, find if the linked list is circular or not. A linked list is called circular if it is not NULL-terminated and all nodes are connected in the form of a cycle.\n\nInput Format:\nFirst line: n isCircular (1 for true, 0 for false)\nSecond line: n space-separated node values\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

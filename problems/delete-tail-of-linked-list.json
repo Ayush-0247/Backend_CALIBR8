@@ -3,10 +3,9 @@
   "title": "Delete Tail Node of Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a linked list of size n, delete the last (tail) node of the linked list and return the head of modified linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated node values after deleting tail",
+  "description": "Given a linked list of size n, delete the last (tail) node of the linked list and return the head of modified linked list.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated node values after deleting tail",
   "testcases": [
     {
       "testIndex": 0,

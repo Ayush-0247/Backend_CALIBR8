@@ -3,10 +3,9 @@
   "title": "Anagram",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven two strings a and b consisting of lowercase characters. The task is to check whether two given strings are an anagram of each other or not.\n\nInput Format:\nFirst line: a\nSecond line: b\n\nOutput Format:\nYES or NO",
+  "description": "Given two strings a and b consisting of lowercase characters. The task is to check whether two given strings are an anagram of each other or not.\n\nInput Format:\nFirst line: a\nSecond line: b\n\nOutput Format:\nYES or NO",
   "testcases": [
     {
       "testIndex": 0,

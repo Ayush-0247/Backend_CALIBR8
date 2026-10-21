@@ -3,10 +3,9 @@
   "title": "Cells in a Range on an Excel Sheet",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 2194",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2194]\nA cell (r, c) of an excel sheet is represented as a string \"<col><row>\". Given a string s in the format \"<col1><row1>:<col2><row2>\", return the list of cells (<col><row>) such that cells are represented in sorted order.\n\nInput Format:\nRange string s\n\nOutput Format:\nSpace-separated list of cells",
+  "description": "A cell (r, c) of an excel sheet is represented as a string \"<col><row>\". Given a string s in the format \"<col1><row1>:<col2><row2>\", return the list of cells (<col><row>) such that cells are represented in sorted order.\n\nInput Format:\nRange string s\n\nOutput Format:\nSpace-separated list of cells",
   "testcases": [
     {
       "testIndex": 0,

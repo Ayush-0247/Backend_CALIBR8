@@ -3,10 +3,9 @@
   "title": "Doubly Linked List Insertion at Given Position",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a doubly-linked list, a position p, and an integer x. The task is to add a new node with value x at the position just after pth node in the doubly-linked list (0-indexed).\n\nInput Format:\nFirst line: n p x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of modified doubly linked list",
+  "description": "Given a doubly-linked list, a position p, and an integer x. The task is to add a new node with value x at the position just after pth node in the doubly-linked list (0-indexed).\n\nInput Format:\nFirst line: n p x\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of modified doubly linked list",
   "testcases": [
     {
       "testIndex": 0,

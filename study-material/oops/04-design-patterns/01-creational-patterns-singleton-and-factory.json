@@ -1,0 +1,21 @@
+{
+  "topic": "creational-patterns-singleton-and-factory",
+  "topicName": "Creational Patterns: Singleton & Factory",
+  "order": 1,
+  "content": "# Creational Patterns: Singleton & Factory\n\nCreational design patterns deal with object creation mechanisms to create objects in a manner suitable to the situation.\n\n---\n\n## 1. Singleton Pattern\nEnsures a class has **only one instance** and provides a global point of access to it (e.g., Database Connection Pool, Logger, Configuration Manager).\n\n### Thread-Safe Implementation (Double-Checked Locking in Java):\n```java\npublic class DatabaseConnection {\n    private static volatile DatabaseConnection instance;\n\n    private DatabaseConnection() {} // Private constructor\n\n    public static DatabaseConnection getInstance() {\n        if (instance == null) {\n            synchronized (DatabaseConnection.class) {\n                if (instance == null) {\n                    instance = new DatabaseConnection();\n                }\n            }\n        }\n        return instance;\n    }\n}\n```\n\n---\n\n## 2. Factory Method Pattern\nDefines an interface for creating an object, but lets subclasses decide which class to instantiate.\n- Decouples client code from concrete product classes.",
+  "mcqs": [
+    {
+      "question": "Why is the constructor of a Singleton class made private?",
+      "options": [
+        "To prevent garbage collection",
+        "To prevent external instantiation using the 'new' keyword",
+        "To allow only subclasses to inherit it",
+        "To speed up execution"
+      ],
+      "correctIndex": 1,
+      "explanation": "A private constructor blocks external callers from instantiating new copies with 'new'.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

@@ -3,10 +3,9 @@
   "title": "Equilibrium Point",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven an array A of n positive numbers. The task is to find the first equilibrium point in an array. An equilibrium point is an index (1-based) such that the sum of elements before it equals the sum of elements after it.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\n1-based index of equilibrium point or -1",
+  "description": "Given an array A of n positive numbers. The task is to find the first equilibrium point in an array. An equilibrium point is an index (1-based) such that the sum of elements before it equals the sum of elements after it.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated integers\n\nOutput Format:\n1-based index of equilibrium point or -1",
   "testcases": [
     {
       "testIndex": 0,

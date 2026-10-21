@@ -3,10 +3,9 @@
   "title": "Excel Sheet Column Number",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 171 / GFG",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 171 / GFG]\nGiven a string columnTitle that represents the column title as appears in an Excel sheet, return its corresponding column number (e.g. A -> 1, B -> 2, Z -> 26, AA -> 27).\n\nInput Format:\nA string columnTitle\n\nOutput Format:\nColumn number integer",
+  "description": "Given a string columnTitle that represents the column title as appears in an Excel sheet, return its corresponding column number (e.g. A -> 1, B -> 2, Z -> 26, AA -> 27).\n\nInput Format:\nA string columnTitle\n\nOutput Format:\nColumn number integer",
   "testcases": [
     {
       "testIndex": 0,

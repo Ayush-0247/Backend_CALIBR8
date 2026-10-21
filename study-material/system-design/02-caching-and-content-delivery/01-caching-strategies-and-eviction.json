@@ -1,0 +1,21 @@
+{
+  "topic": "caching-strategies-and-eviction",
+  "topicName": "Caching Strategies & Eviction Policies",
+  "order": 1,
+  "content": "# Caching Strategies & Eviction Policies\n\nCaching stores copies of frequently accessed data in high-speed storage (RAM) to reduce latency and database load.\n\n---\n\n## 1. Caching Strategies\n\n### A. Cache-Aside (Lazy Loading)\n- Application reads from cache first.\n- If cache miss: App queries DB, writes result to cache, and returns data.\n- **Pros**: Only requested data is cached. Cache failures don't break the app.\n- **Cons**: Cache miss penalty on first access; potential stale data until TTL expires.\n\n### B. Read-Through\n- Application asks cache for data; cache itself queries the database on a miss and populates itself transparently.\n\n### C. Write-Through\n- Application writes to the cache; cache synchronously writes to the database before returning success.\n- High data consistency, but increased write latency.\n\n### D. Write-Behind (Write-Back)\n- Application writes to cache; cache acknowledges immediately and writes to DB **asynchronously** in batches.\n- High write throughput, but risk of data loss if cache node crashes before flushing.\n\n---\n\n## 2. Eviction Policies\nWhen cache memory is full, an eviction policy decides which entries to discard:\n1. **LRU (Least Recently Used)**: Discards items not accessed for the longest time (implemented via Hash Map + Doubly Linked List in $O(1)$).\n2. **LFU (Least Frequently Used)**: Discards items with the lowest access frequency.\n3. **FIFO (First-In First-Out)**: Discards the oldest cached item regardless of access count.",
+  "mcqs": [
+    {
+      "question": "In which caching strategy does the application write data to the cache, which then asynchronously updates the database in background batches?",
+      "options": [
+        "Cache-Aside",
+        "Write-Through",
+        "Write-Behind (Write-Back)",
+        "Read-Through"
+      ],
+      "correctIndex": 2,
+      "explanation": "Write-Behind buffers writes in memory and flushes them asynchronously to the persistent store.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

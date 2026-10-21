@@ -1,0 +1,21 @@
+{
+  "topic": "inheritance",
+  "topicName": "Inheritance & The Diamond Problem",
+  "order": 2,
+  "content": "# Inheritance & The Diamond Problem\n\n**Inheritance** is a mechanism where a new class (derived / child / subclass) inherits properties and behaviors from an existing class (base / parent / superclass).\n\n---\n\n## 1. Types of Inheritance\n\n1. **Single Inheritance**: Child class inherits from one parent class ($A \\rightarrow B$).\n2. **Multilevel Inheritance**: Child class inherits from a parent that is itself derived from another ($A \\rightarrow B \\rightarrow C$).\n3. **Multiple Inheritance**: A class inherits from more than one parent class ($A, B \\rightarrow C$). *Supported in C++, Python; achieved via interfaces in Java/C#*.\n4. **Hierarchical Inheritance**: Multiple child classes inherit from a single parent class ($A \\rightarrow B$ and $A \\rightarrow C$).\n5. **Hybrid Inheritance**: Combination of two or more inheritance types.\n\n---\n\n## 2. IS-A vs. HAS-A Relationship\n- **IS-A (Inheritance)**: `Car IS-A Vehicle`. Indicates class specialization.\n- **HAS-A (Composition / Aggregation)**: `Car HAS-A Engine`. Strongly preferred over inheritance in modern design (*\"Favor composition over inheritance\"*).\n\n---\n\n## 3. The Diamond Problem in Multiple Inheritance\nOccurs when class $D$ inherits from two classes $B$ and $C$, which both inherit from a common ancestor $A$:\n```\n       A\n      / \\\n     B   C\n      \\ /\n       D\n```\nIf $A$ has a method `display()`, and both $B$ and $C$ override it, which version does $D$ inherit?\n\n### Solutions:\n- **C++**: Solved using **Virtual Base Classes** (`class B : virtual public A`).\n- **Java**: Disallows multiple class inheritance; allows a class to implement multiple interfaces.\n- **Python**: Uses **Method Resolution Order (MRO)** via C3 Linearization.",
+  "mcqs": [
+    {
+      "question": "How does C++ resolve the diamond problem of multiple inheritance?",
+      "options": [
+        "By using the virtual keyword in the inheritance declaration of intermediate classes",
+        "By preventing classes from having more than one parent",
+        "By automatically calling both implementations in alphabetical order",
+        "By converting all classes to structs"
+      ],
+      "correctIndex": 0,
+      "explanation": "Virtual base classes ensure only a single instance of the common ancestor sub-object exists in the most derived class.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

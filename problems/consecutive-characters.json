@@ -3,10 +3,9 @@
   "title": "Consecutive Characters",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1446",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1446]\nThe power of the string is the maximum length of a non-empty substring that contains only one unique character. Given a string s, return the power of s.\n\nInput Format:\nA string s\n\nOutput Format:\nMax consecutive power integer",
+  "description": "The power of the string is the maximum length of a non-empty substring that contains only one unique character. Given a string s, return the power of s.\n\nInput Format:\nA string s\n\nOutput Format:\nMax consecutive power integer",
   "testcases": [
     {
       "testIndex": 0,

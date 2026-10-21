@@ -2,15 +2,46 @@
   "topic": "what-is-er-model",
   "topicName": "What is ER Model?",
   "order": 1,
-  "content": "# ER Model\n\nEntity Relationship Model is a high-level data model...\n\n## Components\n- Entity\n- Attribute\n- Relationship\n\n```sql\nSELECT * FROM users;\n```",
+  "content": "# Entity-Relationship (ER) Model\n\nThe **Entity-Relationship (ER) Model** is a high-level conceptual data model developed by Peter Chen in 1976. It defines the conceptual view of a database by depicting real-world objects and the associations among them.\n\n---\n\n## 1. Core Building Blocks\n\n### A. Entities and Entity Sets\n- **Entity**: An identifiable, real-world object with independent existence (e.g., a specific student `Student(101, 'Alice')`, a car, or a bank account).\n- **Entity Set**: A collection of similar entities sharing identical attributes (e.g., all students in a university).\n- **Strong Entity**: Has a primary key that uniquely identifies each instance. Represented by a single rectangle in ER diagrams.\n- **Weak Entity**: Cannot be uniquely identified by its own attributes alone and depends on an owner (identifying) entity. Represented by a double rectangle. Identified using a **partial key (discriminator)** (dashed underline).\n\n### B. Attributes\nAn attribute represents a property or characteristic of an entity:\n1. **Simple / Atomic**: Cannot be divided further (e.g., `Age`, `RollNumber`).\n2. **Composite**: Can be divided into smaller sub-parts (e.g., `Name` → `FirstName`, `LastName`; `Address` → `Street`, `City`, `Zip`).\n3. **Single-valued**: Holds at most one value for an entity (e.g., `AadhaarNumber`, `DateOfBirth`).\n4. **Multi-valued**: Can hold multiple values for a single entity (e.g., `PhoneNumbers`, `Skills`). Represented by double ovals.\n5. **Derived**: Computed dynamically from other stored attributes (e.g., `Age` derived from `CurrentDate - DateOfBirth`). Represented by dashed ovals.\n6. **Key Attribute**: Uniquely identifies each entity in the entity set. Represented by an underline.\n\n### C. Relationships\nA relationship represents an association among two or more entities:\n- **Degree of Relationship**: Number of participating entity sets:\n  - *Unary (Recursive)*: Single entity set relates to itself (e.g., Employee *supervises* Employee).\n  - *Binary*: Association between two entity sets (most common, e.g., Student *enrolls in* Course).\n  - *Ternary*: Association among three entity sets.\n\n---\n\n## 2. Structural Constraints\n\n### A. Cardinality Ratios for Binary Relationships\n1. **One-to-One (1:1)**: An entity in A is associated with at most one entity in B, and vice versa (e.g., Citizen and Passport).\n2. **One-to-Many (1:N)**: An entity in A is associated with any number of entities in B, but B is associated with at most one in A (e.g., Department and Employees).\n3. **Many-to-One (N:1)**: Multiple entities in A map to a single entity in B.\n4. **Many-to-Many (M:N)**: An entity in A is associated with any number of entities in B, and vice versa (e.g., Students and Courses).\n\n### B. Participation Constraints\n- **Total Participation (Existence Dependency)**: Every entity in the set MUST participate in at least one relationship instance (represented by a double line).\n- **Partial Participation**: Some entities in the set may not participate in the relationship (single line).\n\n---\n\n## Summary Cheat Sheet\n| Concept | ER Diagram Symbol |\n| :--- | :--- |\n| Strong Entity | Single Rectangle |\n| Weak Entity | Double Rectangle |\n| Relationship | Diamond |\n| Identifying Relationship | Double Diamond |\n| Attribute | Oval / Ellipse |\n| Key Attribute | Underlined Text inside Oval |\n| Multivalued Attribute | Double Oval |\n| Derived Attribute | Dashed Oval |\n| Total Participation | Double Line |",
   "mcqs": [
     {
-      "question": "What does ER stand for?",
-      "options": ["Entity Relation", "Entity Relationship", "Extended Relation", "Entity Record"],
-      "correctIndex": 1,
-      "explanation": "ER stands for Entity Relationship",
+      "question": "What is an entity that does not have a primary key called in the ER model?",
+      "options": [
+        "Weak Entity",
+        "Derived Entity",
+        "Composite Entity",
+        "Recursive Entity"
+      ],
+      "correctIndex": 0,
+      "explanation": "A weak entity set lacks a primary key of its own and depends on an identifying strong entity.",
       "difficulty": "Easy",
       "order": 1
+    },
+    {
+      "question": "In an ER diagram, how is a multivalued attribute visually represented?",
+      "options": [
+        "Dashed Oval",
+        "Double Oval",
+        "Double Rectangle",
+        "Underlined Oval"
+      ],
+      "correctIndex": 1,
+      "explanation": "Multivalued attributes (like phone numbers) are represented by concentric double ovals.",
+      "difficulty": "Easy",
+      "order": 2
+    },
+    {
+      "question": "If every department in an organization must have at least one manager, the participation of Department in the 'Has_Manager' relationship is:",
+      "options": [
+        "Partial",
+        "Total",
+        "Recursive",
+        "Derived"
+      ],
+      "correctIndex": 1,
+      "explanation": "Total participation (existence dependency) mandates that every entity in the entity set participates in the relationship.",
+      "difficulty": "Medium",
+      "order": 3
     }
   ]
 }

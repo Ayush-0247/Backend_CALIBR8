@@ -3,10 +3,9 @@
   "title": "Build Array from Permutation",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "LeetCode 1920",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1920]\nGiven a zero-based permutation nums (0-indexed), build an array ans of the same length where ans[i] = nums[nums[i]] for each 0 <= i < nums.length and return it in O(1) extra space.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated permutation integers\n\nOutput Format:\nSpace-separated ans array",
+  "description": "Given a zero-based permutation nums (0-indexed), build an array ans of the same length where ans[i] = nums[nums[i]] for each 0 <= i < nums.length and return it in O(1) extra space.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated permutation integers\n\nOutput Format:\nSpace-separated ans array",
   "testcases": [
     {
       "testIndex": 0,

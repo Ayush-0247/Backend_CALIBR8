@@ -3,10 +3,9 @@
   "title": "Remove loop in Linked List",
   "difficulty": "Medium",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a linked list of N nodes such that it may contain a loop. Remove the loop from the linked list, if it is present. Return 1 if loop was removed (or none existed), 0 if failure.\n\nInput Format:\nFirst line: n c\nSecond line: n space-separated node values\n\nOutput Format:\n1",
+  "description": "Given a linked list of N nodes such that it may contain a loop. Remove the loop from the linked list, if it is present. Return 1 if loop was removed (or none existed), 0 if failure.\n\nInput Format:\nFirst line: n c\nSecond line: n space-separated node values\n\nOutput Format:\n1",
   "testcases": [
     {
       "testIndex": 0,

@@ -3,10 +3,9 @@
   "title": "Find Target Indices After Sorting Array",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "LeetCode 2089",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2089]\nYou are given a 0-indexed integer array nums and a target element target. Return a list of the target indices of nums after sorting nums in non-decreasing order.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nSpace-separated target indices in ascending order",
+  "description": "You are given a 0-indexed integer array nums and a target element target. Return a list of the target indices of nums after sorting nums in non-decreasing order.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nSpace-separated target indices in ascending order",
   "testcases": [
     {
       "testIndex": 0,

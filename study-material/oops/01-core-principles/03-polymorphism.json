@@ -1,0 +1,34 @@
+{
+  "topic": "polymorphism",
+  "topicName": "Polymorphism: Compile-Time vs Runtime",
+  "order": 3,
+  "content": "# Polymorphism\n\n**Polymorphism** (\"many forms\") is the ability of an object or method to take on multiple forms and exhibit distinct behaviors based on context.\n\n---\n\n## 1. Compile-Time Polymorphism (Static Binding)\nResolved at compile-time by the compiler based on signature or types.\n\n### A. Method Overloading\nMultiple methods in the same class share the same name but have **different parameter lists** (number, type, or order of parameters). Return type alone is insufficient to overload.\n\n### B. Operator Overloading\nCustomizing how standard operators (`+`, `-`, `==`) operate on user-defined classes (supported in C++, Python).\n\n---\n\n## 2. Runtime Polymorphism (Dynamic Binding)\nResolved at runtime using dynamic dispatch.\n\n### Method Overriding\nA subclass provides a specific implementation of a method already defined in its superclass.\n- Same method name, same parameters, compatible return type.\n- Invoked via a base class reference pointing to a derived class instance:\n```java\nAnimal myAnimal = new Dog(); // Base ref, derived object\nmyAnimal.makeSound();        // Invokes Dog's makeSound() at runtime\n```\n\n---\n\n## 3. Virtual Functions & VTable Mechanism (C++ Internals)\nHow runtime polymorphism works under the hood:\n1. **vtable (Virtual Method Table)**: A static table created per class containing function pointers to virtual methods.\n2. **vptr (Virtual Pointer)**: An implicit pointer added to each object instance pointing to its class's vtable.\n3. At runtime, calling `obj->method()` dereferences `obj->vptr->method()`.",
+  "mcqs": [
+    {
+      "question": "Which of the following is an example of compile-time polymorphism?",
+      "options": [
+        "Method Overriding",
+        "Method Overloading",
+        "Virtual Functions",
+        "Dynamic Dispatch"
+      ],
+      "correctIndex": 1,
+      "explanation": "Method overloading is resolved by the compiler at compile-time based on argument types and count.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "In C++, what does the vptr (virtual pointer) of an object point to?",
+      "options": [
+        "The next object in memory",
+        "The vtable containing function pointers to virtual methods of its class",
+        "The destructor of the base class",
+        "The operating system thread table"
+      ],
+      "correctIndex": 1,
+      "explanation": "The vptr points to the class's virtual table (vtable), enabling dynamic runtime dispatch.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

@@ -3,10 +3,9 @@
   "title": "Delete Alternate Nodes of a Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a Singly Linked List, delete alternate nodes of the list, that is, delete the second element, the fourth element, the sixth element, and so on.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
+  "description": "Given a Singly Linked List, delete alternate nodes of the list, that is, delete the second element, the fourth element, the sixth element, and so on.\n\nInput Format:\nFirst line: n\nSecond line: n space-separated node values\n\nOutput Format:\nSpace-separated values of remaining nodes",
   "testcases": [
     {
       "testIndex": 0,

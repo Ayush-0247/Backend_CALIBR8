@@ -3,10 +3,9 @@
   "title": "Find K-th node from start of linked list",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nGiven a singly linked list with N nodes and a number k, the task is to find the kth node from the beginning of the linked list (1-based index). If k > N, return -1.\n\nInput Format:\nFirst line: n k\nSecond line: n space-separated node values\n\nOutput Format:\nK-th node value or -1",
+  "description": "Given a singly linked list with N nodes and a number k, the task is to find the kth node from the beginning of the linked list (1-based index). If k > N, return -1.\n\nInput Format:\nFirst line: n k\nSecond line: n space-separated node values\n\nOutput Format:\nK-th node value or -1",
   "testcases": [
     {
       "testIndex": 0,

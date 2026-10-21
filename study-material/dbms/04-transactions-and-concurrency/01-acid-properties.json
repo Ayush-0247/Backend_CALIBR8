@@ -1,0 +1,34 @@
+{
+  "topic": "acid-properties",
+  "topicName": "Transactions & ACID Properties",
+  "order": 1,
+  "content": "# Transactions & ACID Properties\n\nA **Transaction** is a logical unit of database processing that includes one or more database operations (read, write, commit, rollback).\n\n---\n\n## 1. The ACID Properties\n\n### A. Atomicity (\"All or Nothing\")\n- Either all operations of the transaction are executed to completion and committed, or none are reflected in the database.\n- Managed by: **Recovery Manager** using write-ahead logging (WAL) and rollback mechanisms.\n\n### B. Consistency (\"Preserving Invariants\")\n- Execution of a transaction in isolation preserves database integrity constraints (e.g., total account balance across sender and receiver remains invariant).\n- Managed by: Database constraints (triggers, checks, foreign keys) and application logic.\n\n### C. Isolation\n- Concurrent transactions execute without interfering with one another. Intermediate transaction states are invisible to other running transactions.\n- Managed by: **Concurrency Control Manager** (locking, timestamps, MVCC).\n\n### D. Durability\n- Once a transaction commits, its updates persist in non-volatile storage and survive system failures or power outages.\n- Managed by: **Recovery Manager** (WAL, checkpointing).\n\n---\n\n## 2. Transaction Isolation Levels (SQL Standard)\n\n| Isolation Level | Dirty Read | Non-Repeatable Read | Phantom Read |\n| :--- | :---: | :---: | :---: |\n| **Read Uncommitted** | Permitted | Permitted | Permitted |\n| **Read Committed** | Prevented | Permitted | Permitted |\n| **Repeatable Read** | Prevented | Prevented | Permitted |\n| **Serializable** | Prevented | Prevented | Prevented |\n\n### Concurrency Anomalies:\n- **Dirty Read**: Transaction reads uncommitted data written by another transaction (which might subsequently abort).\n- **Non-Repeatable Read**: Re-reading a row returns different data because another transaction modified and committed it.\n- **Phantom Read**: Re-running a query with a range condition returns newly inserted rows committed by another transaction.",
+  "mcqs": [
+    {
+      "question": "Which isolation level prevents Dirty Reads and Non-Repeatable Reads, but may still allow Phantom Reads in the SQL standard?",
+      "options": [
+        "Read Uncommitted",
+        "Read Committed",
+        "Repeatable Read",
+        "Serializable"
+      ],
+      "correctIndex": 2,
+      "explanation": "Repeatable Read prevents dirty reads and non-repeatable reads; phantom reads are only eliminated in Serializable mode.",
+      "difficulty": "Medium",
+      "order": 1
+    },
+    {
+      "question": "Which component of the DBMS guarantees the Durability property of transactions?",
+      "options": [
+        "Concurrency Control Manager",
+        "Query Optimizer",
+        "Recovery Manager / WAL",
+        "Buffer Manager"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Recovery Manager with Write-Ahead Logging (WAL) ensures committed transactions survive system crashes.",
+      "difficulty": "Easy",
+      "order": 2
+    }
+  ]
+}

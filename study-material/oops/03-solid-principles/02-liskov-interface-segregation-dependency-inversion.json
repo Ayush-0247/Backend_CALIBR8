@@ -1,0 +1,21 @@
+{
+  "topic": "liskov-interface-segregation-dependency-inversion",
+  "topicName": "SOLID: LSP, ISP & Dependency Inversion",
+  "order": 2,
+  "content": "# SOLID Principles: LSP, ISP & DIP\n\n---\n\n## 1. Liskov Substitution Principle (LSP)\n> *\"Subtypes must be substitutable for their base types without altering program correctness.\"*\n\n- **Classic Violation**: `Square` subclassing `Rectangle`. In geometry, a square is a rectangle, but setting width independently of height breaks expectations in code for rectangles.\n\n---\n\n## 2. Interface Segregation Principle (ISP)\n> *\"Clients should not be forced to depend on methods they do not use.\"*\n\nPrefer small, focused, role-based interfaces over large, monolithic (\"fat\") interfaces.\n- **Bad**: An interface `IMachine` with `print()`, `scan()`, `fax()`, forcing a basic printer to implement throwing `UnsupportedOperationException` for fax.\n- **Good**: Separate interfaces: `IPrinter`, `IScanner`, `IFax`.\n\n---\n\n## 3. Dependency Inversion Principle (DIP)\n> *\"High-level modules should not depend on low-level modules. Both should depend on abstractions.\"*\n> *\"Abstractions should not depend on details. Details should depend on abstractions.\"*\n\n- Implemented via **Dependency Injection (DI)**.",
+  "mcqs": [
+    {
+      "question": "Which principle states that high-level business logic should depend on abstractions rather than concrete low-level implementations?",
+      "options": [
+        "Interface Segregation",
+        "Liskov Substitution",
+        "Dependency Inversion",
+        "Single Responsibility"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Dependency Inversion Principle (DIP) mandates depending on abstractions rather than concrete low-level classes.",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

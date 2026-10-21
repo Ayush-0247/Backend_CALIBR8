@@ -3,10 +3,9 @@
   "title": "Count Asterisks",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 2315",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2315]\nYou are given a string s, where every two consecutive vertical bars '|' are grouped into a pair. Return the number of '*' in s, excluding the '*' between each pair of bars.\n\nInput Format:\nA string s\n\nOutput Format:\nCount of asterisks outside bar pairs",
+  "description": "You are given a string s, where every two consecutive vertical bars '|' are grouped into a pair. Return the number of '*' in s, excluding the '*' between each pair of bars.\n\nInput Format:\nA string s\n\nOutput Format:\nCount of asterisks outside bar pairs",
   "testcases": [
     {
       "testIndex": 0,

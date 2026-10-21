@@ -3,10 +3,9 @@
   "title": "Add 1 to a Number Represented as Linked List",
   "difficulty": "Easy",
   "topic": "Linked List",
-  "source": "GFG Classic",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: GFG Classic]\nA number N is represented in Linked List such that each digit corresponds to a node in linked list. You need to add 1 to it and return the head of modified list.\n\nInput Format:\nFirst line: n (digit count)\nSecond line: n space-separated digits\n\nOutput Format:\nSpace-separated result digits",
+  "description": "A number N is represented in Linked List such that each digit corresponds to a node in linked list. You need to add 1 to it and return the head of modified list.\n\nInput Format:\nFirst line: n (digit count)\nSecond line: n space-separated digits\n\nOutput Format:\nSpace-separated result digits",
   "testcases": [
     {
       "testIndex": 0,

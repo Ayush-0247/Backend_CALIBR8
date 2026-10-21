@@ -1,0 +1,21 @@
+{
+  "topic": "designing-a-url-shortener-tinyurl",
+  "topicName": "System Design: URL Shortener (TinyURL)",
+  "order": 1,
+  "content": "# System Design: URL Shortener (e.g., TinyURL)\n\nA classic interview problem testing capacity estimation, unique ID generation, API design, and caching.\n\n---\n\n## 1. Requirements\n\n### Functional Requirements:\n1. Given a long URL, generate a unique short alias (e.g., `https://sho.rt/abc123X`).\n2. When accessing the short alias, redirect the client to the original long URL.\n3. Custom alias creation (optional).\n4. Links expire after a configurable duration.\n\n### Non-Functional Requirements:\n- High availability (service must not go down).\n- Sub-10ms redirection latency.\n- Unpredictable short links (security against enumeration attacks).\n\n---\n\n## 2. Capacity Estimations (Back of the Envelope)\n- New URLs created: 100 million per month (approx. 40 URLs/sec).\n- Read/Write ratio: 100:1 (Read-heavy) → 4,000 redirections/sec.\n- 5-year storage: 100M * 12 * 5 = 6 Billion URLs.\n- Storage per URL: ~500 bytes → 6B * 500B ≈ **3 TB storage**.\n\n---\n\n## 3. Short URL Encoding Strategy\nUsing Base62 characters (`[a-z, A-Z, 0-9]`):\n- With 7 characters: $62^7 \\approx 3.52 \\text{ Trillion}$ unique short URLs, which is more than enough for 6 Billion records.\n\n### ID Generation Methods:\n1. **Counter / Snowflake Generator + Base62 Encode**: Distributed sequence generator (Twitter Snowflake) outputs a unique 64-bit integer, then converted to Base62 string.\n2. **MD5 / SHA256 Hash**: Hash the long URL and take the first 7 characters. Requires collision resolution.\n\n---\n\n## 4. High-Level Architecture\n1. Client requests short link → Load Balancer → Web App.\n2. Web App checks **Redis Cache** for short key.\n   - **Cache Hit**: Returns 301/302 Redirect immediately (<5ms).\n   - **Cache Miss**: Queries SQL/NoSQL DB, writes to Redis, returns Redirect.\n3. Use **HTTP 302 (Found / Temporary Redirect)** if analytics tracking is required, or **HTTP 301 (Permanent Redirect)** to let browsers cache the destination directly.",
+  "mcqs": [
+    {
+      "question": "Why is HTTP 302 (Temporary Redirect) preferred over HTTP 301 (Permanent Redirect) for analytics-heavy URL shortener services?",
+      "options": [
+        "HTTP 302 uses less bandwidth",
+        "HTTP 301 is cached by the user's browser, preventing the shortener service from tracking click metrics on subsequent visits",
+        "HTTP 302 encrypts the destination URL",
+        "HTTP 301 cannot redirect to HTTPS destinations"
+      ],
+      "correctIndex": 1,
+      "explanation": "Browsers cache 301 redirects locally and bypass the shortener server on subsequent clicks, preventing analytics recording.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

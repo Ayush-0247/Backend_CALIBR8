@@ -1,0 +1,21 @@
+{
+  "topic": "sql-vs-nosql-and-cap-theorem",
+  "topicName": "SQL vs NoSQL & The CAP Theorem",
+  "order": 1,
+  "content": "# SQL vs NoSQL & The CAP Theorem\n\nChoosing the right database architecture is fundamental in large-scale system design.\n\n---\n\n## 1. SQL (Relational) vs. NoSQL\n\n| Dimension | SQL (PostgreSQL, MySQL) | NoSQL (MongoDB, Cassandra, DynamoDB) |\n| :--- | :--- | :--- |\n| **Schema** | Rigid, predefined schema | Dynamic, flexible schema |\n| **ACID** | Strong ACID compliance | Often BASE (Basically Available, Soft-state, Eventual consistency) |\n| **Scaling** | Typically vertical; complex sharding | Natively horizontal scaling |\n| **Joins** | Complex relational joins supported | Denormalized; application-level joins |\n| **Data Model** | Tables, Rows, Foreign Keys | Document, Key-Value, Wide-Column, Graph |\n\n---\n\n## 2. The CAP Theorem (Brewer's Theorem)\nIn any distributed data store, you can only guarantee **at most two out of three** properties simultaneously during network failures:\n\n1. **Consistency (C)**: Every read receives the most recent write or an error.\n2. **Availability (A)**: Every non-failing node returns a non-error response, without guarantee that it contains the most recent write.\n3. **Partition Tolerance (P)**: The system continues to operate despite arbitrary network delays or dropped messages between nodes.\n\n> **Key Insight**: Since network partitions ($P$) are inevitable in distributed systems, real-world systems must choose between **CP** (Consistency over Availability) or **AP** (Availability over Consistency).",
+  "mcqs": [
+    {
+      "question": "According to the CAP Theorem, when a network partition (P) occurs between distributed nodes, what trade-off must the system make?",
+      "options": [
+        "Between Speed and Security",
+        "Between Consistency (C) and Availability (A)",
+        "Between Storage and CPU",
+        "Between Encryption and Compression"
+      ],
+      "correctIndex": 1,
+      "explanation": "During a network partition, a system must either reject requests to preserve consistency (CP) or serve potentially stale data to remain available (AP).",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}

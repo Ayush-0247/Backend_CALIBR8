@@ -3,10 +3,9 @@
   "title": "Count Pairs Whose Sum is Less than Target",
   "difficulty": "Easy",
   "topic": "Array",
-  "source": "LeetCode 2824",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2824]\nGiven a 0-indexed integer array nums of length n and an integer target, return the number of pairs (i, j) where 0 <= i < j < n and nums[i] + nums[j] < target.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nCount of valid pairs integer",
+  "description": "Given a 0-indexed integer array nums of length n and an integer target, return the number of pairs (i, j) where 0 <= i < j < n and nums[i] + nums[j] < target.\n\nInput Format:\nFirst line: n target\nSecond line: n space-separated integers\n\nOutput Format:\nCount of valid pairs integer",
   "testcases": [
     {
       "testIndex": 0,

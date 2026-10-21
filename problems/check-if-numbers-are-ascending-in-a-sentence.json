@@ -3,10 +3,9 @@
   "title": "Check if Numbers Are Ascending in a Sentence",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 2042",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 2042]\nA sentence is a list of tokens separated by a single space with no leading or trailing spaces. Every token is either a positive number or a word of lowercase letters. Return true if all numbers are strictly increasing.\n\nInput Format:\nA sentence string\n\nOutput Format:\ntrue or false",
+  "description": "A sentence is a list of tokens separated by a single space with no leading or trailing spaces. Every token is either a positive number or a word of lowercase letters. Return true if all numbers are strictly increasing.\n\nInput Format:\nA sentence string\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,

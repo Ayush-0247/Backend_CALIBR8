@@ -3,10 +3,9 @@
   "title": "Delete Characters to Make Fancy String",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1957",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1957]\nA fancy string is a string where no three consecutive characters are equal. Given a string s, delete the minimum possible number of characters from s to make it fancy.\n\nInput Format:\nString s\n\nOutput Format:\nFancy string",
+  "description": "A fancy string is a string where no three consecutive characters are equal. Given a string s, delete the minimum possible number of characters from s to make it fancy.\n\nInput Format:\nString s\n\nOutput Format:\nFancy string",
   "testcases": [
     {
       "testIndex": 0,

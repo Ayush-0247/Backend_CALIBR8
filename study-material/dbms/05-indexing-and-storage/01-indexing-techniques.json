@@ -1,0 +1,21 @@
+{
+  "topic": "indexing-techniques",
+  "topicName": "Indexing Techniques & B/B+ Trees",
+  "order": 1,
+  "content": "# Indexing Techniques & B+ Trees\n\nAn index is an auxiliary data structure that enhances the speed of data retrieval operations on a database table at the cost of additional write and storage overhead.\n\n---\n\n## 1. Types of Single-Level Ordered Indices\n\n- **Primary Index**: Specified on the ordered primary key field of an ordered data file. Sparse index.\n- **Clustering Index**: Defined on an ordered non-key field. Data file is sorted on this field.\n- **Secondary Index**: An index created on a non-ordered field (key or non-key). Must be a **Dense Index**.\n\n### Dense vs. Sparse Index:\n- **Dense Index**: An index entry appears for *every search key value* in the data file.\n- **Sparse Index**: An index entry appears for only *some search key values* (e.g., one entry per disk block). Consumes less space but requires sorted data files.\n\n---\n\n## 2. B-Tree vs. B+ Tree\n\n| Feature | B-Tree | B+ Tree |\n| :--- | :--- | :--- |\n| **Data Pointer Location** | Stored in both internal and leaf nodes | Stored **only in leaf nodes** |\n| **Internal Node Capacity** | Fewer keys (records take space) | More keys (higher fan-out, smaller height) |\n| **Sequential Scanning** | Inefficient (in-order tree traversal) | Highly efficient (leaves linked as linked list) |\n| **Search Time** | Variable ($O(1)$ to $O(\\log N)$) | Uniform ($O(\\log N)$ to leaf level) |\n| **RDBMS Usage** | Rarely used for table storage | **Industry standard** (InnoDB, PostgreSQL) |",
+  "mcqs": [
+    {
+      "question": "Why do modern RDBMS storage engines (like MySQL InnoDB) prefer B+ Trees over B-Trees?",
+      "options": [
+        "B+ trees don't require balancing",
+        "Leaf nodes are linked in a list for fast range scans and internal nodes fit more keys per block",
+        "B+ trees use zero disk space",
+        "B+ trees only work in memory"
+      ],
+      "correctIndex": 1,
+      "explanation": "Because internal nodes only hold keys, fan-out is higher (reducing tree depth), and leaf pointers enable fast range scans.",
+      "difficulty": "Medium",
+      "order": 1
+    }
+  ]
+}

@@ -3,10 +3,9 @@
   "title": "Check if Word Equals Summation of Two Words",
   "difficulty": "Easy",
   "topic": "String",
-  "source": "LeetCode 1880",
   "timeLimit": 1000,
   "memoryLimit": 256,
-  "description": "[Source: LeetCode 1880]\nThe letter value of a letter is its horizontal position in the alphabet starting from 0 ('a' -> 0, 'b' -> 1, ..., 'j' -> 9). Return true if firstWord + secondWord equals targetWord numerically.\n\nInput Format:\nFirst line: firstWord secondWord targetWord\n\nOutput Format:\ntrue or false",
+  "description": "The letter value of a letter is its horizontal position in the alphabet starting from 0 ('a' -> 0, 'b' -> 1, ..., 'j' -> 9). Return true if firstWord + secondWord equals targetWord numerically.\n\nInput Format:\nFirst line: firstWord secondWord targetWord\n\nOutput Format:\ntrue or false",
   "testcases": [
     {
       "testIndex": 0,
