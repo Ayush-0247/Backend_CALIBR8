@@ -16,9 +16,10 @@
 6. [Onboarding & Skill Calibration API (`/api/onboarding`)](#6-onboarding--skill-calibration-api-apionboarding)
 7. [Problems Catalogue API (`/api/problems`)](#7-problems-catalogue-api-apiproblems)
 8. [Social & OAuth API (`/api/social`)](#8-social--oauth-api-apisocial)
-9. [Utility Scripts & Database Seeding](#9-utility-scripts--database-seeding)
-10. [Code Execution Notice](#10-code-execution-notice)
-11. [Error Handling & Status Codes](#11-error-handling--status-codes)
+9. [CS Curriculum & Study Material API (`/api/study`)](#9-cs-curriculum--study-material-api-apistudy)
+10. [Utility Scripts & Database Seeding](#10-utility-scripts--database-seeding)
+11. [Code Execution Notice](#11-code-execution-notice)
+12. [Error Handling & Status Codes](#12-error-handling--status-codes)
 
 ---
 
@@ -601,7 +602,171 @@ Unlinks the specified social provider from the authenticated user's account.
 
 ---
 
-## 9. Utility Scripts & Database Seeding
+## 9. CS Curriculum & Study Material API (`/api/study`)
+
+Comprehensive computer science curriculum endpoints covering 5 core subjects, 75 chapters, 75 topics with 11-section pedagogical deep-dives, and 159 technical MCQs.
+
+### `GET /api/study/subjects`
+Returns list of all 5 core subjects with chapter counts and descriptions.
+- **Auth**: None
+- **Response (200 OK)**:
+```json
+[
+  {
+    "id": "subj-oops",
+    "slug": "oops",
+    "name": "Object-Oriented Programming Systems",
+    "order": 1,
+    "description": "Master object-oriented programming foundations...",
+    "_count": { "chapters": 14 }
+  },
+  {
+    "id": "subj-system-design",
+    "slug": "system-design",
+    "name": "System Design",
+    "order": 2,
+    "_count": { "chapters": 16 }
+  },
+  {
+    "id": "subj-dbms",
+    "slug": "dbms",
+    "name": "Database Management Systems",
+    "order": 3,
+    "_count": { "chapters": 16 }
+  },
+  {
+    "id": "subj-os",
+    "slug": "os",
+    "name": "Operating System",
+    "order": 4,
+    "_count": { "chapters": 16 }
+  },
+  {
+    "id": "subj-cn",
+    "slug": "cn",
+    "name": "Computer Networks",
+    "order": 5,
+    "_count": { "chapters": 13 }
+  }
+]
+```
+
+---
+
+### `GET /api/study/subjects/:subjectSlug`
+Retrieves subject details with complete chapter list and topic counts.
+- **Auth**: None
+- **Parameters**: `subjectSlug` (e.g. `oops`, `system-design`, `dbms`, `os`, `cn`)
+- **Response (200 OK)**:
+```json
+{
+  "id": "subj-oops",
+  "slug": "oops",
+  "name": "Object-Oriented Programming Systems",
+  "chapters": [
+    {
+      "id": "ch-oops-1",
+      "slug": "programming-paradigms-and-foundations",
+      "name": "Programming Paradigms and OOP Foundations",
+      "order": 1,
+      "_count": { "topics": 1 }
+    }
+  ]
+}
+```
+
+---
+
+### `GET /api/study/chapters/:chapterId/topics`
+Retrieves all topics belonging to a chapter.
+- **Auth**: None
+- **Parameters**: `chapterId` (e.g. `ch-oops-1` or chapter slug)
+- **Response (200 OK)**:
+```json
+[
+  {
+    "id": "topic-oops-programming-paradigms-and-foundations-paradigms-and-oop-foundations",
+    "slug": "paradigms-and-oop-foundations",
+    "name": "Programming Paradigms and the Foundations of OOP",
+    "order": 1,
+    "mcqCount": 4
+  }
+]
+```
+
+---
+
+### `GET /api/study/topics/:topicSlug`
+Fetches complete 11-section markdown content and assessment MCQs.
+- **Auth**: None
+- **Parameters**: `topicSlug` (e.g. `paradigms-and-oop-foundations`, `ipv4-subnetting-and-cidr`)
+- **Security**: The `correctIndex` field is omitted from the public response to prevent client-side inspection.
+- **Response (200 OK)**:
+```json
+{
+  "id": "topic-oops-programming-paradigms-and-foundations-paradigms-and-oop-foundations",
+  "slug": "paradigms-and-oop-foundations",
+  "name": "Programming Paradigms and the Foundations of OOP",
+  "content": "# Programming Paradigms and the Foundations of OOP\n\n## 1. Introduction...",
+  "mcqs": [
+    {
+      "id": "topic-oops-mcq-1",
+      "question": "Which of the following correctly describes an object’s identity in C++?",
+      "options": [
+        "The collection of all values stored in its member variables",
+        "Its unique location in memory, represented by its pointer/address",
+        "The name of the variable referring to the object in source code",
+        "The cryptographic hash of its public member functions"
+      ],
+      "difficulty": "Easy",
+      "explanation": "An object’s identity is its unique memory address..."
+    }
+  ],
+  "chapter": {
+    "name": "Programming Paradigms and OOP Foundations",
+    "subject": { "name": "Object-Oriented Programming Systems", "slug": "oops" }
+  }
+}
+```
+
+---
+
+### `POST /api/study/topics/:topicSlug/submit`
+Evaluates submitted multiple-choice answers, scores the quiz, and returns explanations.
+- **Auth**: None
+- **Parameters**: `topicSlug`
+- **Request Body**:
+```json
+{
+  "answers": {
+    "topic-oops-mcq-1": 1,
+    "topic-oops-mcq-2": 0
+  }
+}
+```
+- **Response (200 OK)**:
+```json
+{
+  "topicSlug": "paradigms-and-oop-foundations",
+  "score": 1,
+  "total": 4,
+  "percentage": 25,
+  "passed": false,
+  "results": [
+    {
+      "id": "topic-oops-mcq-1",
+      "userAnswer": 1,
+      "correctIndex": 1,
+      "isCorrect": true,
+      "explanation": "An object’s identity is its unique memory address..."
+    }
+  ]
+}
+```
+
+---
+
+## 10. Utility Scripts & Database Seeding
 
 The backend repository includes two purpose-built utility scripts in `./scripts/`:
 
@@ -627,13 +792,13 @@ The backend repository includes two purpose-built utility scripts in `./scripts/
 
 ---
 
-## 10. Code Execution Notice
+## 11. Code Execution Notice
 
 Code execution runner (`/api/v1/runs`) and submission pipeline (`/api/v1/submissions`) are temporarily commented out and disabled as requested. The Judge0 sandbox runner and driver architecture are scheduled for Phase 2 implementation. The problem catalogue, testcases, and multi-language starter templates remain active and fully accessible via `/api/problems`.
 
 ---
 
-## 11. Error Handling & Status Codes
+## 12. Error Handling & Status Codes
 
 All errors return a standardized JSON error response:
 
