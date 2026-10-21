@@ -1,0 +1,41 @@
+{
+  "id": "topic-oops-advanced-cpp-features-templates-rtti-and-const-correctness",
+  "slug": "templates-rtti-and-const-correctness",
+  "topic": "templates-rtti-and-const-correctness",
+  "name": "Templates, RTTI, dynamic_cast, and Const-Correctness",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Advanced C++ Features Relevant to OOP",
+  "chapterSlug": "advanced-cpp-features",
+  "chapterId": "ch-oops-9",
+  "content": "# Templates, RTTI, dynamic_cast, and Const-Correctness\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Advanced C++ Features Relevant to OOP\n\n**Prerequisites:** classes-objects-encapsulation, polymorphism-vtables-and-dispatch\n\n### What is this topic and why does it matter?\nAdvanced C++ synergizes OOP with generic programming (templates) and type introspection (RTTI). We explore class/function templates, const correctness, friend declarations, and safe runtime downcasting via dynamic_cast.\n\n### Specific Learning Outcomes\n- **Generic OOP with Templates**: Implement class templates and understand compile-time polymorphism.\n- **Const-Correctness**: Enforce immutability through compiler checks.\n- **RTTI & dynamic_cast**: Safely inspect and cast derived types at runtime.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of an airport security scanner. Most luggage passes through uniform conveyor belts (templates). However, when a suspicious bag arrives, security pulls it aside for an X-ray inspection (RTTI) to verify its exact contents before permitting passage.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. Templates: Compile-Time Generic OOP\nTemplates generate concrete types at compile time based on type arguments:\n```cpp\ntemplate <typename T>\nclass Stack {\nprivate:\n    std::vector<T> elements;\npublic:\n    void push(const T& item) { elements.push_back(item); }\n    T pop() { /* ... */ }\n};\n```\n- Enables type-safe generic containers without runtime casting or void* overhead.\n- Supports **CRTP (Curiously Recurring Template Pattern)** for static polymorphism without virtual function overhead.\n\n### 2. Const-Correctness\n- A `const` member function promises not to mutate any non-mutable member variable: `int get() const;`\n- The compiler verifies this at compile time.\n- If a member must be modified inside a const function (e.g., a mutex or cached calculation), mark it with `mutable`.\n\n### 3. RTTI and dynamic_cast\n- **RTTI (Run-Time Type Information):** The mechanism by which the compiler embeds type descriptors in the vtable.\n- **`dynamic_cast<Derived*>(basePtr)`:**\n  - Safely casts a pointer/reference to a base class down to a derived class.\n  - Requires the base class to have **at least one virtual function** (polymorphic).\n  - Returns `nullptr` on failure for pointers; throws `std::bad_cast` on failure for references.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Safe Downcasting with dynamic_cast & Const-Correctness (Standard)\n\n**Problem Statement:** Safely process specific derived behaviors in a heterogeneous collection.\n\n```cpp\n#include <iostream>\n#include <vector>\n#include <memory>\n\nclass Graphic {\npublic:\n    virtual ~Graphic() = default;\n    virtual void draw() const = 0; // Pure virtual\n};\n\nclass Button : public Graphic {\npublic:\n    void draw() const override { std::cout << \"Drawing Button\\n\"; }\n    void click() { std::cout << \"Button clicked!\\n\"; }\n};\n\nclass Label : public Graphic {\npublic:\n    void draw() const override { std::cout << \"Drawing Label\\n\"; }\n};\n\nvoid handleEvent(const std::vector<std::shared_ptr<Graphic>>& widgets) {\n    for (const auto& w : widgets) {\n        w->draw();\n        // Safe downcast to check if widget is a clickable Button\n        if (auto btn = std::dynamic_pointer_cast<Button>(w)) {\n            btn->click();\n        }\n    }\n}\n```\n\n**Detailed Explanation & Tracing:**\ndynamic_pointer_cast uses RTTI to verify whether the object pointed to by w is genuinely a Button. If w points to a Label, btn becomes nullptr without crashing.\n\n## 5. Production & Practical Engineering Applications\n\nGeneric data structure libraries (std::vector, std::map), serialization engines, and plugin systems.\n\n## 6. Visual Diagrams & Architectural Representation\n\ndynamic_cast Traversal:\nBase* ptr ----> [ vptr ] ----> [ vtable ] ----> [ type_info Descriptor ]\n                                                    |\n                                      Checks if matches target type:\n                                      Matches: Returns Derived*\n                                      Fails:   Returns nullptr\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### static_cast vs dynamic_cast\n\n| Feature | static_cast | dynamic_cast |\n| :--- | :--- | :--- |\n| **Check Time** | Compile time | Run time via RTTI |\n| **Polymorphic Required** | No | Yes (Base must have virtual function) |\n| **Safety on Invalid Cast** | Undefined Behavior (Memory corruption) | Returns `nullptr` or throws `std::bad_cast` |\n| **Performance** | Zero overhead | Small runtime lookup cost |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Using dynamic_cast on a class without virtual functions\n- **Why developers fail here:** RTTI metadata is attached to the vtable. Classes without virtual functions have no vtable.\n- **Concrete Counterexample / Symptom:** Compilation error: \"Source type is not polymorphic\".\n- **How to prevent / correct:** Add a virtual destructor to the base class to make it polymorphic.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: What is the keyword `mutable` used for in C++? (Language Feature)\n\n**Model Answer:**\nThe mutable specifier allows a member variable of a class to be modified even inside a const member function. It is commonly used for internal synchronization primitives (std::mutex) or caching/memoization buffers that do not affect the visible state of the object.\n\n*Interviewer Follow-up:* \"Why is overusing dynamic_cast considered a code smell in OOP?\"\n\n*Follow-up Response:* Frequent downcasting indicates a violation of the Open/Closed and Liskov Substitution principles. If code constantly checks \"if (type is DerivedA) do X else if (type is DerivedB) do Y\", the logic should instead be encapsulated as a virtual method on the base interface.\n\n## 10. Rapid Revision Cheat Sheet\n\n- **Templates:** Compile-time parametric polymorphism\n- **dynamic_cast:** Runtime checked cast across polymorphic hierarchies\n- **mutable:** Permits modification within const member functions\n- **typeid:** Operator returning std::type_info about an expression\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can implement a generic class template\n- [ ] Enforces const-correctness throughout class member functions\n- [ ] Knows when dynamic_cast is appropriate and its runtime performance impact\n\n",
+  "mcqs": [
+    {
+      "question": "What does `dynamic_cast` return when an invalid pointer downcast is attempted?",
+      "options": [
+        "Throws std::bad_cast exception",
+        "nullptr",
+        "A corrupted pointer to memory address 0xDEADBEEF",
+        "The original base pointer unmodified"
+      ],
+      "correctIndex": 1,
+      "explanation": "When casting pointers, dynamic_cast returns nullptr on failure. When casting references, because references cannot be null, it throws std::bad_cast.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "Which condition is required for `dynamic_cast` to work on a base class pointer?",
+      "options": [
+        "The base class must have at least one virtual function",
+        "All member variables must be public",
+        "The classes must be declared inside the std namespace",
+        "The code must be compiled with the -O3 optimization flag"
+      ],
+      "correctIndex": 0,
+      "explanation": "dynamic_cast relies on RTTI stored in the vtable. Therefore, the base class must be polymorphic (contain at least one virtual function).",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}
