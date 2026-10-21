@@ -126,3 +126,62 @@ model Submission {
 
   @@map("submissions")
 }
+
+model StudySubject {
+  id          String         @id @default(cuid())
+  slug        String         @unique // dbms, oops, system-design
+  name        String         // "DBMS"
+  description String?
+  icon        String?
+  order       Int            @default(0)
+  chapters    StudyChapter[]
+  createdAt   DateTime       @default(now())
+}
+
+model StudyChapter {
+  id          String       @id @default(cuid())
+  slug        String
+  name        String
+  subjectId   String
+  subject     StudySubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  order       Int
+  topics      StudyTopic[]
+
+  @@unique([subjectId, slug])
+}
+
+model StudyTopic {
+  id          String       @id @default(cuid())
+  slug        String
+  name        String
+  chapterId   String
+  chapter     StudyChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  order       Int
+  content     String       @db.Text // Markdown
+  isPublished Boolean      @default(true)
+  mcqs        StudyMCQ[]
+  createdAt   DateTime     @default(now())
+
+  @@unique([chapterId, slug])
+}
+
+model StudyMCQ {
+  id           String     @id @default(cuid())
+  topicId      String
+  topic        StudyTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  question     String     @db.Text
+  options      Json       // ["A", "B", "C", "D"]
+  correctIndex Int
+  explanation  String?    @db.Text
+  difficulty   String     @default("Easy")
+  order        Int
+}
+
+// Optional: User progress tracking ke liye baad me add karna
+// model StudyProgress {
+//   id        String   @id @default(cuid())
+//   userId    String
+//   topicId   String
+//   isCompleted Boolean
+//   score     Int?
+// }

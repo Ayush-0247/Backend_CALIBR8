@@ -7,26 +7,21 @@ import topicRouter from "./topic.router.js";
 import onboardingRouter from "./onboarding.router.js";
 import socialRouter from "./social.router.js";
 import problemRouter from "./problem.router.js";
-
+import studyRouter from "./study.routes.js"; // <-- YAHAN FIX
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const router = Router();
-
 // Health & utility routes
 router.get("/ping", (req, res) => res.status(200).send("pong"));
 router.get("/api/ping", (req, res) => res.status(200).send("pong"));
-
 const handleHealth = (req, res) =>
   res.status(200).json({
     status: "ok",
     service: "Calibr8 Backend",
     timestamp: new Date().toISOString(),
   });
-
 router.get("/health", handleHealth);
 router.get("/api/health", handleHealth);
-
 // Consistent /api/* routing namespace
 router.use("/api/auth", authRouter);
 router.use("/api/users", userRouter);
@@ -34,6 +29,7 @@ router.use("/api/topics", topicRouter);
 router.use("/api/onboarding", onboardingRouter);
 router.use("/api/problems", problemRouter);
 router.use("/api/social", socialRouter);
+router.use("/api/study", studyRouter); 
 
 // Root endpoint: API documentation & interactive developer dashboard
 router.get("/", (req, res) => {

@@ -1,0 +1,16 @@
+{
+  "topic": "what-is-er-model",
+  "topicName": "What is ER Model?",
+  "order": 1,
+  "content": "# ER Model\n\nEntity Relationship Model is a high-level data model...\n\n## Components\n- Entity\n- Attribute\n- Relationship\n\n```sql\nSELECT * FROM users;\n```",
+  "mcqs": [
+    {
+      "question": "What does ER stand for?",
+      "options": ["Entity Relation", "Entity Relationship", "Extended Relation", "Entity Record"],
+      "correctIndex": 1,
+      "explanation": "ER stands for Entity Relationship",
+      "difficulty": "Easy",
+      "order": 1
+    }
+  ]
+}
