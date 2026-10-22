@@ -8,16 +8,17 @@
 ---
 
 ## Table of Contents
+
 1. [Architecture & Design Principles](#1-architecture--design-principles)
 2. [Health & System Endpoints](#2-health--system-endpoints)
 3. [Authentication API (`/api/auth`)](#3-authentication-api-apiauth)
 4. [User Profile API (`/api/users`)](#4-user-profile-api-apiusers)
-5. [Topics API (`/api/topics`)](#5-topics-api-apitopics)
+5. [Topics API (`/api/topics` & `/api/dsa-topics`)](#5-topics-api-apitopics--apidsa-topics)
 6. [Onboarding & Skill Calibration API (`/api/onboarding`)](#6-onboarding--skill-calibration-api-apionboarding)
 7. [Problems Catalogue API (`/api/problems`)](#7-problems-catalogue-api-apiproblems)
 8. [Social & OAuth API (`/api/social`)](#8-social--oauth-api-apisocial)
 9. [CS Curriculum & Study Material API (`/api/study`)](#9-cs-curriculum--study-material-api-apistudy)
-10. [Utility Scripts & Database Seeding](#10-utility-scripts--database-seeding)
+10. [Utility Scripts & Database Management](#10-utility-scripts--database-management)
 11. [Code Execution Notice](#11-code-execution-notice)
 12. [Error Handling & Status Codes](#12-error-handling--status-codes)
 
@@ -25,24 +26,33 @@
 
 ## 1. Architecture & Design Principles
 
-- **Routing Architecture**: Clean Router-Controller pattern. Each route group has its dedicated controller file (`*.controller.js`) encapsulating business logic, validation, and data persistence without redundant service indirection.
-- **Consistent Namespace**: All business domain endpoints reside under the `/api` prefix (e.g., `/api/auth`, `/api/users`, `/api/topics`, `/api/onboarding`, `/api/problems`, `/api/social`).
-- **Database & High Availability**: Powered by Prisma ORM. When connected to PostgreSQL or Neon via `DATABASE_URL`, live database queries are executed. When external database credentials are not present or temporarily unreachable, the backend seamlessly falls back to an in-memory mock store populated with the 15 bundled coding problem definitions, testcases, multi-language templates, and full authentication capabilities.
+- **Express and Prisma**: Express routers are mounted from `src/routers/index.router.js`; controllers use Prisma for database access. OAuth integration is handled in `src/controllers/social.controller.js`.
+- **Consistent Namespace**: All business domain endpoints reside under the `/api` prefix (e.g., `/api/auth`, `/api/users`, `/api/topics`, `/api/dsa-topics`, `/api/onboarding`, `/api/problems`, `/api/social`, `/api/study`).
+- **Database Connection**: Prisma connects to PostgreSQL through the configured Neon adapter using `DATABASE_URL`. The schema includes users, topic calibration, problems, testcases, starter templates, social accounts, and study-curriculum models.
+
+> **Route availability:** `/api/dsa-topics` is not mounted. The structured DSA problem-category list handler is present in `topic.controller.js`, but its `/api/topics/dsa` route is registered after another handler for the same path, so it is shadowed. The active `/api/topics/dsa` endpoint returns calibration topics instead. Code-execution router handlers are also not mounted; see [Code Execution Notice](#11-code-execution-notice).
 
 ---
 
 ## 2. Health & System Endpoints
 
 ### `GET /`
-Returns the interactive Developer Dashboard & API Explorer (HTML) or API specification (JSON).
+
+Serves the interactive Developer Dashboard (HTML) when HTML is accepted, otherwise returns API metadata JSON. The metadata is a hard-coded summary, not a complete or authoritative endpoint catalog; for example, its current problem count and `apiGroups` do not reflect the full mounted API.
+
 - **Auth**: None
 - **Headers**: Send `Accept: application/json` for machine-readable JSON metadata.
 - **Response (200 OK - JSON mode)**:
+
 ```json
 {
   "service": "Calibr8 Backend API",
   "status": "online",
   "version": "1.2.0",
+  "architecture": {
+    "pattern": "Router-Controller-Model",
+    "namingConvention": "*.router.js, *.controller.js"
+  },
   "features": [
     "User Registration, Login, Logout & Token Revocation",
     "DSA Topic Level Calibration (Easy, Mid, Hard)",
@@ -66,23 +76,29 @@ Returns the interactive Developer Dashboard & API Explorer (HTML) or API specifi
 ---
 
 ### `GET /health` or `GET /api/health`
-Health check endpoint reporting service status.
+
+Health check endpoint reporting backend service status and current timestamp. It does not check database connectivity.
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```json
 {
   "status": "ok",
   "service": "Calibr8 Backend",
-  "timestamp": "2026-10-20T14:30:00.000Z"
+  "timestamp": "2026-10-21T19:30:00.000Z"
 }
 ```
 
 ---
 
 ### `GET /ping` or `GET /api/ping`
+
 Ultra-fast lightweight latency probe.
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```
 pong
 ```
@@ -92,9 +108,12 @@ pong
 ## 3. Authentication API (`/api/auth`)
 
 ### `POST /api/auth/register`
+
 Creates a new user account, hashes the password using bcrypt, and issues a signed JWT token.
+
 - **Auth**: None
 - **Request Body**:
+
 ```json
 {
   "name": "Alex Chen",
@@ -102,7 +121,9 @@ Creates a new user account, hashes the password using bcrypt, and issues a signe
   "password": "Password123!"
 }
 ```
+
 - **Response (201 Created)**:
+
 ```json
 {
   "success": true,
@@ -114,8 +135,8 @@ Creates a new user account, hashes the password using bcrypt, and issues a signe
     "rating": 800,
     "onboarded": false,
     "preferredLanguage": "cpp",
-    "createdAt": "2026-10-20T14:20:00.000Z",
-    "updatedAt": "2026-10-20T14:20:00.000Z",
+    "createdAt": "2026-10-21T14:20:00.000Z",
+    "updatedAt": "2026-10-21T14:20:00.000Z",
     "topics": [],
     "socialAccounts": []
   },
@@ -126,16 +147,21 @@ Creates a new user account, hashes the password using bcrypt, and issues a signe
 ---
 
 ### `POST /api/auth/login`
-Authenticates user credentials and returns a JWT token.
+
+Authenticates user credentials and returns user details with a signed JWT token.
+
 - **Auth**: None
 - **Request Body**:
+
 ```json
 {
   "email": "alex@calibr8.dev",
   "password": "Password123!"
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -155,9 +181,12 @@ Authenticates user credentials and returns a JWT token.
 ---
 
 ### `POST /api/auth/logout`
+
 Revokes the current JWT bearer token by adding its hash to the server-side revocation list.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -168,9 +197,12 @@ Revokes the current JWT bearer token by adding its hash to the server-side revoc
 ---
 
 ### `GET /api/auth/me` or `GET /api/auth/verify`
-Validates the active session token and returns full profile data.
+
+Validates the active session token and returns the current user profile.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -190,16 +222,21 @@ Validates the active session token and returns full profile data.
 ---
 
 ### `POST /api/auth/change-password`
+
 Changes the authenticated user's password after verifying their current password.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Request Body**:
+
 ```json
 {
   "oldPassword": "Password123!",
   "newPassword": "NewStrongPassword456!"
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -211,10 +248,13 @@ Changes the authenticated user's password after verifying their current password
 
 ## 4. User Profile API (`/api/users`)
 
-### `GET /api/users/me`
+### `GET /api/users/me` (or `GET /api/users`)
+
 Retrieves the authenticated user's complete profile, including onboarding status, rating, calibrated topic levels, and linked social accounts.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -247,16 +287,21 @@ Retrieves the authenticated user's complete profile, including onboarding status
 
 ---
 
-### `PUT /api/users/me`
+### `PUT /api/users/me` (or `PUT /api/users`)
+
 Updates editable profile fields (such as user name).
+
 - **Auth**: Required (`Bearer <token>`)
 - **Request Body**:
+
 ```json
 {
   "name": "Alexandre Chen"
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -269,17 +314,22 @@ Updates editable profile fields (such as user name).
 
 ---
 
-### `PATCH /api/users/me/language`
+### `PATCH /api/users/me/language` (or `PATCH /api/users/language`)
+
 Updates the user's preferred default programming language.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Allowed Languages**: `cpp`, `c`, `java`, `python`, `javascript`
 - **Request Body**:
+
 ```json
 {
   "language": "python"
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -289,15 +339,18 @@ Updates the user's preferred default programming language.
 
 ---
 
-## 5. Topics API (`/api/topics`)
+## 5. Topics API (`/api/topics` & `/api/dsa-topics`)
 
 ### `GET /api/topics`
-Lists all topics available in Calibr8, grouped by category (DSA vs Core subjects).
+
+Lists database `Topic` records and also returns the DSA/Core partitions. The seed script creates 5 DSA and 4 CORE records; the live count depends on database contents.
+
 - **Auth**: None
 - **Query Params (Optional)**:
   - `?category=dsa` — filters to DSA topics only
   - `?category=core` — filters to Core subjects (DBMS, OOPs, System Design, Aptitude)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -313,17 +366,22 @@ Lists all topics available in Calibr8, grouped by category (DSA vs Core subjects
     { "id": "core-oops", "slug": "oops", "name": "OOPs", "category": "CORE" },
     { "id": "core-system-design", "slug": "system-design", "name": "System Design", "category": "CORE" }
   ],
-  "dsaTopics": [ ...5 DSA topics... ],
-  "coreTopics": [ ...4 Core topics... ]
+  "dsaTopics": [ ...DSA topics from the database... ],
+  "coreTopics": [ ...non-DSA topics from the database... ]
 }
 ```
+
+When `category=dsa` or `category=core` is supplied, only the `topics` array and `count` are filtered; `dsaTopics` and `coreTopics` still contain their full respective lists. Unknown category values leave `topics` unfiltered.
 
 ---
 
 ### `GET /api/topics/dsa`
-Convenience route returning specifically the 5 DSA topics used in skill calibration.
+
+Returns the 5 DSA topics used in skill calibration.
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -335,10 +393,53 @@ Convenience route returning specifically the 5 DSA topics used in skill calibrat
 
 ---
 
+### `GET /api/topics/dsa/:slug/problems`
+
+Fetches all coding problems belonging to a specific DSA topic category (from `DsaTopic`).
+
+- **Auth**: None
+- **Parameters**: `slug` (e.g. `arrays`, `linked-list`, `dynamic-programming`)
+- **Query Params (Optional)**:
+  - `?difficulty=Easy` (filter by `Easy`, `Medium`, `Hard`)
+  - `?search=target` (keyword search in problem title or slug)
+- **Response (200 OK)**:
+
+```json
+{
+  "topic": {
+    "id": "clx123abc",
+    "slug": "arrays",
+    "name": "Arrays"
+  },
+  "count": 12,
+  "problems": [
+    {
+      "id": "prob-two-sum",
+      "problemNumber": 1,
+      "slug": "two-sum",
+      "title": "Two Sum",
+      "difficulty": "Easy",
+      "tags": ["Array", "Hash Table"]
+    }
+  ]
+}
+```
+
+---
+
+### `GET /api/topics/dsa-topics` (or `GET /api/dsa-topics`)
+
+**Not currently available.** Neither path is mounted. The controller contains a structured DSA category-list handler, but a second `GET /api/topics/dsa` registration is shadowed by the earlier calibration-topic handler. The active `GET /api/topics/dsa` response is documented above; use it only for calibration topics.
+
+---
+
 ### `GET /api/topics/:identifier`
+
 Fetches a single topic by its UUID `id` or string `slug` (e.g. `dsa-arrays` or `dbms`).
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -356,12 +457,14 @@ Fetches a single topic by its UUID `id` or string `slug` (e.g. `dsa-arrays` or `
 ## 6. Onboarding & Skill Calibration API (`/api/onboarding`)
 
 ### `POST /api/onboarding` or `PUT /api/onboarding/levels`
+
 Completes the user's initial onboarding or updates their calibration profile.
 
 #### Supported Calibration Modes:
 
 1. **Beginner 1-Click Preset**:
-Automatically calibrates all DSA topics to `easy` with starting rating of `800`.
+   Automatically selects all records in the `Topic` table and assigns them `easy` with a starting rating of `800` (the seed data contains both DSA and CORE topics; this is not DSA-only).
+
 ```json
 {
   "beginner": true
@@ -369,7 +472,8 @@ Automatically calibrates all DSA topics to `easy` with starting rating of `800`.
 ```
 
 2. **Granular Topic Calibration (`topicLevels`)**:
-Assigns a distinct skill level to each selected DSA topic:
+   Assigns a distinct skill level to each selected topic ID. Although the example uses DSA topics, the backend accepts any existing `Topic` record:
+
 ```json
 {
   "topicLevels": [
@@ -383,7 +487,8 @@ Assigns a distinct skill level to each selected DSA topic:
 ```
 
 3. **Uniform Difficulty Preset**:
-Sets a uniform baseline across specified topics or all topics:
+   Sets a uniform baseline across specified topic IDs or all records when `topicIds` is `"all"` (including CORE topics):
+
 ```json
 {
   "difficulty": "medium",
@@ -395,12 +500,13 @@ Sets a uniform baseline across specified topics or all topics:
   - `easy` (or `beginner`) = 800 pts
   - `medium` (or `mid`, `intermediate`) = 1200 pts
   - `hard` (or `advanced`) = 1600 pts
-  - Overall rating is computed as the rounded average across calibrated topics:
+  - For `topicLevels`/`topicSelections`, rating is the rounded average of the supplied per-topic levels. For a uniform `difficulty` request, rating is that level's mapped value:
     - `< 1000` $\rightarrow$ `easy`
     - `1000 – 1399` $\rightarrow$ `medium`
     - `≥ 1400` $\rightarrow$ `hard`
 
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -431,9 +537,12 @@ Sets a uniform baseline across specified topics or all topics:
 ---
 
 ### `GET /api/onboarding/status`
+
 Checks if the current user has completed onboarding and returns their active calibration levels.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -451,15 +560,20 @@ Checks if the current user has completed onboarding and returns their active cal
 ---
 
 ### `PATCH /api/onboarding/language`
+
 Sets or updates preferred programming language during onboarding.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Request Body**:
+
 ```json
 {
   "language": "python"
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -472,31 +586,24 @@ Sets or updates preferred programming language during onboarding.
 ## 7. Problems Catalogue API (`/api/problems`)
 
 ### `GET /api/problems`
-Returns the list of 15 coding problems in the catalogue, with difficulty classification, limits, and count of testcases and code templates.
+
+Returns the list of coding problems in the catalogue, with difficulty classification, limits, and count of testcases and code templates.
+
 - **Auth**: None
 - **Query Params (Optional)**:
   - `?difficulty=Easy` — filter by difficulty (`Easy`, `Medium`, `Hard`)
   - `?search=two` — keyword search in problem title, slug, or problem number
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
-  "count": 15,
+  "count": 130,
   "data": [
     {
-      "id": "prob-count-even-numbers-001",
+      "id": "prob-two-sum",
       "problemNumber": 1,
-      "slug": "count-even-numbers-001",
-      "title": "Count Even Numbers",
-      "difficulty": "Easy",
-      "timeLimit": 1000,
-      "memoryLimit": 256,
-      "_count": { "testcases": 50, "templates": 4 }
-    },
-    {
-      "id": "prob-two-sum-001",
-      "problemNumber": 14,
-      "slug": "two-sum-001",
+      "slug": "two-sum",
       "title": "Two Sum",
       "difficulty": "Easy",
       "timeLimit": 1000,
@@ -510,16 +617,19 @@ Returns the list of 15 coding problems in the catalogue, with difficulty classif
 ---
 
 ### `GET /api/problems/:slug`
-Fetches full problem definition by problem slug or problem number (e.g. `two-sum-001` or `14`).
+
+Fetches full problem definition by problem slug or problem number (e.g. `two-sum` or `1`).
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
   "data": {
-    "id": "prob-two-sum-001",
-    "problemNumber": 14,
-    "slug": "two-sum-001",
+    "id": "prob-two-sum",
+    "problemNumber": 1,
+    "slug": "two-sum",
     "title": "Two Sum",
     "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
     "difficulty": "Easy",
@@ -530,7 +640,9 @@ Fetches full problem definition by problem slug or problem number (e.g. `two-sum
         "testIndex": 0,
         "isVisible": true,
         "input": "[2,7,11,15]\n9",
-        "output": "[0,1]"
+        "output": "[0,1]",
+        "stdinSmall": "[2,7,11,15]\n9",
+        "expectedSmall": "[0,1]"
       }
     ],
     "templates": {
@@ -546,9 +658,12 @@ Fetches full problem definition by problem slug or problem number (e.g. `two-sum
 ---
 
 ### `POST /api/problems`
+
 Adds a new problem definition to the catalogue.
-- **Auth**: None (or Admin)
+
+- **Auth**: None. No admin authorization is implemented on this route; do not expose it to untrusted clients without adding access control.
 - **Request Body**:
+
 ```json
 {
   "slug": "contains-duplicate-001",
@@ -558,23 +673,32 @@ Adds a new problem definition to the catalogue.
   "timeLimit": 1000,
   "memoryLimit": 256,
   "testcases": [
-    { "testIndex": 0, "isVisible": true, "stdinSmall": "[1,2,3,1]", "expectedSmall": "true" }
+    {
+      "testIndex": 0,
+      "isVisible": true,
+      "stdinSmall": "[1,2,3,1]",
+      "expectedSmall": "true"
+    }
   ],
   "templates": {
     "python": "class Solution:\n    def containsDuplicate(self, nums: List[int]) -> bool:\n        pass"
   }
 }
 ```
-- **Response (201 Created)**: Returns the newly created problem object.
+
+- **Response (201 Created)**: `{ "success": true, "data": ... }`, containing the created problem, nested testcases/templates, and `_count`.
 
 ---
 
 ## 8. Social & OAuth API (`/api/social`)
 
 ### `GET /api/social/:provider/link-url`
+
 Generates a signed OAuth authorization URL for account linking (currently supports `github`).
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "url": "https://github.com/login/oauth/authorize?client_id=...&redirect_uri=...&scope=read%3Auser+user%3Aemail&state=..."
@@ -584,15 +708,21 @@ Generates a signed OAuth authorization URL for account linking (currently suppor
 ---
 
 ### `GET /api/social/:provider/callback`
-Handles OAuth redirection from the identity provider, validates state signature, links the profile to the user, and redirects to `FRONTEND_URL`.
+
+Handles the OAuth redirect without a bearer token (the signed, expiring `state` contains the linking user's ID), links the provider profile, and redirects to `FRONTEND_URL` (default `http://localhost:5173`). Failure/cancellation is reported in the redirect query string as `link_error`; success uses `linked`.
+
 - **Query Params**: `?code=...&state=...`
+- **Current provider**: `github`. If GitHub credentials are missing, the callback uses a demo profile instead of contacting GitHub.
 
 ---
 
 ### `DELETE /api/social/:provider`
+
 Unlinks the specified social provider from the authenticated user's account.
+
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
+
 ```json
 {
   "success": true,
@@ -604,12 +734,15 @@ Unlinks the specified social provider from the authenticated user's account.
 
 ## 9. CS Curriculum & Study Material API (`/api/study`)
 
-Comprehensive computer science curriculum endpoints covering 5 core subjects, 75 chapters, 75 topics with 11-section pedagogical deep-dives, and 159 technical MCQs.
+Comprehensive computer science curriculum endpoints covering 5 core subjects, 75 chapters, 75 comprehensive topics with 11-section pedagogical deep-dives, and 159 technical MCQs.
 
 ### `GET /api/study/subjects`
-Returns list of all 5 core subjects with chapter counts and descriptions.
+
+Returns all study subjects currently in the database, with chapter counts and descriptions. Subject/chapter/topic totals depend on uploaded study data and are not guaranteed by the route.
+
 - **Auth**: None
 - **Response (200 OK)**:
+
 ```json
 [
   {
@@ -653,11 +786,14 @@ Returns list of all 5 core subjects with chapter counts and descriptions.
 
 ---
 
-### `GET /api/study/subjects/:subjectSlug`
-Retrieves subject details with complete chapter list and topic counts.
+### `GET /api/study/subjects/:subjectSlug` (or `/api/study/subjects/:subjectSlug/chapters`)
+
+Retrieves the subject record and its ordered chapter list with topic counts.
+
 - **Auth**: None
 - **Parameters**: `subjectSlug` (e.g. `oops`, `system-design`, `dbms`, `os`, `cn`)
 - **Response (200 OK)**:
+
 ```json
 {
   "id": "subj-oops",
@@ -678,18 +814,20 @@ Retrieves subject details with complete chapter list and topic counts.
 ---
 
 ### `GET /api/study/chapters/:chapterId/topics`
-Retrieves all topics belonging to a chapter.
+
+Retrieves all topics belonging to a chapter. `chapterId` must be the chapter's database ID; a chapter slug is not resolved by this handler.
+
 - **Auth**: None
-- **Parameters**: `chapterId` (e.g. `ch-oops-1` or chapter slug)
+- **Parameters**: `chapterId` (UUID or chapter slug)
 - **Response (200 OK)**:
+
 ```json
 [
   {
-    "id": "topic-oops-programming-paradigms-and-foundations-paradigms-and-oop-foundations",
+    "id": "topic-oops-1",
     "slug": "paradigms-and-oop-foundations",
     "name": "Programming Paradigms and the Foundations of OOP",
-    "order": 1,
-    "mcqCount": 4
+    "order": 1
   }
 ]
 ```
@@ -697,14 +835,17 @@ Retrieves all topics belonging to a chapter.
 ---
 
 ### `GET /api/study/topics/:topicSlug`
-Fetches complete 11-section markdown content and assessment MCQs.
+
+Fetches the topic record, markdown content, MCQs, and related chapter/subject records. The number and structure of markdown sections depend on stored content.
+
 - **Auth**: None
 - **Parameters**: `topicSlug` (e.g. `paradigms-and-oop-foundations`, `ipv4-subnetting-and-cidr`)
-- **Security**: The `correctIndex` field is omitted from the public response to prevent client-side inspection.
+- **Security**: `correctIndex` is omitted from MCQs returned by this GET endpoint. The submit endpoint currently returns `correctIndex` in its result, so quiz answers can be inspected after submission.
 - **Response (200 OK)**:
+
 ```json
 {
-  "id": "topic-oops-programming-paradigms-and-foundations-paradigms-and-oop-foundations",
+  "id": "topic-oops-1",
   "slug": "paradigms-and-oop-foundations",
   "name": "Programming Paradigms and the Foundations of OOP",
   "content": "# Programming Paradigms and the Foundations of OOP\n\n## 1. Introduction...",
@@ -719,6 +860,7 @@ Fetches complete 11-section markdown content and assessment MCQs.
         "The cryptographic hash of its public member functions"
       ],
       "difficulty": "Easy",
+      "order": 1,
       "explanation": "An object’s identity is its unique memory address..."
     }
   ],
@@ -732,10 +874,13 @@ Fetches complete 11-section markdown content and assessment MCQs.
 ---
 
 ### `POST /api/study/topics/:topicSlug/submit`
-Evaluates submitted multiple-choice answers, scores the quiz, and returns explanations.
+
+Evaluates submitted multiple-choice answers and returns the score plus per-question correctness, correct index, and explanation. It does not return the submitted answer, percentage, pass status, or topic slug.
+
 - **Auth**: None
 - **Parameters**: `topicSlug`
 - **Request Body**:
+
 ```json
 {
   "answers": {
@@ -744,79 +889,91 @@ Evaluates submitted multiple-choice answers, scores the quiz, and returns explan
   }
 }
 ```
+
 - **Response (200 OK)**:
+
 ```json
 {
-  "topicSlug": "paradigms-and-oop-foundations",
   "score": 1,
   "total": 4,
-  "percentage": 25,
-  "passed": false,
-  "results": [
+  "result": [
     {
-      "id": "topic-oops-mcq-1",
-      "userAnswer": 1,
-      "correctIndex": 1,
+      "mcqId": "topic-oops-mcq-1",
       "isCorrect": true,
-      "explanation": "An object’s identity is its unique memory address..."
+      "correctIndex": 1,
+      "explanation": "An object's identity is its unique memory address..."
     }
   ]
 }
 ```
 
+This route currently does not validate that the topic exists or that `answers` is present; malformed requests can produce a `500` response.
+
 ---
 
-## 10. Utility Scripts & Database Seeding
+## 10. Utility Scripts & Database Management
 
-The backend repository includes two purpose-built utility scripts in `./scripts/`:
+The repository includes scripts under `./scripts/` and `./prisma/` to manage database schema, problems, and study curriculum:
 
-### 1. `scripts/upload-problem.js`
-- **Purpose**: Incremental ingestion of problem JSON files into the PostgreSQL database.
-- **Idempotency**: Inspects existing problems by `slug`. If a problem already exists in the database, it **skips** it, preventing duplicate key errors and avoiding unnecessary overwrites.
-- **Usage**:
-  ```bash
-  # Upload all JSON problems in ./problems
-  node scripts/upload-problem.js ./problems
+### 1. `scripts/seedProblems.js` (`npm run problems:seed`)
 
-  # Upload a single problem JSON file
-  node scripts/upload-problem.js ./problems/two-sum.json
-  ```
+- **Purpose**: Ingests all 130+ problem JSON definitions in `./problems/` into PostgreSQL.
+- **Safety**: Inspects existing problems by `slug` and skips duplicates safely.
+- **Command**: `npm run problems:seed` or `node scripts/seedProblems.js`
 
-### 2. `scripts/reset-and-upload.js`
-- **Purpose**: Full database reset and fresh re-seeding for development and staging environments.
-- **Behavior**: Safely truncates `problems`, `testcases`, `code_templates`, and `submissions` tables (restarting ID sequences), then iterates through all 15 JSON problem files in `./problems/` and imports them cleanly.
-- **Usage**:
-  ```bash
-  node scripts/reset-and-upload.js
-  ```
+### 2. `scripts/upload-study.js`
+
+- **Purpose**: Reads `./study-material/` and synchronizes all 5 subjects, 75 chapters, markdown lessons, and MCQs into the database using upsert logic.
+- **Command**: `node scripts/upload-study.js`
+
+### 3. `scripts/upload-problem.js`
+
+- **Purpose**: Ingests a specific problem JSON file or directory into PostgreSQL.
+- **Command**: `node scripts/upload-problem.js ./problems/two-sum.json`
+
+### 4. `scripts/reset-and-upload.js`
+
+- **Purpose**: Full database reset and fresh re-seeding for development environments (truncates problem, testcase, template, and submission tables).
+- **Command**: `node scripts/reset-and-upload.js`
+
+### 5. `scripts/bulk-push.js`
+
+- **Purpose**: Bulk pushes specified problem JSON files using pg connection pool.
+- **Command**: `node scripts/bulk-push.js ./problems/file1.json ./problems/file2.json`
+
+### 6. `prisma/seed.js` (`npm run seed` or `npm run db:seed`)
+
+- **Purpose**: Seeds the 9 initial topic categories (5 DSA topics: Arrays, Linked List, Trees, Stack & Queue, Graphs & DP; and 4 Core subjects: DBMS, OOPs, System Design, Aptitude).
+- **Command**: `npm run seed`
 
 ---
 
 ## 11. Code Execution Notice
 
-Code execution runner (`/api/v1/runs`) and submission pipeline (`/api/v1/submissions`) are temporarily commented out and disabled as requested. The Judge0 sandbox runner and driver architecture are scheduled for Phase 2 implementation. The problem catalogue, testcases, and multi-language starter templates remain active and fully accessible via `/api/problems`.
+Code execution runner (`/api/v1/runs`) and submission pipeline (`/api/v1/submissions`) are temporarily disabled pending Phase 2 Judge0 sandbox runner setup. The problem catalogue (130+ problems), testcases, and multi-language starter templates remain active and fully accessible via `/api/problems`.
 
 ---
 
 ## 12. Error Handling & Status Codes
 
-All errors return a standardized JSON error response:
+All error responses adhere to a consistent JSON structure:
 
 ```json
 {
   "success": false,
-  "error": "Detailed error message here"
+  "error": "Detailed error description"
 }
 ```
 
-### Common HTTP Status Codes:
-| Status Code | Meaning | Example Scenario |
-|---|---|---|
-| `200 OK` | Request succeeded | Successful GET, PUT, PATCH |
-| `201 Created` | Resource created | Registration, problem creation |
-| `400 Bad Request` | Validation failure | Missing required fields, invalid password length |
-| `401 Unauthorized` | Invalid or expired token | Missing Bearer token or invalid credentials |
-| `403 Forbidden` | Access revoked | Blacklisted token used after logout |
-| `404 Not Found` | Resource does not exist | Topic, problem, or user not found |
-| `409 Conflict` | Duplicate resource | Email or problem slug already in use |
-| `500 Internal Error` | Server error | Unexpected unhandled exception |
+### HTTP Status Code Reference:
+
+| Status Code          | Meaning                 | Typical Scenario                                                   |
+| -------------------- | ----------------------- | ------------------------------------------------------------------ |
+| `200 OK`             | Request succeeded       | Successful GET, PUT, PATCH                                         |
+| `201 Created`        | Resource created        | Registration, problem creation                                     |
+| `400 Bad Request`    | Validation failure      | Missing required fields, invalid password length, invalid language |
+| `401 Unauthorized`   | Authentication required | Missing or invalid Bearer token                                    |
+| `403 Forbidden`      | Access denied           | Revoked or blacklisted token                                       |
+| `404 Not Found`      | Resource not found      | Invalid topic ID, problem slug, or subject                         |
+| `409 Conflict`       | Duplicate resource      | Account with email already exists                                  |
+| `500 Internal Error` | Server error            | Database connection failure or unhandled exception                 |
