@@ -77,12 +77,28 @@ model Problem {
   difficulty    String         @default("Easy")
   timeLimit     Int            @default(1000) @map("timeLimit")
   memoryLimit   Int            @default(256) @map("memoryLimit")
+
+  // --- NEW FIELDS FOR OPTION 2 ---
+  dsaTopicId    String?        @map("dsaTopicId")
+  dsaTopic      DsaTopic?      @relation(fields: [dsaTopicId], references: [id], onDelete: SetNull)
+  tags          String[]       @default([])
+
   testcases     Testcase[]
   templates     CodeTemplate[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   @@map("problems")
+}
+
+model DsaTopic {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  order     Int       @default(0)
+  problems  Problem[]
+
+  @@map("dsa_topics")
 }
 
 model Testcase {

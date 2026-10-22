@@ -119,3 +119,71 @@ export const getTopicDetail = async (req, res, next) => {
     next(err);
   }
 };
+
+
+// GET /api/topics/dsa  OR  /api/dsa-topics
+export const getAllDsaTopics = async (req, res) => {
+  try {
+    const topics = await prisma.dsaTopic.findMany({
+      orderBy: { order: "asc" },
+      include: {
+        _count: { select: { problems: true } }
+      }
+    })
+
+    const data = topics.map(t => ({
+      id: t.id,
+      slug: t.slug,
+      name: t.name,
+      order: t.order,
+      totalProblems: t._count.problems
+    }))
+
+    res.json(data)
+  } catch (err) {
+    console.error("getAllDsaTopics error:", err)
+    res.status(500).json({ error: "Failed to fetch dsa topics" })
+  }
+}
+
+// GET /api/topics/dsa/:slug/problems
+export const getProblemsByDsaTopic = async (req, res) => {
+  try {
+    const { slug } = req.params
+    const { difficulty, search } = req.query
+
+    const topic = await prisma.dsaTopic.findUnique({ where: { slug } })
+    if (!topic) return res.status(404).json({ error: "Topic not found" })
+
+    const problems = await prisma.problem.findMany({
+      where: {
+        dsaTopicId: topic.id,
+        ...(difficulty ? { difficulty: { equals: difficulty, mode: "insensitive" } } : {}),
+        ...(search ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { slug: { contains: search, mode: "insensitive" } }
+          ]
+        } : {})
+      },
+      orderBy: { problemNumber: "asc" },
+      select: {
+        id: true,
+        problemNumber: true,
+        slug: true,
+        title: true,
+        difficulty: true,
+        tags: true
+      }
+    })
+
+    res.json({
+      topic: { id: topic.id, slug: topic.slug, name: topic.name },
+      count: problems.length,
+      problems
+    })
+  } catch (err) {
+    console.error("getProblemsByDsaTopic error:", err)
+    res.status(500).json({ error: "Failed to fetch problems" })
+  }
+}
