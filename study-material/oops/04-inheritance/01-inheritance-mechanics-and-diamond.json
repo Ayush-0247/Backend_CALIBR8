@@ -1,0 +1,54 @@
+{
+  "id": "topic-oops-inheritance-inheritance-mechanics-and-diamond",
+  "slug": "inheritance-mechanics-and-diamond",
+  "topic": "inheritance-mechanics-and-diamond",
+  "name": "Inheritance Types, Access Modes, and the Diamond Problem",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Inheritance and Hierarchies",
+  "chapterSlug": "inheritance",
+  "chapterId": "ch-oops-4",
+  "content": "# Inheritance Types, Access Modes, and the Diamond Problem\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Inheritance\n\n**Prerequisites:** abstraction-and-interfaces\n\n### What is this topic and why does it matter?\nInheritance represents an \"is-a\" relationship allowing classes to inherit state and behavior. We analyze access specifiers, constructor/destructor sequencing, multiple inheritance, ambiguity, and the Diamond Problem resolved via virtual base classes.\n\n### Specific Learning Outcomes\n- **Access Control in Inheritance**: Differentiate public, protected, and private inheritance.\n- **Construction & Destruction Order**: Master the exact order of constructor and destructor execution.\n- **The Diamond Problem & Virtual Inheritance**: Solve multiple inheritance ambiguity with virtual base classes.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of biological traits. A child inherits characteristics from parents. However, if a child inherits an instruction from their mother and a conflicting instruction from their father (both deriving from a common grandparent), confusion arises (The Diamond Problem). Virtual inheritance ensures only one canonical copy of the grandparent’s DNA is shared.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. Types of Inheritance\n- **Single Inheritance:** Derived class has one base class.\n- **Multilevel Inheritance:** A class inherits from a derived class (Grandparent -> Parent -> Child).\n- **Multiple Inheritance:** A class inherits directly from more than one base class.\n- **Hierarchical Inheritance:** Multiple derived classes inherit from a single base class.\n- **Hybrid Inheritance:** A combination of two or more forms (often creating a diamond structure).\n\n### 2. Public vs Protected vs Private Inheritance\n| Base Member | Public Inheritance | Protected Inheritance | Private Inheritance |\n| :--- | :--- | :--- | :--- |\n| **public** | stays `public` | becomes `protected` | becomes `private` |\n| **protected** | stays `protected` | becomes `protected` | becomes `private` |\n| **private** | inaccessible | inaccessible | inaccessible |\n*Note:* Public inheritance models **\"is-a\"**. Private inheritance models **\"is-implemented-in-terms-of\"** (alternative to composition).\n\n### 3. Construction and Destruction Sequencing\n- **Construction Order:** Base class constructors are called FIRST (in the order of appearance in the class declaration), followed by member objects, and finally the derived class constructor.\n- **Destruction Order:** Exactly the reverse of construction! Derived destructor runs first, then member destructors, and base destructor runs last.\n\n### 4. The Diamond Problem\nOccurs in multiple inheritance when a class derives from two classes that both inherit from a common base class:\n```\n       [ Device ]\n       /        \\\n  [ Printer ]  [ Scanner ]\n       \\        /\n      [ Copier ]\n```\nWithout intervention, `Copier` contains **two distinct copies** of `Device` state, leading to member ambiguity and wasted memory.\n**Solution:** `virtual` inheritance:\n```cpp\nclass Printer : virtual public Device { ... };\nclass Scanner : virtual public Device { ... };\nclass Copier : public Printer, public Scanner { ... };\n```\nVirtual inheritance ensures that the most derived class (`Copier`) constructs only **one shared instance** of `Device`.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Virtual Inheritance Resolving Diamond Ambiguity (Advanced)\n\n**Problem Statement:** Implement a MultiFunctionMachine that inherits from Printer and Scanner with a shared PoweredDevice.\n\n```cpp\n#include <iostream>\n\nclass PoweredDevice {\npublic:\n    int powerRating;\n    explicit PoweredDevice(int power) : powerRating(power) {\n        std::cout << \"PoweredDevice constructed: \" << power << \"W\\n\";\n    }\n};\n\n// Virtual base class inheritance\nclass Printer : virtual public PoweredDevice {\npublic:\n    Printer(int power) : PoweredDevice(power) {\n        std::cout << \"Printer ready\\n\";\n    }\n};\n\nclass Scanner : virtual public PoweredDevice {\npublic:\n    Scanner(int power) : PoweredDevice(power) {\n        std::cout << \"Scanner ready\\n\";\n    }\n};\n\nclass Copier : public Printer, public Scanner {\npublic:\n    // In virtual inheritance, the MOST DERIVED class constructs the virtual base!\n    Copier(int power) : PoweredDevice(power), Printer(power), Scanner(power) {\n        std::cout << \"Copier ready\\n\";\n    }\n};\n\nint main() {\n    Copier c(120);\n    std::cout << \"Power rating: \" << c.powerRating << \"W\\n\"; // No ambiguity!\n}\n```\n\n**Detailed Explanation & Tracing:**\nBecause Printer and Scanner use virtual public PoweredDevice, Copier contains exactly one instance of PoweredDevice, and c.powerRating compiles without ambiguity.\n\n## 5. Production & Practical Engineering Applications\n\nC++ standard stream library (`std::iostream` inherits from `std::istream` and `std::ostream`, which both virtually inherit from `std::ios_base`).\n\n## 6. Visual Diagrams & Architectural Representation\n\nStandard Diamond (Duplicate Base):\nCopier -> [ Printer -> Device ] & [ Scanner -> Device ]  (Two Devices!)\n\nVirtual Inheritance Diamond:\nCopier -> [ Printer ]\n       -> [ Scanner ]\n       -> [ Shared Single Virtual Device ]\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Inheritance vs Composition\n\n| Criterion | Inheritance (\"is-a\") | Composition (\"has-a\") |\n| :--- | :--- | :--- |\n| **Coupling** | Tight (Derived exposed to protected base) | Loose (Black-box interface access) |\n| **Flexibility** | Static (Compile-time binding) | Dynamic (Can swap components at runtime) |\n| **Encapsulation** | Breaks encapsulation of base class | Preserves strict encapsulation |\n| **Best Used** | Polymorphic substitutability (LSP) | Code reuse, state aggregation |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Forgetting that the most derived class must initialize virtual bases\n- **Why developers fail here:** In virtual inheritance, intermediate classes do not initialize the virtual base when creating the most derived object.\n- **Concrete Counterexample / Symptom:** Compiler error: \"no matching function for call to PoweredDevice::PoweredDevice()\" in Copier constructor.\n- **How to prevent / correct:** Explicitly invoke the virtual base constructor in the most derived class initializer list.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: What is the constructor and destructor execution order for class C inheriting from B, which inherits from A? (Sequencing)\n\n**Model Answer:**\nConstructors execute from top to bottom of the hierarchy: A() -> B() -> C(). Destructors execute in reverse: ~C() -> ~B() -> ~A().\n\n*Interviewer Follow-up:* \"What happens if class C also has a member object of class M?\"\n\n*Follow-up Response:* Order is: Base constructors (A, B) -> Member constructor (M) -> Derived constructor (C). Destructors run in exact reverse: ~C() -> ~M() -> ~B() -> ~A().\n\n## 10. Rapid Revision Cheat Sheet\n\n- **Diamond Problem:** Multiple inheritance ambiguity when two parents share a grandparent\n- **Virtual Inheritance:** Ensures only one shared instance of the grandparent base class exists\n- **Construction Order:** Base -> Members -> Derived\n- **Destruction Order:** Derived -> Members -> Base\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can trace exact constructor and destructor execution sequences\n- [ ] Can diagnose and fix the Diamond Problem with virtual inheritance\n- [ ] Knows when to favor composition over inheritance\n\n",
+  "mcqs": [
+    {
+      "question": "In C++, how is the Diamond Problem resolved during multiple inheritance?",
+      "options": [
+        "Using the dynamic_cast operator in the derived class",
+        "By inheriting from the common base class using the \"virtual\" keyword",
+        "By declaring all member functions in the common base as inline",
+        "By marking the common base class with the final keyword"
+      ],
+      "correctIndex": 1,
+      "explanation": "Virtual inheritance (class B : virtual public A) ensures that only one shared subobject of class A exists in any derived class hierarchy.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "Given class Base and class Derived : public Base. In what order do constructors and destructors execute?",
+      "options": [
+        "Constructor: Base then Derived; Destructor: Derived then Base",
+        "Constructor: Derived then Base; Destructor: Base then Derived",
+        "Constructor: Base then Derived; Destructor: Base then Derived",
+        "Constructor: Derived then Base; Destructor: Derived then Base"
+      ],
+      "correctIndex": 0,
+      "explanation": "Base class is constructed first to establish foundational state before derived construction. Destructors execute in reverse (Derived cleanup first, then Base).",
+      "difficulty": "Easy",
+      "order": 2
+    },
+    {
+      "question": "Under private inheritance in C++ (class Derived : private Base), what happens to public members of Base?",
+      "options": [
+        "They remain public in Derived",
+        "They become protected in Derived",
+        "They become private in Derived",
+        "They are completely erased and cannot be called by Derived members"
+      ],
+      "correctIndex": 2,
+      "explanation": "In private inheritance, all public and protected members of the base class become private members of the derived class.",
+      "difficulty": "Medium",
+      "order": 3
+    }
+  ]
+}

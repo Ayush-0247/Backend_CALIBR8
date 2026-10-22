@@ -1,0 +1,41 @@
+{
+  "id": "topic-oops-uml-and-practical-design-uml-and-system-modeling",
+  "slug": "uml-and-system-modeling",
+  "topic": "uml-and-system-modeling",
+  "name": "UML Class Diagrams, Sequence Diagrams, and Domain Modeling",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "UML and Practical Object-Oriented Design",
+  "chapterSlug": "uml-and-practical-design",
+  "chapterId": "ch-oops-12",
+  "content": "# UML Class Diagrams, Sequence Diagrams, and Domain Modeling\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** UML and Practical Object-Oriented Design\n\n**Prerequisites:** association-aggregation-composition\n\n### What is this topic and why does it matter?\nUnified Modeling Language (UML) standardizes visual architecture communication. We cover class diagrams (visibility, attributes, methods, relationships), sequence diagrams (lifelines, synchronous calls, return messages), and domain-driven design modeling.\n\n### Specific Learning Outcomes\n- **UML Class Diagrams**: Read and draft classes, visibility notations (+, -, #), and relations.\n- **Sequence Diagrams**: Model time-sequenced object message exchanges.\n- **Domain Modeling**: Translate verbal business requirements into clean class structures.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of architectural blueprints for a skyscraper. Civil engineers, electricians, and plumbers communicate using standardized schematic symbols for load-bearing walls, conduit pipes, and junction boxes. UML is the structural blueprint language for software engineers.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. UML Class Notation\nA standard UML class is depicted as a rectangle with three compartments:\n1. **Top:** Class Name (Italics if abstract).\n2. **Middle:** Attributes (`[visibility] name : type [= default]`).\n3. **Bottom:** Methods (`[visibility] name(params) : returnType`).\n\n**Visibility symbols:**\n- `+` : public\n- `-` : private\n- `#` : protected\n- `~` : package / internal\n\n### 2. Relationship Notations\n- **Inheritance / Generalization:** Solid line with hollow triangular arrowhead pointing to Base.\n- **Realization / Interface Implementation:** Dashed line with hollow triangular arrowhead pointing to Interface.\n- **Association:** Simple solid arrow pointing to associated class.\n- **Aggregation:** Solid line with open/hollow diamond at the container end.\n- **Composition:** Solid line with filled black diamond at the container end.\n- **Dependency:** Dashed line with open arrow pointing to dependency.\n\n### 3. Sequence Diagrams\nModel runtime interaction over time:\n- **Lifeline:** Vertical dashed line representing an object instance over time.\n- **Activation Bar:** Thin vertical rectangle representing execution of a method.\n- **Synchronous Call:** Solid line with filled arrow head.\n- **Asynchronous Message:** Solid line with open arrowhead.\n- **Return Message:** Dashed line with open arrowhead.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Modeling an ATM Cash Withdrawal Flow (Standard)\n\n**Problem Statement:** Represent the class relationships and sequence flow for an ATM withdrawal.\n\n```text\nUML Class Structure:\n+-------------------+              +----------------------+\n|        ATM        |<>----------->|     CardReader       |\n+-------------------+              +----------------------+\n| - location: String|\n| - cashReserve: int|              +----------------------+\n+-------------------+<>----------->|    CashDispenser     |\n| + withdraw(amt)   |              +----------------------+\n+-------------------+\n          |\n          v (uses)\n+-----------------------+\n|   <<interface>>       |\n|    IBankNetwork       |\n+-----------------------+\n| + verifyPIN()         |\n| + authorize(amt): bool|\n+-----------------------+\n```\n\n**Detailed Explanation & Tracing:**\nThe ATM has Composition/Aggregation with CardReader and CashDispenser, and a Dependency/Association with the external IBankNetwork interface.\n\n## 5. Production & Practical Engineering Applications\n\nTechnical design documents (TDDs), RFCs, microservice choreography, and interview architecture whiteboarding.\n\n## 6. Visual Diagrams & Architectural Representation\n\nSequence Diagram Flow:\nUser             ATM             BankServer\n |                |                  |\n |--- insert() -->|                  |\n |--- enterPIN()->|                  |\n |                |-- verifyPIN() -->|\n |                |<-- OK -----------|\n |--- amt(100) -->|                  |\n |                |-- debit(100) --->|\n |                |<-- success ------|\n |<-- cash -------|                  |\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Class Diagram vs Sequence Diagram\n\n| Feature | Class Diagram | Sequence Diagram |\n| :--- | :--- | :--- |\n| **Nature** | Static structural view | Dynamic behavioral view |\n| **Time Dimension** | No concept of time or sequence | Vertical axis represents progressing time |\n| **Focus** | Classes, attributes, inheritance, associations | Object instances, messages, method invocation order |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Confusing the arrow directions in UML diagrams\n- **Why developers fail here:** Drawing arrows in the direction of data flow rather than dependency.\n- **Concrete Counterexample / Symptom:** Drawing an inheritance arrow pointing from Base down to Derived.\n- **How to prevent / correct:** In UML, inheritance and realization arrows ALWAYS point UPWARD toward the Base or Interface.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: What does a dashed line with a hollow triangle arrowhead mean in UML? (Notation)\n\n**Model Answer:**\nIt denotes Realization (Implementation), meaning a concrete class is implementing an abstract interface.\n\n*Interviewer Follow-up:* \"How do you represent multiplicity in UML associations?\"\n\n*Follow-up Response:* Multiplicity is noted at line ends (e.g., \"1\" to \"0..*\" indicates one parent has zero or more children).\n\n## 10. Rapid Revision Cheat Sheet\n\n- **+ / - / #:** public / private / protected\n- **Hollow Triangle:** Inheritance (solid line) or Realization (dashed line)\n- **Diamond:** Hollow = Aggregation; Filled = Composition\n- **Sequence Diagram:** Models message order across object lifelines over time\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can construct a standard UML class diagram with attributes and methods\n- [ ] Can represent inheritance, composition, and aggregation correctly\n- [ ] Can trace and draft sequence diagrams for interactive workflows\n\n",
+  "mcqs": [
+    {
+      "question": "In a UML class diagram, what does the `#` symbol preceding a member variable denote?",
+      "options": [
+        "Private visibility",
+        "Public visibility",
+        "Protected visibility",
+        "Static member"
+      ],
+      "correctIndex": 2,
+      "explanation": "In UML standard notation: + is public, - is private, # is protected, and ~ is package/default.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "Which UML diagram displays object interactions arranged in a time sequence?",
+      "options": [
+        "Class diagram",
+        "Deployment diagram",
+        "Sequence diagram",
+        "State machine diagram"
+      ],
+      "correctIndex": 2,
+      "explanation": "A Sequence diagram explicitly models message exchanges between objects along vertical lifelines representing advancing time.",
+      "difficulty": "Easy",
+      "order": 2
+    }
+  ]
+}

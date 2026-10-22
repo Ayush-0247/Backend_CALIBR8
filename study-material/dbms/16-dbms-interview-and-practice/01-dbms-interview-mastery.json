@@ -1,0 +1,41 @@
+{
+  "id": "topic-dbms-dbms-interview-and-practice-dbms-interview-mastery",
+  "slug": "dbms-interview-mastery",
+  "topic": "dbms-interview-mastery",
+  "name": "DBMS Technical Interview Mastery: Query Output, Normalization Tracing, and Pitfalls",
+  "order": 1,
+  "subject": "Database Management Systems",
+  "subjectSlug": "dbms",
+  "chapter": "DBMS Interview and Practice",
+  "chapterSlug": "dbms-interview-and-practice",
+  "chapterId": "ch-dbms-16",
+  "content": "# DBMS Technical Interview Mastery: Query Output, Normalization Tracing, and Pitfalls\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Database Management Systems | **Chapter:** DBMS Interview and Practice\n\n**Prerequisites:** all prior DBMS topics\n\n### What is this topic and why does it matter?\nFinal preparation for top-tier database engineering and system architect technical interviews. We cover high-frequency SQL output puzzles, normalization decomposition walkthroughs, deadlock schedule analysis, index selection scenarios, and tricky NULL query edge cases.\n\n### Specific Learning Outcomes\n- **SQL Query Tracing**: Predict exact query outputs involving complex joins, NULL values, and window rankings.\n- **Decomposition Proofs**: Execute step-by-step 3NF and BCNF decompositions with candidate key derivations.\n- **Production Scenarios**: Diagnose real-world database locking, slow queries, and connection pool exhaustion.\n\n## 2. Intuitive Explanation & Mental Model\n\nTechnical interview questions on DBMS are precision stress tests: interviewers deliberately combine NULLs with NOT IN, or introduce composite functional dependencies, to see if you rely on surface syntax or understand the underlying relational algebra and storage engine mechanics.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### Top 5 Interview Traps in DBMS and SQL\n\n#### 1. The Classic `NOT IN` with NULL Trap\n```sql\n-- Table A has values: [1, 2]\n-- Table B has values: [2, NULL]\nSELECT * FROM A WHERE val NOT IN (SELECT val FROM B);\n-- TRAP: Returns ZERO ROWS!\n```\n*Why:* `x NOT IN (2, NULL)` expands to `x <> 2 AND x <> NULL`. Since `x <> NULL` evaluates to **UNKNOWN**, the entire `AND` expression evaluates to UNKNOWN!\n*Fix:* Always use `NOT EXISTS` or filter `WHERE val IS NOT NULL` in the subquery.\n\n#### 2. COUNT(*) vs COUNT(column)\n- `COUNT(*)`: Counts all rows in the group, including rows with NULL values.\n- `COUNT(column)`: Counts only rows where `column IS NOT NULL`.\n\n#### 3. WHERE vs HAVING\n- `WHERE`: Filters individual rows **before** aggregation and grouping occurs. Cannot contain aggregate functions.\n- `HAVING`: Filters summarized groups **after** aggregation (`GROUP BY`) has occurred.\n\n#### 4. INNER JOIN with NULL Keys\nIn relational theory, NULL represents an unknown value. Therefore, two rows that both have `NULL` in their foreign key column **will NEVER join** in an `INNER JOIN` (`NULL = NULL` is UNKNOWN).\n\n## 4. Progressively Worked Examples\n\n### Example 1: Predicting Output of NOT IN with NULL Subquery (Advanced)\n\n**Problem Statement:** Predict the exact output of this query and explain the underlying three-valued logic.\n\n```sql\nCREATE TABLE departments (id INT);\nINSERT INTO departments VALUES (1), (2), (3);\n\nCREATE TABLE employees (dept_id INT);\nINSERT INTO employees VALUES (1), (NULL);\n\n-- Query:\nSELECT id FROM departments\nWHERE id NOT IN (SELECT dept_id FROM employees);\n\n-- RESULT:\n-- (0 rows returned!)\n```\n\n**Detailed Explanation & Tracing:**\nThe subquery returns (1, NULL). The condition becomes: id <> 1 AND id <> NULL. For id=2: 2 <> 1 is TRUE, but 2 <> NULL is UNKNOWN. TRUE AND UNKNOWN yields UNKNOWN. Since WHERE requires TRUE to output a row, all rows are discarded.\n\n## 5. Production & Practical Engineering Applications\n\nSenior database engineering interviews, production query auditing, migration verification, and data integrity debugging.\n\n## 6. Visual Diagrams & Architectural Representation\n\nSQL Trap Summary Sheet:\nNOT IN (subquery with NULL) -> Returns 0 rows (Use NOT EXISTS instead!)\nCOUNT(*)                    -> Counts all rows including NULLs\nCOUNT(column)               -> Ignores NULLs\nINNER JOIN on NULL          -> Never matches\nWHERE vs HAVING             -> Filter before GROUP BY vs filter after GROUP BY\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### NOT IN vs NOT EXISTS\n\n| Feature | NOT IN | NOT EXISTS |\n| :--- | :--- | :--- |\n| **Handles NULLs in subquery?** | **Fails** (Returns empty set if ANY null exists) | **Safe** (Evaluates boolean presence correctly) |\n| **Performance on large sets** | Often slower unless optimizer rewrites | Optimized via anti-semi-join |\n| **Recommended by DBAs** | No | **Yes (Always prefer NOT EXISTS)** |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Using NOT IN on nullable foreign key columns\n- **Why developers fail here:** If a single row in the referenced table has a NULL foreign key, the entire NOT IN query returns empty.\n- **Concrete Counterexample / Symptom:** Missing critical business data in report queries.\n- **How to prevent / correct:** Always use NOT EXISTS or ensure the subquery filters `WHERE column IS NOT NULL`.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: What is the difference between `COUNT(*)`, `COUNT(1)`, and `COUNT(column)`? (SQL Fundamentals)\n\n**Model Answer:**\nCOUNT(*) and COUNT(1) are functionally identical in modern relational engines: they count the total number of rows satisfying the query criteria, including rows containing NULLs. Modern query optimizers compile both into the exact same execution plan. In contrast, COUNT(column) evaluates the specific column for each row and counts ONLY rows where that column IS NOT NULL, ignoring null entries.\n\n*Interviewer Follow-up:* \"How do you fix a query where NOT IN fails because of NULLs in the subquery?\"\n\n*Follow-up Response:* Rewrite using NOT EXISTS: SELECT id FROM departments d WHERE NOT EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id).\n\n## 10. Rapid Revision Cheat Sheet\n\n- **NOT IN + NULL:** Fatal trap: always returns 0 rows; use NOT EXISTS instead\n- **COUNT(*):** Counts all rows; COUNT(col) ignores NULLs\n- **HAVING:** Filters aggregated groups after GROUP BY\n- **WHERE:** Filters individual rows before GROUP BY\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can solve and explain tricky three-valued logic SQL interview puzzles\n- [ ] Identifies why NOT IN fails with NULLs and rewrites into NOT EXISTS\n- [ ] Explains the performance and semantic differences between COUNT(*) and COUNT(column)\n\n",
+  "mcqs": [
+    {
+      "question": "Given Table A containing values [1, 2, 3] and Table B containing values [2, NULL]. What does `SELECT * FROM A WHERE val NOT IN (SELECT val FROM B);` return?",
+      "options": [
+        "Rows with values 1 and 3",
+        "Zero rows (empty set)",
+        "Row with value 1 only",
+        "Syntax error"
+      ],
+      "correctIndex": 1,
+      "explanation": "Under three-valued logic, x NOT IN (2, NULL) becomes (x <> 2 AND x <> NULL). Since x <> NULL evaluates to UNKNOWN, the entire condition evaluates to UNKNOWN, returning 0 rows.",
+      "difficulty": "Hard",
+      "order": 1
+    },
+    {
+      "question": "Which of the following functions counts ONLY rows where the specified attribute contains a non-null value?",
+      "options": [
+        "COUNT(*)",
+        "COUNT(1)",
+        "COUNT(column_name)",
+        "ROW_NUMBER()"
+      ],
+      "correctIndex": 2,
+      "explanation": "COUNT(column_name) specifically evaluates the given column and excludes any rows where that column contains NULL, unlike COUNT(*).",
+      "difficulty": "Easy",
+      "order": 2
+    }
+  ]
+}

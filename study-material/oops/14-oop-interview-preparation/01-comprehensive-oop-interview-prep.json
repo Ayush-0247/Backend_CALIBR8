@@ -1,0 +1,41 @@
+{
+  "id": "topic-oops-oop-interview-preparation-comprehensive-oop-interview-prep",
+  "slug": "comprehensive-oop-interview-prep",
+  "topic": "comprehensive-oop-interview-prep",
+  "name": "OOP Interview Mastery: Output Prediction, Pitfalls, and Tracing",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "OOP Interview Preparation",
+  "chapterSlug": "oop-interview-preparation",
+  "chapterId": "ch-oops-14",
+  "content": "# OOP Interview Mastery: Output Prediction, Pitfalls, and Tracing\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** OOP Interview Preparation\n\n**Prerequisites:** all prior OOPS topics\n\n### What is this topic and why does it matter?\nFinal preparation for top-tier software engineering technical interviews. We cover high-frequency code output prediction, constructor/destructor tracing, diamond problem edge cases, virtual function subtleties, and debugging scenarios.\n\n### Specific Learning Outcomes\n- **Output Prediction**: Accurately predict output in complex polymorphic hierarchies.\n- **VTable Tracing**: Trace vptr resolution through multiple and virtual inheritance.\n- **Interview Traps**: Avoid common traps involving default parameters in virtual functions and object slicing.\n\n## 2. Intuitive Explanation & Mental Model\n\nTechnical interview questions are like stress tests on aircraft components: they purposely apply boundary pressure (multiple inheritance, default parameters on virtual functions, slicing) to see if you genuinely understand language mechanics or merely memorized high-level syntax.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### Top 5 Interview Traps in C++ OOP\n\n#### 1. Default Arguments with Virtual Functions\nDefault arguments are bound **statically** (at compile time) based on the pointer type, while the function body is bound **dynamically** (at runtime) based on the object type!\n```cpp\nclass Base {\npublic:\n    virtual void print(int x = 10) { std::cout << \"Base: \" << x << \"\\n\"; }\n};\nclass Derived : public Base {\npublic:\n    void print(int x = 20) override { std::cout << \"Derived: \" << x << \"\\n\"; }\n};\n\nBase* b = new Derived();\nb->print(); // TRAP: Prints \"Derived: 10\"!\n```\n\n#### 2. Virtual Function in Constructor\nInside a constructor, dynamic dispatch is disabled for that class’s derived members because the derived object has not yet been initialized.\n\n#### 3. Overriding vs Hiding\nIf a derived class declares a function with the same name as a base function but different parameters (without the `using Base::func;` declaration), the base functions are **hidden**, not overloaded!\n\n#### 4. Private Virtual Functions\nA derived class can override a `private virtual` function from its base class! Visibility restricts who can call the function name directly, not what is placed in the vtable.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Classic Interview Output Prediction Challenge (Advanced)\n\n**Problem Statement:** Predict the exact console output of this polymorphic construction and destruction sequence.\n\n```cpp\n#include <iostream>\n\nclass A {\npublic:\n    A() { std::cout << \"A() \"; }\n    virtual void f() { std::cout << \"A::f() \"; }\n    virtual ~A() { std::cout << \"~A() \"; }\n};\n\nclass B : public A {\npublic:\n    B() { std::cout << \"B() \"; }\n    void f() override { std::cout << \"B::f() \"; }\n    ~B() override { std::cout << \"~B() \"; }\n};\n\nint main() {\n    A* obj = new B();\n    obj->f();\n    delete obj;\n    return 0;\n}\n```\n\n**Detailed Explanation & Tracing:**\nStep 1: Construction of B creates A first, then B -> \"A() B() \". Step 2: obj->f() resolves dynamically through vtable to B::f() -> \"B::f() \". Step 3: delete obj invokes ~B() first, then ~A() because destructor is virtual -> \"~B() ~A() \". Final output: \"A() B() B::f() ~B() ~A() \".\n\n## 5. Production & Practical Engineering Applications\n\nTechnical whiteboard interviews, legacy codebase debugging, compiler error troubleshooting, and high-performance systems engineering.\n\n## 6. Visual Diagrams & Architectural Representation\n\nSummary Cheat Sheet:\nDefault Arguments -> Resolved at Compile Time (Pointer type)\nVirtual Dispatch  -> Resolved at Run Time (Object vtable)\nConstructor Order -> Top-Down (Base -> Derived)\nDestructor Order  -> Bottom-Up (Derived -> Base)\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Function Overriding vs Function Hiding\n\n| Feature | Function Overriding | Function Hiding |\n| :--- | :--- | :--- |\n| **virtual keyword** | Present in Base class | Not required |\n| **Signature** | Must match parameter types exactly | Can have different parameters |\n| **Scope Resolution** | Virtual dispatch via vtable | Name in derived scope shadows base name |\n| **Un-hiding Syntax** | N/A | `using Base::funcName;` in derived class |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Specifying different default arguments in a virtual override\n- **Why developers fail here:** Default arguments are statically bound at compile time based on the static type of the pointer.\n- **Concrete Counterexample / Symptom:** Calling the derived function with the base class default parameter value, creating bizarre bugs.\n- **How to prevent / correct:** Never redefine inherited default arguments in overridden virtual functions.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: Can a constructor be declared virtual in C++? What about a destructor? (High Frequency)\n\n**Model Answer:**\nNo, constructors CANNOT be virtual. To create a vtable, an object must be instantiated in memory; before constructor execution, no vptr or type identity exists. Destructors, however, CAN and SHOULD be declared virtual in polymorphic base classes to ensure clean destruction of derived subobjects.\n\n*Interviewer Follow-up:* \"How do you achieve the effect of a \"virtual constructor\"?\"\n\n*Follow-up Response:* Use the Factory Method pattern or the Prototype pattern (declaring a virtual Clone() method on the base class).\n\n## 10. Rapid Revision Cheat Sheet\n\n- **Virtual Constructor:** Impossible in C++; simulate via Factory or Clone()\n- **Default Arguments:** Bound statically by pointer type; never change in overrides\n- **Name Hiding:** Derived functions shadow base functions of same name unless \"using\" is declared\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can predict output for complex inheritance and virtual dispatch code blocks\n- [ ] Explains why virtual constructors are illegal in C++\n- [ ] Can simulate virtual copy construction using the Prototype Clone() idiom\n\n",
+  "mcqs": [
+    {
+      "question": "Why can constructors NOT be declared `virtual` in C++?",
+      "options": [
+        "Because constructors return a pointer rather than a reference",
+        "Because an object’s vptr and vtable link are not established until its constructor runs",
+        "Because constructors are always executed on the GPU",
+        "Because virtual methods must be declared outside the class body"
+      ],
+      "correctIndex": 1,
+      "explanation": "To dispatch a virtual function, the object must already exist and have a valid vptr pointing to its vtable. Before constructor execution, no such structure exists.",
+      "difficulty": "Medium",
+      "order": 1
+    },
+    {
+      "question": "In C++, if a base class has a virtual function `virtual void foo(int a = 10)`, and derived overrides it as `void foo(int a = 20) override`, what value is passed when calling `basePtr->foo()`?",
+      "options": [
+        "20",
+        "10",
+        "0",
+        "Compilation error: default parameters cannot be overridden"
+      ],
+      "correctIndex": 1,
+      "explanation": "Default arguments are resolved statically at compile time based on the pointer type (Base, which has 10), while the function body is resolved dynamically (Derived). The derived function executes with 10!",
+      "difficulty": "Hard",
+      "order": 2
+    }
+  ]
+}

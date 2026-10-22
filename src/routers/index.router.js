@@ -30,6 +30,7 @@ router.use("/api/onboarding", onboardingRouter);
 router.use("/api/problems", problemRouter);
 router.use("/api/social", socialRouter);
 router.use("/api/study", studyRouter); 
+router.use("/api/topics", topicRouter)
 
 // Root endpoint: API documentation & interactive developer dashboard
 router.get("/", (req, res) => {

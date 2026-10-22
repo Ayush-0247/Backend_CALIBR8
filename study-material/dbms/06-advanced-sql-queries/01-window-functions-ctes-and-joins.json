@@ -1,0 +1,41 @@
+{
+  "id": "topic-dbms-advanced-sql-queries-window-functions-ctes-and-joins",
+  "slug": "window-functions-ctes-and-joins",
+  "topic": "window-functions-ctes-and-joins",
+  "name": "Complex Joins, Common Table Expressions (CTEs), and Window Functions",
+  "order": 1,
+  "subject": "Database Management Systems",
+  "subjectSlug": "dbms",
+  "chapter": "Advanced SQL Queries and Analytical Functions",
+  "chapterSlug": "advanced-sql-queries",
+  "chapterId": "ch-dbms-6",
+  "content": "# Complex Joins, Common Table Expressions (CTEs), and Window Functions\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Database Management Systems | **Chapter:** Advanced SQL Queries\n\n**Prerequisites:** sql-crud-and-constraints\n\n### What is this topic and why does it matter?\nAnalytical SQL powers business intelligence and data engineering. We examine multi-table joins (INNER, LEFT, RIGHT, FULL OUTER, CROSS, SELF), Common Table Expressions (WITH, Recursive CTEs), and Window Functions (ROW_NUMBER, RANK, DENSE_RANK, LEAD, LAG, Running Totals).\n\n### Specific Learning Outcomes\n- **Window Functions Mastery**: Differentiate ROW_NUMBER(), RANK(), and DENSE_RANK() with PARTITION BY.\n- **Recursive CTEs**: Traverse hierarchical graphs and organizational trees in pure SQL.\n- **Analytical Navigation**: Use LAG() and LEAD() to compute period-over-period growth and deltas.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of an awards ceremony. GROUP BY collapses all runners in a race down to a single statistic (the winner’s time). A Window Function is like a referee walking down the track: each runner stays in their position on the track (all rows preserved), but the referee pins a 1st, 2nd, or 3rd place ribbon onto their jersey based on their race division (PARTITION BY).\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. Window Functions vs GROUP BY\n- **`GROUP BY`:** Aggregates and collapses multiple rows into a single summary row.\n- **Window Function (`OVER (PARTITION BY ... ORDER BY ...)`):** Computes an aggregate or ranking across a defined window of rows **while preserving the identity of every single row**.\n\n### 2. Ranking Window Functions: The Big Three\nGiven duplicate values (e.g., salaries: $100k, $90k, $90k, $80k):\n1. **`ROW_NUMBER()`:** Assigns sequential unique integers (1, 2, 3, 4). Breaks ties arbitrarily.\n2. **`RANK()`:** Assigns identical rank to ties, then **skips ranks** (1, 2, 2, 4). (Olympic style).\n3. **`DENSE_RANK()`:** Assigns identical rank to ties, but **never skips ranks** (1, 2, 2, 3). Perfect for \"Nth highest salary\" interview questions!\n\n### 3. Navigational Functions: LEAD() and LAG()\n- `LAG(column, offset)`: Fetches a value from a prior row in the window without a self-join. Ideal for calculating month-over-month revenue growth.\n- `LEAD(column, offset)`: Fetches a value from a subsequent row in the window.\n\n### 4. Recursive Common Table Expressions (CTEs)\nAllows querying hierarchical tree structures (e.g., org charts, folder directories, BOM parts) using a self-referencing query:\n```sql\nWITH RECURSIVE OrgChart AS (\n    -- Anchor member: Start with CEO\n    SELECT id, name, manager_id, 1 as level\n    FROM employees WHERE manager_id IS NULL\n    UNION ALL\n    -- Recursive member: Find reports of current level\n    SELECT e.id, e.name, e.manager_id, o.level + 1\n    FROM employees e\n    JOIN OrgChart o ON e.manager_id = o.id\n)\nSELECT * FROM OrgChart ORDER BY level, id;\n```\n\n## 4. Progressively Worked Examples\n\n### Example 1: Finding the 3rd Highest Salary per Department using DENSE_RANK (Advanced)\n\n**Problem Statement:** Write a query returning employees who earn the 3rd highest salary in their respective departments.\n\n```sql\nWITH RankedSalaries AS (\n    SELECT\n        id,\n        name,\n        department_id,\n        salary,\n        DENSE_RANK() OVER (\n            PARTITION BY department_id\n            ORDER BY salary DESC\n        ) as salary_rank\n    FROM employees\n)\nSELECT id, name, department_id, salary\nFROM RankedSalaries\nWHERE salary_rank = 3;\n```\n\n**Detailed Explanation & Tracing:**\nDENSE_RANK guarantees that if two employees tie for 1st or 2nd place, the next distinct salary level is correctly evaluated as rank 3.\n\n## 5. Production & Practical Engineering Applications\n\nFinancial cohort analysis, computing running balances in bank statements, leaderboard rankings, and hierarchical directory traversals.\n\n## 6. Visual Diagrams & Architectural Representation\n\nROW_NUMBER vs RANK vs DENSE_RANK Comparison:\nSalary   ROW_NUMBER()   RANK()   DENSE_RANK()\n$100k         1           1           1\n$90k          2           2           2\n$90k          3           2           2   (Tie)\n$80k          4           4           3   <-- Notice DENSE_RANK does not skip!\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### ROW_NUMBER vs RANK vs DENSE_RANK\n\n| Function | Tie Handling | Skips Numbers After Ties? | Ideal Use Case |\n| :--- | :--- | :--- | :--- |\n| **ROW_NUMBER()** | Arbitrary sequential number | Never | Pagination, selecting top-1 item |\n| **RANK()** | Identical rank to ties | Yes (1, 2, 2, 4) | Sports competition rankings |\n| **DENSE_RANK()** | Identical rank to ties | No (1, 2, 2, 3) | Nth highest value queries |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Using window functions directly in the WHERE clause\n- **Why developers fail here:** In the SQL logical query processing order, WHERE executes BEFORE window functions are computed.\n- **Concrete Counterexample / Symptom:** Error: \"window functions are not allowed in WHERE\".\n- **How to prevent / correct:** Wrap the window function query inside a Common Table Expression (CTE) or subquery, then filter in the outer query.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: What is the logical order of query execution in standard SQL? (Fundamental Query Mechanics)\n\n**Model Answer:**\nSQL queries execute in this strict logical sequence: 1. FROM & JOINs -> 2. WHERE -> 3. GROUP BY -> 4. HAVING -> 5. Window Functions (OVER) -> 6. SELECT -> 7. DISTINCT -> 8. ORDER BY -> 9. LIMIT / OFFSET. This explains why column aliases defined in SELECT cannot be used in WHERE clauses.\n\n*Interviewer Follow-up:* \"How do you calculate a 7-day rolling average in SQL?\"\n\n*Follow-up Response:* Use AVG(revenue) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW).\n\n## 10. Rapid Revision Cheat Sheet\n\n- **PARTITION BY:** Divides rows into groups for independent window calculation\n- **DENSE_RANK:** Ranks without gaps: 1, 2, 2, 3; perfect for Nth highest salary\n- **LAG / LEAD:** Inspects previous / subsequent rows without self-joins\n- **Execution Order:** FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can write queries using ROW_NUMBER, RANK, and DENSE_RANK\n- [ ] Computes running totals and rolling averages using window frames\n- [ ] Traverses recursive parent-child tree hierarchies using Recursive CTEs\n\n",
+  "mcqs": [
+    {
+      "question": "Given salaries: [5000, 4000, 4000, 3000]. What rank will `DENSE_RANK()` assign to the salary 3000 when ordered descending?",
+      "options": [
+        "4",
+        "3",
+        "2",
+        "1"
+      ],
+      "correctIndex": 1,
+      "explanation": "5000 is rank 1. Both 4000s tie for rank 2. DENSE_RANK does not skip ranks after ties, so 3000 receives rank 3 (unlike RANK() which would assign 4).",
+      "difficulty": "Medium",
+      "order": 1
+    },
+    {
+      "question": "Why does executing `SELECT name FROM employees WHERE ROW_NUMBER() OVER (...) = 1;` cause a syntax error in SQL?",
+      "options": [
+        "ROW_NUMBER cannot be used with SELECT",
+        "Window functions are evaluated after the WHERE clause has already executed in the logical SQL processing pipeline",
+        "The OVER clause must contain a GROUP BY statement",
+        "PostgreSQL does not support ROW_NUMBER"
+      ],
+      "correctIndex": 1,
+      "explanation": "The WHERE clause executes before window functions are calculated. Window function filtering must be performed in an outer query wrapping a CTE or subquery.",
+      "difficulty": "Medium",
+      "order": 2
+    }
+  ]
+}

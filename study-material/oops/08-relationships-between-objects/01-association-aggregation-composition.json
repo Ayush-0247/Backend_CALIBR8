@@ -1,0 +1,41 @@
+{
+  "id": "topic-oops-relationships-between-objects-association-aggregation-composition",
+  "slug": "association-aggregation-composition",
+  "topic": "association-aggregation-composition",
+  "name": "Association, Aggregation, Composition, and Coupling",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Relationships Between Objects",
+  "chapterSlug": "relationships-between-objects",
+  "chapterId": "ch-oops-8",
+  "content": "# Association, Aggregation, Composition, and Coupling\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Relationships Between Objects\n\n**Prerequisites:** classes-objects-encapsulation\n\n### What is this topic and why does it matter?\nSoftware architecture is defined by how classes relate to one another. We analyze Association (knows-a), Aggregation (has-a with independent lifetime), Composition (part-of with dependent lifetime), Dependency (uses-a), and coupling vs cohesion metrics.\n\n### Specific Learning Outcomes\n- **Taxonomy of Relationships**: Differentiate Association, Aggregation, and Composition.\n- **Lifetime Coupling**: Identify whether the part dies when the whole is destroyed.\n- **Cohesion vs Coupling**: Design systems with high cohesion and low coupling.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of a Human. The relationship with their Heart is **Composition**: if the Human dies, the Heart dies; the Heart cannot belong to two living humans simultaneously. The relationship with their Car is **Aggregation**: the human owns a car, but if the human dies, the car still exists in the garage. The relationship with their Doctor is **Association**: they interact temporarily.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. The Spectrum of Object Relationships\n1. **Dependency (\"uses-a\"):** A transient relationship where class A uses class B temporarily in a method (e.g., passed as parameter or created locally).\n2. **Association (\"knows-a\"):** A structural relationship where class A maintains a reference or pointer to class B over time.\n3. **Aggregation (\"has-a\", weak ownership):** A whole-part relationship where parts can exist independently of the whole. (Example: Department and Teachers).\n4. **Composition (\"part-of\", strong ownership):** A strict whole-part relationship where the part cannot exist without the whole. If the whole is destroyed, all parts are destroyed. (Example: House and Rooms).\n\n### 2. High Cohesion and Loose Coupling\n- **Cohesion:** Measures how focused and closely related the responsibilities of a single class or module are. High cohesion is desirable.\n- **Coupling:** Measures the degree of direct interdependence between different modules. Low (loose) coupling is desirable.\n\n## 4. Progressively Worked Examples\n\n### Example 1: C++ Implementation of Composition vs Aggregation (Standard)\n\n**Problem Statement:** Model a Computer with an integrated CPU (Composition) and an attached Monitor (Aggregation).\n\n```cpp\n#include <iostream>\n#include <memory>\n#include <string>\n\nclass CPU {\npublic:\n    std::string model;\n    explicit CPU(std::string m) : model(std::move(m)) {}\n};\n\nclass Monitor {\npublic:\n    std::string brand;\n    explicit Monitor(std::string b) : brand(std::move(b)) {}\n};\n\nclass Computer {\nprivate:\n    CPU cpu; // COMPOSITION: CPU is owned by value. When Computer dies, CPU dies.\n    Monitor* monitor; // AGGREGATION: Monitor exists independently; Computer only holds a pointer.\n\npublic:\n    Computer(std::string cpuModel, Monitor* extMonitor)\n        : cpu(std::move(cpuModel)), monitor(extMonitor) {}\n        \n    void displaySpecs() const {\n        std::cout << \"CPU: \" << cpu.model << \"\\n\";\n        if (monitor) std::cout << \"External Monitor: \" << monitor->brand << \"\\n\";\n    }\n};\n```\n\n**Detailed Explanation & Tracing:**\nThe CPU instance is embedded directly in Computer (lifetime bound). The Monitor instance is managed independently outside Computer (lifetime unbound).\n\n## 5. Production & Practical Engineering Applications\n\nGame entity-component systems, GUI window hierarchies, document object models (DOM), and e-commerce cart/item modeling.\n\n## 6. Visual Diagrams & Architectural Representation\n\nRelationship Hierarchy:\n[ Dependency ] ---> [ Association ] ---> [ Aggregation (Hollow Diamond) ] ---> [ Composition (Filled Diamond) ]\n(Weakest link)                                                                  (Strongest ownership)\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Aggregation vs Composition\n\n| Characteristic | Aggregation | Composition |\n| :--- | :--- | :--- |\n| **UML Symbol** | Hollow Diamond (`<>--`) | Filled Solid Diamond (`<*>--`) |\n| **Ownership** | Weak (\"has-a\") | Strong (\"contains / part-of\") |\n| **Part Lifetime** | Independent of whole | Bound to whole |\n| **Multiplicity** | Part can belong to multiple wholes | Part belongs to exactly one whole |\n| **Implementation** | Stored as pointer/reference | Stored by value or unique ownership |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Using Composition when parts must survive the parent\n- **Why developers fail here:** Embedding objects by value when the domain requires them to outlive the container.\n- **Concrete Counterexample / Symptom:** Unexpected deletion of components when a temporary container goes out of scope.\n- **How to prevent / correct:** Use shared_ptr or raw pointers for aggregation when lifecycles are decoupled.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: How does high cohesion lead to lower coupling? (Architectural Principle)\n\n**Model Answer:**\nWhen a class has high cohesion, it handles only its single, clearly defined responsibility. It does not need to know or manipulate the internals of other subsystems. Because it does not overreach, other classes can interact with it through a small, stable interface, keeping cross-module coupling minimal.\n\n*Interviewer Follow-up:* \"Give an example of a class violating cohesion.\"\n\n*Follow-up Response:* An Employee class that stores salary, calculates taxes, connects to MySQL to persist data, and formats an HTML pay stub. It should be split into Employee, TaxCalculator, EmployeeRepository, and PayStubView.\n\n## 10. Rapid Revision Cheat Sheet\n\n- **Dependency:** Temporary usage in a method (\"uses-a\")\n- **Aggregation:** Independent lifetime, shared whole-part (\"has-a\")\n- **Composition:** Dependent lifetime, exclusive whole-part (\"part-of\")\n- **High Cohesion:** Class does one job and does it completely\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can distinguish association, aggregation, and composition in code\n- [ ] Can draw and interpret UML relationship notations\n- [ ] Can refactor a low-cohesion, tightly-coupled class\n\n",
+  "mcqs": [
+    {
+      "question": "In UML notation, what symbol denotes a Composition relationship?",
+      "options": [
+        "Dotted arrow",
+        "Hollow diamond attached to the whole class",
+        "Solid filled black diamond attached to the whole class",
+        "Open triangle arrow pointing to the base class"
+      ],
+      "correctIndex": 2,
+      "explanation": "Composition is represented by a solid filled diamond at the owner/whole end, indicating strong ownership and bound lifetimes.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "Which relationship exists between a University and its Departments, if deleting the University automatically deletes all its Departments?",
+      "options": [
+        "Dependency",
+        "Generalization",
+        "Aggregation",
+        "Composition"
+      ],
+      "correctIndex": 3,
+      "explanation": "Because the departments cannot exist without the university and their lifetimes are bound to the parent, this is a textbook example of Composition.",
+      "difficulty": "Easy",
+      "order": 2
+    }
+  ]
+}

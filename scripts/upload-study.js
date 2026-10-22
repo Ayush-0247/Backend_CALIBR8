@@ -1,38 +1,43 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const STUDY_DIR = path.join(__dirname, '../study-material');
+const STUDY_DIR = path.join(__dirname, "../study-material");
 
 function getOrderFromName(name) {
   const match = name.match(/^(\d+)-/);
   return match ? parseInt(match[1]) : 999;
 }
 function getSlugFromName(name) {
-  return name.replace(/^\d+-/, '').toLowerCase();
+  return name.replace(/^\d+-/, "").toLowerCase();
 }
 function getNameFromSlug(slug) {
-  return slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 async function main() {
   console.log(`🚀 Starting Full Sync from: ${STUDY_DIR}\n`);
 
-  const subjectFolders = fs.readdirSync(STUDY_DIR).filter(f => 
-    fs.statSync(path.join(STUDY_DIR, f)).isDirectory()
-  );
+  if (!fs.existsSync(STUDY_DIR)) {
+    console.error("❌ study-material folder not found!");
+    return;
+  }
+
+  const subjectFolders = fs
+    .readdirSync(STUDY_DIR)
+    .filter((f) => fs.statSync(path.join(STUDY_DIR, f)).isDirectory());
 
   for (const subjectFolder of subjectFolders) {
     const subjectPath = path.join(STUDY_DIR, subjectFolder);
@@ -48,9 +53,9 @@ async function main() {
       create: { slug: subjectSlug, name: subjectName, order: subjectOrder },
     });
 
-    const chapterFolders = fs.readdirSync(subjectPath).filter(f =>
-      fs.statSync(path.join(subjectPath, f)).isDirectory()
-    );
+    const chapterFolders = fs
+      .readdirSync(subjectPath)
+      .filter((f) => fs.statSync(path.join(subjectPath, f)).isDirectory());
 
     for (const chapterFolder of chapterFolders) {
       const chapterPath = path.join(subjectPath, chapterFolder);
@@ -63,57 +68,87 @@ async function main() {
       const chapter = await prisma.studyChapter.upsert({
         where: { subjectId_slug: { subjectId: subject.id, slug: chapterSlug } },
         update: { name: chapterName, order: chapterOrder },
-        create: { slug: chapterSlug, name: chapterName, subjectId: subject.id, order: chapterOrder },
+        create: {
+          slug: chapterSlug,
+          name: chapterName,
+          subjectId: subject.id,
+          order: chapterOrder,
+        },
       });
 
-      const topicFiles = fs.readdirSync(chapterPath).filter(f => f.endsWith('.json'));
+      const topicFiles = fs
+        .readdirSync(chapterPath)
+        .filter((f) => f.endsWith(".json"));
 
       for (const topicFile of topicFiles) {
         const filePath = path.join(chapterPath, topicFile);
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const fileContent = fs.readFileSync(filePath, "utf-8");
         let data;
         try {
           data = JSON.parse(fileContent);
         } catch (e) {
-          console.log(`    ❌ Invalid JSON: ${topicFile}`);
+          console.log(`    ❌ Invalid JSON: ${topicFile} - ${e.message}`);
           continue;
         }
 
+        if (!data.topic || !data.content) {
+          console.log(`    ❌ Skipped ${topicFile}: missing topic/content field`);
+          continue;
+        }
+
+        // SAFE VALUES - Pehle define karo
+        const safeTopicName =
+          data.topicName || data.name || getNameFromSlug(data.topic);
+        const safeTopicOrder = data.order || getOrderFromName(topicFile) || 0;
+
         const existingTopic = await prisma.studyTopic.findUnique({
-          where: { chapterId_slug: { chapterId: chapter.id, slug: data.topic } },
-          include: { mcqs: true }
+          where: {
+            chapterId_slug: { chapterId: chapter.id, slug: data.topic },
+          },
+          include: { mcqs: true },
         });
 
-        // --- YAHAN FIX HAI ---
-        // Ab pura file ka hash check karega, sirf content nahi
         const newMcqString = JSON.stringify(data.mcqs || []);
-        const oldMcqString = JSON.stringify(existingTopic?.mcqs.map(m => ({
-          question: m.question, options: m.options, correctIndex: m.correctIndex, explanation: m.explanation, difficulty: m.difficulty, order: m.order
-        })) || []);
+        const oldMcqString = JSON.stringify(
+          existingTopic?.mcqs.map((m) => ({
+            question: m.question,
+            options: m.options,
+            correctIndex: m.correctIndex,
+            explanation: m.explanation,
+            difficulty: m.difficulty,
+            order: m.order,
+          })) || []
+        );
 
-        const isChanged = !existingTopic || 
-                          existingTopic.content !== data.content || 
-                          existingTopic.name !== data.topicName ||
-                          newMcqString !== oldMcqString;
+        const isChanged =
+          !existingTopic ||
+          existingTopic.content !== data.content ||
+          existingTopic.name !== safeTopicName ||
+          newMcqString !== oldMcqString;
 
-        // Topic hamesha upsert - latest content
         const topic = await prisma.studyTopic.upsert({
-          where: { chapterId_slug: { chapterId: chapter.id, slug: data.topic } },
-          update: { name: data.topicName, content: data.content, order: data.order || 0 },
+          where: {
+            chapterId_slug: { chapterId: chapter.id, slug: data.topic },
+          },
+          update: {
+            name: safeTopicName,
+            content: data.content,
+            order: safeTopicOrder,
+          },
           create: {
             slug: data.topic,
-            name: data.topicName,
+            name: safeTopicName,
             chapterId: chapter.id,
-            order: data.order || 0,
+            order: safeTopicOrder,
             content: data.content,
-          }
+          },
         });
 
         if (isChanged) {
           await prisma.studyMCQ.deleteMany({ where: { topicId: topic.id } });
           if (data.mcqs && data.mcqs.length > 0) {
             await prisma.studyMCQ.createMany({
-              data: data.mcqs.map(mcq => ({
+              data: data.mcqs.map((mcq) => ({
                 topicId: topic.id,
                 question: mcq.question,
                 options: mcq.options,
@@ -121,22 +156,30 @@ async function main() {
                 explanation: mcq.explanation || "",
                 difficulty: mcq.difficulty || "Easy",
                 order: mcq.order || 0,
-              }))
+              })),
             });
           }
           const status = existingTopic ? "🔄 UPDATED" : "✨ CREATED";
-          console.log(`    ${status} Topic: ${data.topic} (${data.mcqs?.length || 0} MCQs)`);
+          console.log(
+            `    ${status} Topic: ${data.topic} (${data.mcqs?.length || 0} MCQs)`
+          );
         } else {
           console.log(`    ⏭️  SKIPPED (No Change): ${data.topic}`);
         }
       }
     }
   }
-  console.log('\n🎉 Full Sync Completed!');
+  console.log("\n🎉 Full Sync Completed!");
 }
 
-main().catch(e => { console.error(e); process.exit(1); })
-.finally(async () => { await prisma.$disconnect(); await pool.end(); });
-
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+    await pool.end();
+  });
 
 // node scripts/upload-study.js

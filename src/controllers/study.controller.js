@@ -1,13 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
-
-// Agar tere paas already prisma client hai src/lib/prisma.js me, to upar ke 4 lines hata ke ye use kar:
-// import prisma from '../lib/prisma.js' 
+import prisma from '../config/db.js'; 
 
 export const getSubjects = async (req, res) => {
   try {
@@ -69,7 +60,6 @@ export const getTopicBySlug = async (req, res) => {
             difficulty: true,
             order: true,
             explanation: true
-            // correctIndex yaha nahi bhejenge, frontend pe cheat ho jayega
           }
         },
         chapter: { include: { subject: true } }
@@ -85,7 +75,7 @@ export const getTopicBySlug = async (req, res) => {
 export const submitMCQs = async (req, res) => {
   try {
     const { topicSlug } = req.params;
-    const { answers } = req.body; // { "mcqId": 1, "mcqId2": 0 }
+    const { answers } = req.body; 
 
     const topic = await prisma.studyTopic.findFirst({
       where: { slug: topicSlug },

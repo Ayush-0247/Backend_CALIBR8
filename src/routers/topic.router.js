@@ -3,6 +3,8 @@ import {
   getAllTopics,
   getDsaTopics,
   getTopicDetail,
+  getAllDsaTopics, 
+  getProblemsByDsaTopic 
 } from "../controllers/topic.controller.js";
 
 const router = Router();
@@ -15,5 +17,8 @@ router.get("/:identifier", getTopicDetail);
 
 // GET /topics - all topics
 router.get("/", getAllTopics);
+
+router.get("/dsa", getAllDsaTopics)
+router.get("/dsa/:slug/problems", getProblemsByDsaTopic)
 
 export default router;

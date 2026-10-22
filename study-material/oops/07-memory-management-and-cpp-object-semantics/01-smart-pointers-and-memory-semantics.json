@@ -1,0 +1,54 @@
+{
+  "id": "topic-oops-memory-management-and-cpp-object-semantics-smart-pointers-and-memory-semantics",
+  "slug": "smart-pointers-and-memory-semantics",
+  "topic": "smart-pointers-and-memory-semantics",
+  "name": "Smart Pointers (unique_ptr, shared_ptr, weak_ptr) and Move Semantics",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Memory Management and Object Semantics",
+  "chapterSlug": "memory-management-and-cpp-object-semantics",
+  "chapterId": "ch-oops-7",
+  "content": "# Smart Pointers (unique_ptr, shared_ptr, weak_ptr) and Move Semantics\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Memory Management and C++ Object Semantics\n\n**Prerequisites:** lifecycle-raii-and-rules-of-three-five-zero\n\n### What is this topic and why does it matter?\nModern C++ memory management eliminates raw new/delete in application code. We analyze exclusive ownership (std::unique_ptr), shared ownership (std::shared_ptr), circular reference breaking (std::weak_ptr), and lvalue vs rvalue mechanics.\n\n### Specific Learning Outcomes\n- **Exclusive Ownership**: Master std::unique_ptr for zero-overhead pointer ownership.\n- **Shared Ownership & Control Block**: Understand reference counting and memory layout of std::shared_ptr.\n- **Circular References**: Break reference cycles using std::weak_ptr.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of car ownership. `unique_ptr` is having your personal car title: only one person owns it; you can transfer title (move), but you cannot duplicate the car. `shared_ptr` is a car-sharing subscription: multiple people have keys; the car exists as long as at least one active subscriber remains; when the count reaches zero, the car is scrapped. `weak_ptr` is an observer looking at the car parking spot: it can check if the car is there without keeping the subscription alive.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. std::unique_ptr\n- Represents **exclusive ownership** of a heap object.\n- Cannot be copied; can only be **moved** (`std::move`).\n- Has **zero runtime overhead** compared to a raw pointer.\n- Preferred creation: `std::make_unique<T>(args...)` (exception safe).\n\n### 2. std::shared_ptr\n- Represents **shared ownership** via reference counting.\n- Manages an auxiliary **Control Block** in heap memory containing:\n  1. *Strong Reference Count:* Number of active `shared_ptr` owners.\n  2. *Weak Reference Count:* Number of active `weak_ptr` observers.\n  3. Custom deleter / allocator info.\n- When strong count drops to 0, the managed object is destroyed.\n- Preferred creation: `std::make_shared<T>(args...)` (allocates object and control block in a single contiguous memory block).\n\n### 3. std::weak_ptr\n- Non-owning observer of a `shared_ptr`-managed object.\n- Does not increment the strong reference count; does NOT prevent object destruction.\n- Prevents **Cyclic Reference Leaks** (e.g., Parent holding `shared_ptr` to Child, Child holding `weak_ptr` to Parent).\n- Must be converted to `shared_ptr` via `.lock()` before accessing the resource.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Breaking Circular Dependency with std::weak_ptr (Standard)\n\n**Problem Statement:** Model a Node graph where nodes reference each other without leaking memory.\n\n```cpp\n#include <iostream>\n#include <memory>\n\nclass Node {\npublic:\n    std::string name;\n    // weak_ptr breaks the cycle!\n    std::weak_ptr<Node> neighbor; \n\n    explicit Node(std::string n) : name(std::move(n)) {\n        std::cout << \"Node created: \" << name << \"\\n\";\n    }\n    \n    ~Node() {\n        std::cout << \"Node destroyed: \" << name << \"\\n\";\n    }\n    \n    void printNeighbor() {\n        if (auto sharedNeighbor = neighbor.lock()) { // Convert to shared_ptr\n            std::cout << name << \"'s neighbor is: \" << sharedNeighbor->name << \"\\n\";\n        } else {\n            std::cout << name << \" has no active neighbor (expired)\\n\";\n        }\n    }\n};\n\nint main() {\n    auto a = std::make_shared<Node>(\"A\");\n    auto b = std::make_shared<Node>(\"B\");\n    a->neighbor = b;\n    b->neighbor = a; // Weak link\n    // Both A and B are cleanly destroyed at scope exit!\n}\n```\n\n**Detailed Explanation & Tracing:**\nIf neighbor were std::shared_ptr, both reference counts would remain at 1 at function exit, creating a permanent memory leak. weak_ptr solves this completely.\n\n## 5. Production & Practical Engineering Applications\n\nCache implementations, graph node connections, event listener registrations, and asynchronous task callbacks.\n\n## 6. Visual Diagrams & Architectural Representation\n\nshared_ptr Memory Layout (std::make_shared):\n+-------------------------------------------------------------+\n| Single Allocated Heap Block                                 |\n| +-------------------------+ +-----------------------------+ |\n| | Object Data (T instance)| | Control Block:              | |\n| |                         | | strong_count = 2            | |\n| |                         | | weak_count = 1              | |\n| +-------------------------+ +-----------------------------+ |\n+-------------------------------------------------------------+\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### unique_ptr vs shared_ptr vs weak_ptr\n\n| Feature | std::unique_ptr | std::shared_ptr | std::weak_ptr |\n| :--- | :--- | :--- | :--- |\n| **Ownership** | Exclusive (1 owner) | Shared (N owners) | Non-owning observer |\n| **Copyable** | No (Move-only) | Yes | Yes |\n| **Reference Count Overhead** | None (Zero-cost) | Atomic increment/decrement | Tracks weak count |\n| **Access Syntax** | `ptr->foo()` | `ptr->foo()` | Must call `ptr.lock()->foo()` |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Creating two independent shared_ptrs from the same raw pointer\n- **Why developers fail here:** Each shared_ptr creates its own separate control block with strong count = 1.\n- **Concrete Counterexample / Symptom:** Double free crash when the first shared_ptr deletes the raw memory.\n- **How to prevent / correct:** Always use std::make_shared or initialize once and copy the shared_ptr.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: Why is `std::make_shared` preferred over `std::shared_ptr<T>(new T())`? (Performance & Safety)\n\n**Model Answer:**\nstd::make_shared performs a single dynamic memory allocation combining both the user object and the control block contiguously. In contrast, new T() requires two separate allocations (one for the object, one for the control block), causing heap fragmentation, extra allocation overhead, and potential memory leaks if an exception throws between allocations.\n\n*Interviewer Follow-up:* \"When might you NOT want to use std::make_shared?\"\n\n*Follow-up Response:* When very large objects are referenced by lingering weak_ptrs: std::make_shared keeps the combined memory block allocated until all weak_ptrs are also destroyed, delaying deallocation of the object memory.\n\n## 10. Rapid Revision Cheat Sheet\n\n- **unique_ptr:** Exclusive ownership, zero overhead, move-only\n- **shared_ptr:** Shared ownership via reference counted control block\n- **weak_ptr:** Non-owning observer, resolves cyclic reference leaks\n- **lock():** Atomically creates a shared_ptr from a weak_ptr if not expired\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Knows when to use unique_ptr vs shared_ptr vs weak_ptr\n- [ ] Can diagnose and eliminate reference cycles in graph structures\n- [ ] Understands the control block architecture of shared_ptr\n\n",
+  "mcqs": [
+    {
+      "question": "What happens if two objects hold `std::shared_ptr` references to each other?",
+      "options": [
+        "The compiler detects the cycle and automatically converts them to weak pointers",
+        "Both reference counts never reach zero, causing a permanent memory leak",
+        "A runtime deadlock occurs on the next garbage collection cycle",
+        "The program crashes with SIGSEGV upon entering the scope"
+      ],
+      "correctIndex": 1,
+      "explanation": "Circular shared_ptr dependencies ensure neither object’s reference count can ever reach zero, preventing destruction and permanently leaking both objects.",
+      "difficulty": "Medium",
+      "order": 1
+    },
+    {
+      "question": "How do you access the target object through a `std::weak_ptr`?",
+      "options": [
+        "Direct dereference using operator* or operator->",
+        "Call .lock() to acquire a temporary std::shared_ptr",
+        "Cast it to a raw pointer with reinterpret_cast",
+        "Pass it to std::move"
+      ],
+      "correctIndex": 1,
+      "explanation": "std::weak_ptr does not provide direct dereferencing operators. You must call .lock() which safely returns a valid std::shared_ptr or empty shared_ptr if expired.",
+      "difficulty": "Easy",
+      "order": 2
+    },
+    {
+      "question": "Which smart pointer has zero space and time overhead compared to a raw C-style pointer?",
+      "options": [
+        "std::shared_ptr",
+        "std::weak_ptr",
+        "std::unique_ptr",
+        "std::auto_ptr"
+      ],
+      "correctIndex": 2,
+      "explanation": "With a default deleter, std::unique_ptr is exactly the same size as a raw pointer (sizeof(unique_ptr<T>) == sizeof(T*)) and compiles into identical assembly.",
+      "difficulty": "Easy",
+      "order": 3
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "topic-oops-classes-objects-and-encapsulation-classes-objects-encapsulation",
+  "slug": "classes-objects-encapsulation",
+  "topic": "classes-objects-encapsulation",
+  "name": "Classes, Objects, Access Control, and Encapsulation",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Classes, Objects, and Encapsulation",
+  "chapterSlug": "classes-objects-and-encapsulation",
+  "chapterId": "ch-oops-2",
+  "content": "# Classes, Objects, Access Control, and Encapsulation\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Classes, Objects, and Encapsulation\n\n**Prerequisites:** Basic C++ syntax, paradigms-and-oop-foundations\n\n### What is this topic and why does it matter?\nClasses form user-defined types in C++. They define layout, access boundaries, constructors, and member function semantics. Encapsulation protects class invariants by restricting direct memory access.\n\n### Specific Learning Outcomes\n- **Access Control Mechanics**: Master public, private, and protected visibility specifiers.\n- **Member Initialization**: Understand member initialization lists vs body assignments.\n- **Static Members & this Pointer**: Explain class-level versus instance-level members and the implicit this pointer.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of a wristwatch. The internal gears, spring, and battery are enclosed in a sealed water-resistant casing (private). If anyone could poke the balance wheel with a needle, the watch would break. Instead, you interact with the watch exclusively through the crown and buttons (public methods).\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. Class vs Struct in C++\nIn C++, a `class` and a `struct` are identical except for default member and base class visibility:\n- **struct:** Members and base classes default to **public**.\n- **class:** Members and base classes default to **private**.\n\n### 2. Access Specifiers\n- `public`: Accessible from any function in the program.\n- `private`: Accessible only by member functions of the same class and friend functions/classes.\n- `protected`: Accessible by member functions of the class, friends, and derived classes.\n\n### 3. Member Initialization Lists\nIn C++, members should be initialized in constructor initialization lists rather than assigned in constructor bodies:\n- For `const` members, reference members, and members of types without a default constructor, the initialization list is **mandatory**.\n- Avoids default construction followed by copy/move assignment overhead.\n- Initialization order is determined strictly by the declaration order in the class definition, NOT the order in the initialization list!\n\n### 4. The `this` Pointer\nEvery non-static member function receives an implicit parameter: a pointer to the calling object (`ClassType* const this`). In `const` member functions, its type is `const ClassType* const this`.\n\n### 5. Static Members\n- **Static data members:** Belong to the class itself, not to any individual instance. Only one copy exists in the static storage area.\n- **Static member functions:** Can be invoked without an object instance (`ClassName::function()`). They do not receive a `this` pointer and cannot access non-static members directly.\n\n## 4. Progressively Worked Examples\n\n### Example 1: Modern C++ Class with Invariant & Const-Correctness (Standard)\n\n**Problem Statement:** Implement an immutable-like dynamic vector wrapper with boundary enforcement.\n\n```cpp\n#include <iostream>\n#include <stdexcept>\n\nclass SafeArray {\nprivate:\n    int* data;\n    size_t size;\n    static size_t activeAllocations; // Class-level shared tracking\n\npublic:\n    explicit SafeArray(size_t s) : size(s), data(new int[s]{}) {\n        ++activeAllocations;\n    }\n    \n    ~SafeArray() {\n        delete[] data;\n        --activeAllocations;\n    }\n\n    // Read-only access with bounds checking\n    int get(size_t index) const {\n        if (index >= size) throw std::out_of_range(\"Index out of bounds\");\n        return data[index];\n    }\n\n    void set(size_t index, int val) {\n        if (index >= size) throw std::out_of_range(\"Index out of bounds\");\n        data[index] = val;\n    }\n\n    size_t length() const noexcept { return size; }\n    \n    static size_t getActiveAllocations() noexcept {\n        return activeAllocations;\n    }\n};\n\nsize_t SafeArray::activeAllocations = 0; // Definition outside class\n```\n\n**Detailed Explanation & Tracing:**\nThe static activeAllocations member tracks all instantiated SafeArray instances across the entire program. Const member functions guarantee that inspecting length or getting values will not mutate instance data.\n\n## 5. Production & Practical Engineering Applications\n\nSafe array wrappers, cryptographic keys, hardware register abstractions, database connections, and memory allocators require rigorous encapsulation to prevent unauthorized state manipulation.\n\n## 6. Visual Diagrams & Architectural Representation\n\nClass Layout in Memory:\n[ Object Instance on Stack or Heap ]\n+-------------------------------+\n| data: int* (8 bytes)          | ---> [ Heap Array: int[size] ]\n| size: size_t (8 bytes)        |\n+-------------------------------+\n\n[ Static Storage Segment ]\n+-------------------------------+\n| SafeArray::activeAllocations  | (Shared by all SafeArray instances)\n+-------------------------------+\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Constructor Body Assignment vs Member Initialization List\n\n| Aspect | Member Initialization List | Constructor Body Assignment |\n| :--- | :--- | :--- |\n| **Syntax** | `Point(int x) : m_x(x) {}` | `Point(int x) { m_x = x; }` |\n| **Performance** | Direct initialization (single step) | Default-constructs then copy-assigns |\n| **const Members** | Supported & Mandatory | Compilation Error |\n| **Reference Members** | Supported & Mandatory | Compilation Error |\n| **Execution Order** | Class declaration order | Sequence of statements in body |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Assuming initialization list executes in the order written\n- **Why developers fail here:** C++ standards mandate that members are initialized in the exact order they are declared in the class header.\n- **Concrete Counterexample / Symptom:** If member B depends on member A in the list, but B was declared before A in class body, B receives uninitialized garbage.\n- **How to prevent / correct:** Always declare members in their dependency order and write the initialization list in the exact same sequence.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: Why can a static member function not call a non-static member function directly? (Conceptual)\n\n**Model Answer:**\nNon-static member functions require an implicit this pointer representing the specific instance on which they operate. Static member functions are bound to the class scope rather than any object instance; they have no this pointer and therefore cannot know which instance’s state to access without an explicit object passed as an argument.\n\n*Interviewer Follow-up:* \"Can a non-static member function invoke a static member function?\"\n\n*Follow-up Response:* Yes, because static functions belong to the class and are always accessible with or without an instance.\n\n## 10. Rapid Revision Cheat Sheet\n\n- **struct vs class:** struct defaults to public; class defaults to private\n- **this pointer:** Implicit pointer to the instance passed to non-static member methods\n- **Initialization List:** Directly initializes members; required for const, references, and types without default constructor\n- **Static Member:** Single shared memory location across all instances of the class\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can implement a class with custom constructor initialization lists\n- [ ] Understands the role and constraints of static members and the this pointer\n- [ ] Understands why const member functions enforce compile-time immutability\n\n",
+  "mcqs": [
+    {
+      "question": "What is the ONLY difference between a class and a struct in C++?",
+      "options": [
+        "A struct cannot have member functions or constructors",
+        "A struct cannot be allocated on the heap using new",
+        "Default access specifier for members and base classes is public in struct and private in class",
+        "A struct does not support virtual functions or runtime polymorphism"
+      ],
+      "correctIndex": 2,
+      "explanation": "In C++, struct and class are identical in capability. The only distinction is that struct defaults to public inheritance and public member access, while class defaults to private.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "In what order are member variables initialized in a C++ constructor initialization list?",
+      "options": [
+        "In the order they appear in the constructor initialization list",
+        "In alphabetical order of member variable names",
+        "In the order they are declared in the class definition",
+        "Primitives first, followed by complex object instances"
+      ],
+      "correctIndex": 2,
+      "explanation": "C++ standard specifies that member initialization order is determined strictly by the order of declaration in the class body, regardless of the order in the constructor initializer list.",
+      "difficulty": "Medium",
+      "order": 2
+    },
+    {
+      "question": "What is the type of the `this` pointer inside a `const` member function of class `Widget`?",
+      "options": [
+        "Widget*",
+        "const Widget*",
+        "const Widget* const",
+        "Widget* const"
+      ],
+      "correctIndex": 2,
+      "explanation": "Inside a const member function, the pointer itself is constant and it points to a constant object: const Widget* const.",
+      "difficulty": "Hard",
+      "order": 3
+    },
+    {
+      "question": "Which of the following members MUST be initialized using the constructor initialization list?",
+      "options": [
+        "Pointers to primitive types (e.g., int*)",
+        "Reference members (e.g., int& ref) and const data members",
+        "Static integral constants defined with inline",
+        "Floating point variables (e.g., double x)"
+      ],
+      "correctIndex": 1,
+      "explanation": "Reference members and const data members cannot be assigned in the constructor body; they must be bound/initialized during object creation via the initialization list.",
+      "difficulty": "Easy",
+      "order": 4
+    }
+  ]
+}

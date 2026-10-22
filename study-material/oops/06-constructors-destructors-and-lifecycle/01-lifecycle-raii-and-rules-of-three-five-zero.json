@@ -1,0 +1,54 @@
+{
+  "id": "topic-oops-constructors-destructors-and-lifecycle-lifecycle-raii-and-rules-of-three-five-zero",
+  "slug": "lifecycle-raii-and-rules-of-three-five-zero",
+  "topic": "lifecycle-raii-and-rules-of-three-five-zero",
+  "name": "Object Lifetime, RAII, and the Rules of Three, Five, and Zero",
+  "order": 1,
+  "subject": "Object-Oriented Programming Systems",
+  "subjectSlug": "oops",
+  "chapter": "Constructors, Destructors, and Object Lifetime",
+  "chapterSlug": "constructors-destructors-and-lifecycle",
+  "chapterId": "ch-oops-6",
+  "content": "# Object Lifetime, RAII, and the Rules of Three, Five, and Zero\n\n## 1. Introduction & Learning Objectives\n\n**Subject:** Object-Oriented Programming Systems | **Chapter:** Constructors, Destructors, and Object Lifetime\n\n**Prerequisites:** classes-objects-encapsulation\n\n### What is this topic and why does it matter?\nResource management is the heart of production C++. Resource Acquisition Is Initialization (RAII) ties resource ownership to object lifetime. We examine the Rule of Three (C++98), the Rule of Five (C++11 move semantics), and the modern Rule of Zero.\n\n### Specific Learning Outcomes\n- **RAII Paradigm**: Tie memory, file descriptors, and mutex locks to scope lifetime.\n- **The Rule of Three**: Implement destructor, copy constructor, and copy assignment operator.\n- **The Rule of Five & Zero**: Leverage move semantics and standard containers to write exception-safe code.\n\n## 2. Intuitive Explanation & Mental Model\n\nThink of booking a hotel room. In manual resource management, you get a physical key. If you leave without returning it to the reception desk, the room remains locked forever (resource leak). In RAII, your room card is an electronic keycard tied to your reservation time slot: the moment your time expires, access is revoked automatically without manual intervention.\n\n## 3. Deep-Dive Theory & Core Mechanics\n\n### 1. RAII (Resource Acquisition Is Initialization)\nRAII dictates that:\n1. Resources (heap memory, sockets, file handles, mutexes) are acquired in a constructor.\n2. Resources are released in the corresponding destructor.\n3. Because stack objects have their destructors deterministically called when leaving scope (even during exceptions), resource leaks are prevented.\n\n### 2. Shallow Copy vs Deep Copy\n- **Shallow Copy:** Copies bitwise values (pointers copied directly). Both objects point to the same memory. When both destruct, **Double Free corruption** occurs.\n- **Deep Copy:** Allocates new memory and copies the actual contents. Both objects have independent lifecycles.\n\n### 3. The Rule of Three (C++98)\nIf a class manages a raw resource and explicitly declares any of these three, it almost certainly must declare all three:\n1. **Destructor:** `~MyClass()`\n2. **Copy Constructor:** `MyClass(const MyClass& other)`\n3. **Copy Assignment Operator:** `MyClass& operator=(const MyClass& other)`\n\n### 4. The Rule of Five (C++11)\nWith the advent of move semantics (rvalue references `&&`), two more special functions complete the set for efficient resource transfer without deep copying:\n4. **Move Constructor:** `MyClass(MyClass&& other) noexcept`\n5. **Move Assignment Operator:** `MyClass& operator=(MyClass&& other) noexcept`\n\n### 5. The Rule of Zero\nClasses that do not directly manage raw resources should declare **NONE** of the special member functions. Rely instead on standard RAII wrappers (`std::string`, `std::vector`, `std::unique_ptr`).\n\n## 4. Progressively Worked Examples\n\n### Example 1: Complete Rule of Five RAII Dynamic Buffer (Advanced)\n\n**Problem Statement:** Implement a memory buffer conforming to the Rule of Five and Copy-and-Swap idiom.\n\n```cpp\n#include <iostream>\n#include <utility>\n#include <algorithm>\n\nclass DynamicBuffer {\nprivate:\n    size_t size;\n    int* data;\n\npublic:\n    // 1. Constructor\n    explicit DynamicBuffer(size_t s = 0) : size(s), data(s ? new int[s]{} : nullptr) {}\n\n    // 2. Destructor\n    ~DynamicBuffer() {\n        delete[] data;\n    }\n\n    // 3. Copy Constructor (Deep Copy)\n    DynamicBuffer(const DynamicBuffer& other) : size(other.size), data(other.size ? new int[other.size] : nullptr) {\n        std::copy(other.data, other.data + size, data);\n    }\n\n    // 4. Move Constructor (Resource Steal)\n    DynamicBuffer(DynamicBuffer&& other) noexcept : size(other.size), data(other.data) {\n        other.size = 0;\n        other.data = nullptr; // Nullify source to prevent double free\n    }\n\n    // Friend swap for copy-and-swap idiom\n    friend void swap(DynamicBuffer& first, DynamicBuffer& second) noexcept {\n        using std::swap;\n        swap(first.size, second.size);\n        swap(first.data, second.data);\n    }\n\n    // 5. Unified Copy & Move Assignment (Copy-and-Swap)\n    DynamicBuffer& operator=(DynamicBuffer other) noexcept {\n        swap(*this, other);\n        return *this;\n    }\n};\n```\n\n**Detailed Explanation & Tracing:**\nThe copy-and-swap idiom provides strong exception safety. The parameter other is passed by value (triggering copy or move), and swapping contents ensures that the old resource is released when other falls out of scope.\n\n## 5. Production & Practical Engineering Applications\n\nstd::unique_ptr, std::shared_ptr, std::lock_guard, std::fstream, and Vulkan/OpenGL buffer handles use RAII to guarantee leak-free operation.\n\n## 6. Visual Diagrams & Architectural Representation\n\nMove Semantics vs Copy Semantics:\nCopy: [Buffer A] -> heap: [1, 2, 3]\n      [Buffer B] -> new heap: [1, 2, 3] (Expensive deep allocation)\n\nMove: [Buffer A] -> heap: [1, 2, 3]\n      [Buffer B] takes pointer to heap: [1, 2, 3]\n      [Buffer A] set to nullptr (Instantaneous pointer transfer)\n\n## 7. Comparative Analysis & Engineering Trade-Offs\n\n### Rule of Three vs Rule of Five vs Rule of Zero\n\n| Guideline | Era | Special Members Declared | Best Used For |\n| :--- | :--- | :--- | :--- |\n| **Rule of Three** | C++98 | Destructor, Copy Ctor, Copy Assign | Legacy raw resource handles |\n| **Rule of Five** | C++11 | Destructor, Copy Ctor, Copy Assign, Move Ctor, Move Assign | Performance-critical custom resource managers |\n| **Rule of Zero** | Modern | None (0 special functions) | 99% of domain & application classes |\n\n## 8. Common Pitfalls & Antipatterns\n\n### Pitfall 1: Failing to nullify the source pointer in a move constructor\n- **Why developers fail here:** If other.data is not set to nullptr, when other is destroyed, its destructor deletes the memory that was just moved into the new object.\n- **Concrete Counterexample / Symptom:** Double free memory corruption crash when temporary falls out of scope.\n- **How to prevent / correct:** Always reset the moved-from object’s raw pointers to nullptr.\n\n## 9. Interview Questions & Comprehensive Answers\n\n### Q1: Why should move constructors and move assignment operators be marked `noexcept`? (Performance & Correctness)\n\n**Model Answer:**\nStandard library containers (like std::vector::push_back) provide the strong exception guarantee. If a move constructor could throw, the container cannot safely move elements during reallocation; it will fall back to expensive deep copying instead. Marking them noexcept enables vectors to use move reallocations safely.\n\n*Interviewer Follow-up:* \"What is the Rule of Zero?\"\n\n*Follow-up Response:* The Rule of Zero advises that application classes should not manually manage resources or define custom copy/move/destructor logic. Instead, aggregate standard library types (std::string, std::unique_ptr) that already handle their own resource lifecycles.\n\n## 10. Rapid Revision Cheat Sheet\n\n- **RAII:** Resource Acquisition Is Initialization; ties cleanup to destructor\n- **Double Free:** Fatal bug where memory is deleted twice, caused by default shallow copy\n- **Rule of Five:** Destructor, Copy Ctor, Copy Assign, Move Ctor, Move Assign\n- **noexcept Move:** Allows std::vector to perform fast move reallocations\n\n## 11. Self-Assessment Mastery Checklist\n\n- [ ] Can implement a leak-free dynamic buffer using the Rule of Five\n- [ ] Understands the mechanics of the copy-and-swap idiom\n- [ ] Knows how to design classes adhering to the Rule of Zero\n\n",
+  "mcqs": [
+    {
+      "question": "What bug occurs if a class managing dynamically allocated heap memory uses the default compiler-generated copy constructor?",
+      "options": [
+        "Stack overflow",
+        "Double deletion / double free when both objects destruct",
+        "Deadlock on thread join",
+        "Compile-time ambiguous symbol error"
+      ],
+      "correctIndex": 1,
+      "explanation": "The default copy constructor performs a shallow (bitwise) copy of the pointer. When both instances go out of scope, both destructors attempt to delete the same heap memory address, causing a double free crash.",
+      "difficulty": "Easy",
+      "order": 1
+    },
+    {
+      "question": "What is the \"Rule of Zero\" in modern C++?",
+      "options": [
+        "All member variables must be initialized to 0 in constructor body",
+        "A class should have zero member functions",
+        "Classes should rely on RAII types and declare zero custom copy/move/destructor member functions",
+        "Virtual functions must have zero runtime overhead"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Rule of Zero states that classes should manage no resources directly, delegating resource ownership to types like std::string or std::vector, so that none of the 5 special member functions need to be declared.",
+      "difficulty": "Medium",
+      "order": 2
+    },
+    {
+      "question": "Why must move constructors be marked with `noexcept`?",
+      "options": [
+        "To allow compilers to eliminate all pointers from the class",
+        "To allow std::vector reallocations to safely move elements instead of falling back to copying",
+        "To prevent derived classes from overriding the constructor",
+        "To enable multithreaded lock-free execution"
+      ],
+      "correctIndex": 1,
+      "explanation": "If a move constructor is not noexcept, std::vector cannot guarantee strong exception safety during reallocations and will revert to copy constructors, degrading performance.",
+      "difficulty": "Hard",
+      "order": 3
+    }
+  ]
+}
