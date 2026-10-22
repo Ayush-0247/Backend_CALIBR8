@@ -1,9 +1,11 @@
 # Calibr8 Backend API Documentation
 
-**Base URL**: `http://localhost:3000` (or deployed server URL)  
+**Base URL**: `http://localhost:3000` by default (`PORT` can override it; use the deployed server URL in production)  
 **Standard API Prefix**: `/api`  
 **Authentication Header**: `Authorization: Bearer <jwt-token>` (for all protected endpoints)  
 **Content-Type**: `application/json` (for all endpoints accepting JSON bodies)
+
+**Production configuration**: Set a private `JWT_SECRET`; the code has an insecure development fallback. Set `OAUTH_STATE_SECRET` (or a secure `JWT_SECRET`) for OAuth state signing. JWTs expire after 7 days by default; `JWT_EXPIRES_IN` can override this.
 
 ---
 
@@ -13,7 +15,7 @@
 2. [Health & System Endpoints](#2-health--system-endpoints)
 3. [Authentication API (`/api/auth`)](#3-authentication-api-apiauth)
 4. [User Profile API (`/api/users`)](#4-user-profile-api-apiusers)
-5. [Topics API (`/api/topics` & `/api/dsa-topics`)](#5-topics-api-apitopics--apidsa-topics)
+5. [Topics API (`/api/topics`)](#5-topics-api-apitopics)
 6. [Onboarding & Skill Calibration API (`/api/onboarding`)](#6-onboarding--skill-calibration-api-apionboarding)
 7. [Problems Catalogue API (`/api/problems`)](#7-problems-catalogue-api-apiproblems)
 8. [Social & OAuth API (`/api/social`)](#8-social--oauth-api-apisocial)
@@ -27,7 +29,7 @@
 ## 1. Architecture & Design Principles
 
 - **Express and Prisma**: Express routers are mounted from `src/routers/index.router.js`; controllers use Prisma for database access. OAuth integration is handled in `src/controllers/social.controller.js`.
-- **Consistent Namespace**: All business domain endpoints reside under the `/api` prefix (e.g., `/api/auth`, `/api/users`, `/api/topics`, `/api/dsa-topics`, `/api/onboarding`, `/api/problems`, `/api/social`, `/api/study`).
+- **Consistent Namespace**: Mounted business endpoints reside under the `/api` prefix (e.g., `/api/auth`, `/api/users`, `/api/topics`, `/api/onboarding`, `/api/problems`, `/api/social`, `/api/study`).
 - **Database Connection**: Prisma connects to PostgreSQL through the configured Neon adapter using `DATABASE_URL`. The schema includes users, topic calibration, problems, testcases, starter templates, social accounts, and study-curriculum models.
 
 > **Route availability:** `/api/dsa-topics` is not mounted. The structured DSA problem-category list handler is present in `topic.controller.js`, but its `/api/topics/dsa` route is registered after another handler for the same path, so it is shadowed. The active `/api/topics/dsa` endpoint returns calibration topics instead. Code-execution router handlers are also not mounted; see [Code Execution Notice](#11-code-execution-notice).
@@ -38,7 +40,7 @@
 
 ### `GET /`
 
-Serves the interactive Developer Dashboard (HTML) when HTML is accepted, otherwise returns API metadata JSON. The metadata is a hard-coded summary, not a complete or authoritative endpoint catalog; for example, its current problem count and `apiGroups` do not reflect the full mounted API.
+Serves the interactive Developer Dashboard (HTML) when HTML is accepted, otherwise returns API metadata JSON. The metadata is a hard-coded summary, not a complete or authoritative endpoint catalog: it currently says 15 problems, describes beginner calibration as DSA-only, and omits the mounted `/api/study` group.
 
 - **Auth**: None
 - **Headers**: Send `Accept: application/json` for machine-readable JSON metadata.
@@ -182,7 +184,7 @@ Authenticates user credentials and returns user details with a signed JWT token.
 
 ### `POST /api/auth/logout`
 
-Revokes the current JWT bearer token by adding its hash to the server-side revocation list.
+Adds the current JWT bearer token to an in-memory revocation set. Revocation is process-local and is lost when the server restarts; it is not a persistent server-side token store.
 
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
@@ -339,7 +341,7 @@ Updates the user's preferred default programming language.
 
 ---
 
-## 5. Topics API (`/api/topics` & `/api/dsa-topics`)
+## 5. Topics API (`/api/topics`)
 
 ### `GET /api/topics`
 
@@ -377,7 +379,7 @@ When `category=dsa` or `category=core` is supplied, only the `topics` array and 
 
 ### `GET /api/topics/dsa`
 
-Returns the 5 DSA topics used in skill calibration.
+Returns topic records categorized as DSA, used for skill calibration. The seed script creates five such records; the live count depends on the database.
 
 - **Auth**: None
 - **Response (200 OK)**:
@@ -538,7 +540,7 @@ Completes the user's initial onboarding or updates their calibration profile.
 
 ### `GET /api/onboarding/status`
 
-Checks if the current user has completed onboarding and returns their active calibration levels.
+Returns the current user's onboarding fields and topic calibration records; the status is represented by `user.onboarded` rather than a separate flag.
 
 - **Auth**: Required (`Bearer <token>`)
 - **Response (200 OK)**:
@@ -593,6 +595,7 @@ Returns the list of coding problems in the catalogue, with difficulty classifica
 - **Query Params (Optional)**:
   - `?difficulty=Easy` — filter by difficulty (`Easy`, `Medium`, `Hard`)
   - `?search=two` — keyword search in problem title, slug, or problem number
+- The `count` is computed from the database and varies with the active filters and catalogue contents.
 - **Response (200 OK)**:
 
 ```json
@@ -619,6 +622,8 @@ Returns the list of coding problems in the catalogue, with difficulty classifica
 ### `GET /api/problems/:slug`
 
 Fetches full problem definition by problem slug or problem number (e.g. `two-sum` or `1`).
+
+**Data visibility:** The current controller returns every testcase, including records where `isVisible` is `false`; hidden cases are therefore not protected by this endpoint.
 
 - **Auth**: None
 - **Response (200 OK)**:
@@ -655,11 +660,13 @@ Fetches full problem definition by problem slug or problem number (e.g. `two-sum
 }
 ```
 
+The abbreviated example omits `templatesArray`, which is also present in the actual detail response and contains the raw template records.
+
 ---
 
 ### `POST /api/problems`
 
-Adds a new problem definition to the catalogue.
+Adds a new problem definition to the catalogue. Only `slug` and `title` are required; description, difficulty, limits, testcases, and templates are optional.
 
 - **Auth**: None. No admin authorization is implemented on this route; do not expose it to untrusted clients without adding access control.
 - **Request Body**:
@@ -734,14 +741,14 @@ Unlinks the specified social provider from the authenticated user's account.
 
 ## 9. CS Curriculum & Study Material API (`/api/study`)
 
-Comprehensive computer science curriculum endpoints covering 5 core subjects, 75 chapters, 75 comprehensive topics with 11-section pedagogical deep-dives, and 159 technical MCQs.
+Computer science curriculum endpoints for study subjects, chapters, topics, lesson content, and MCQs. The available records and counts depend on uploaded database content.
 
 ### `GET /api/study/subjects`
 
 Returns all study subjects currently in the database, with chapter counts and descriptions. Subject/chapter/topic totals depend on uploaded study data and are not guaranteed by the route.
 
 - **Auth**: None
-- **Response (200 OK)**:
+- **Response (200 OK, example; IDs and counts vary by database)**:
 
 ```json
 [
@@ -818,7 +825,7 @@ Retrieves the subject record and its ordered chapter list with topic counts.
 Retrieves all topics belonging to a chapter. `chapterId` must be the chapter's database ID; a chapter slug is not resolved by this handler.
 
 - **Auth**: None
-- **Parameters**: `chapterId` (UUID or chapter slug)
+- **Parameters**: `chapterId` (database ID)
 - **Response (200 OK)**:
 
 ```json
@@ -917,13 +924,13 @@ The repository includes scripts under `./scripts/` and `./prisma/` to manage dat
 
 ### 1. `scripts/seedProblems.js` (`npm run problems:seed`)
 
-- **Purpose**: Ingests all 130+ problem JSON definitions in `./problems/` into PostgreSQL.
+- **Purpose**: Ingests problem JSON definitions in `./problems/` into PostgreSQL.
 - **Safety**: Inspects existing problems by `slug` and skips duplicates safely.
 - **Command**: `npm run problems:seed` or `node scripts/seedProblems.js`
 
 ### 2. `scripts/upload-study.js`
 
-- **Purpose**: Reads `./study-material/` and synchronizes all 5 subjects, 75 chapters, markdown lessons, and MCQs into the database using upsert logic.
+- **Purpose**: Reads subject/chapter/topic JSON files in `./study-material/` and upserts their lessons and MCQs into the database. It does not remove database records missing from the source tree.
 - **Command**: `node scripts/upload-study.js`
 
 ### 3. `scripts/upload-problem.js`
@@ -933,7 +940,8 @@ The repository includes scripts under `./scripts/` and `./prisma/` to manage dat
 
 ### 4. `scripts/reset-and-upload.js`
 
-- **Purpose**: Full database reset and fresh re-seeding for development environments (truncates problem, testcase, template, and submission tables).
+- **Purpose**: Full database reset and fresh re-seeding for development environments (normally truncates problem, testcase, template, and submission tables).
+- **Warning**: Destructive operation. Do not run against a database containing data you need to keep. Its fallback cleanup may not remove submissions.
 - **Command**: `node scripts/reset-and-upload.js`
 
 ### 5. `scripts/bulk-push.js`
@@ -950,30 +958,31 @@ The repository includes scripts under `./scripts/` and `./prisma/` to manage dat
 
 ## 11. Code Execution Notice
 
-Code execution runner (`/api/v1/runs`) and submission pipeline (`/api/v1/submissions`) are temporarily disabled pending Phase 2 Judge0 sandbox runner setup. The problem catalogue (130+ problems), testcases, and multi-language starter templates remain active and fully accessible via `/api/problems`.
+The execution router is not mounted in `src/routers/index.router.js`, and its route registrations are commented out. There are currently no reachable run, submission, submission-status, or language-list API endpoints. The execution controller file is not an active API. Problem data, testcases, and templates remain accessible via `/api/problems`; catalogue size depends on database contents.
 
 ---
 
 ## 12. Error Handling & Status Codes
 
-All error responses adhere to a consistent JSON structure:
+Errors sent through the global error middleware use this JSON structure:
 
 ```json
 {
   "success": false,
-  "error": "Detailed error description"
+  "message": "Detailed error description"
 }
 ```
 
+Some topic and study controllers handle errors directly and instead return `{ "error": "..." }`; error payloads are therefore not uniform across all routes.
+
 ### HTTP Status Code Reference:
 
-| Status Code          | Meaning                 | Typical Scenario                                                   |
-| -------------------- | ----------------------- | ------------------------------------------------------------------ |
-| `200 OK`             | Request succeeded       | Successful GET, PUT, PATCH                                         |
-| `201 Created`        | Resource created        | Registration, problem creation                                     |
-| `400 Bad Request`    | Validation failure      | Missing required fields, invalid password length, invalid language |
-| `401 Unauthorized`   | Authentication required | Missing or invalid Bearer token                                    |
-| `403 Forbidden`      | Access denied           | Revoked or blacklisted token                                       |
-| `404 Not Found`      | Resource not found      | Invalid topic ID, problem slug, or subject                         |
-| `409 Conflict`       | Duplicate resource      | Account with email already exists                                  |
-| `500 Internal Error` | Server error            | Database connection failure or unhandled exception                 |
+| Status Code          | Meaning                 | Typical Scenario                                              |
+| -------------------- | ----------------------- | ------------------------------------------------------------- |
+| `200 OK`             | Request succeeded       | Successful GET, PUT, PATCH                                    |
+| `201 Created`        | Resource created        | Registration, problem creation                                |
+| `400 Bad Request`    | Validation failure      | Missing required fields, short new password, invalid language |
+| `401 Unauthorized`   | Authentication required | Missing, invalid, expired, or revoked Bearer token            |
+| `404 Not Found`      | Resource not found      | Invalid topic ID, problem slug, or subject                    |
+| `409 Conflict`       | Duplicate resource      | Account with email already exists                             |
+| `500 Internal Error` | Server error            | Unhandled exception or database operation failure             |
