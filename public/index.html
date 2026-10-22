@@ -1,788 +1,1322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calibr8 — Developer API & Interactive Dashboard</title>
-  <meta name="description" content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management.">
-  <meta property="og:title" content="Calibr8 — Developer API & Interactive Dashboard">
-  <meta property="og:description" content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management.">
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --card-bg: #111827;
-      --card-border: #1f293d;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --code-bg: #070a12;
-      --input-bg: #1c2438;
-      --border-color: #2e3b55;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 1.5rem 1rem;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container { max-width: 980px; width: 100%; }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .brand { display: flex; align-items: center; gap: 0.75rem; }
-    .logo-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.2rem;
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-    }
-    h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
-    p.subtitle { color: var(--text-muted); font-size: 0.88rem; }
-    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: rgba(100, 116, 139, 0.15);
-      color: #cbd5e1;
-      border: 1px solid #475569;
-      padding: 0.35rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    .status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; box-shadow: 0 0 6px var(--success); }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calibr8 — Developer API & Interactive Dashboard</title>
+    <meta
+      name="description"
+      content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management."
+    />
+    <meta
+      property="og:title"
+      content="Calibr8 — Developer API & Interactive Dashboard"
+    />
+    <meta
+      property="og:description"
+      content="Backend API for Calibr8 handling authentication, onboarding, topics, and user management."
+    />
+    <style>
+      :root {
+        --bg: #0a0404;
+        --card-bg: #111827;
+        --card-border: #1f293d;
+        --text: #f3f4f6;
+        --text-muted: #9ca3af;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --code-bg: #070a12;
+        --input-bg: #1c2438;
+        --border-color: #2e3b55;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 1.5rem 1rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        max-width: 980px;
+        width: 100%;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--card-border);
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .logo-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+      }
+      h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #fff;
+      }
+      p.subtitle {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background: rgba(100, 116, 139, 0.15);
+        color: #cbd5e1;
+        border: 1px solid #475569;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 6px var(--success);
+      }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 0.25rem;
-    }
-    .tab-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      font-weight: 600;
-      padding: 0.6rem 1.1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
-    .tab-btn.active { color: #fff; background: var(--card-bg); border: 1px solid var(--card-border); }
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 0.25rem;
+      }
+      .tab-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        font-weight: 600;
+        padding: 0.6rem 1.1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .tab-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .tab-btn.active {
+        color: #fff;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+      }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
 
-    /* Cards */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+      /* Cards */
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      }
+      .card-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    /* Forms */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-    label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
-    input, select {
-      background: var(--input-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 7px;
-      padding: 0.6rem 0.8rem;
-      color: #fff;
-      font-size: 0.9rem;
-      outline: none;
-    }
-    input:focus, select:focus { border-color: var(--accent); }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.55rem 1.1rem;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn:hover { background: var(--accent-hover); }
-    .btn:active { transform: scale(0.98); }
-    .btn-secondary { background: #1e293b; border: 1px solid var(--border-color); color: #cbd5e1; }
-    .btn-secondary:hover { background: #334155; }
-    .btn-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
-    .btn-beginner {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #fff;
-      font-size: 0.9rem;
-      padding: 0.75rem 1.25rem;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-    }
-    .btn-beginner:hover { background: linear-gradient(135deg, #059669, #047857); }
+      /* Forms */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      input,
+      select {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 7px;
+        padding: 0.6rem 0.8rem;
+        color: #fff;
+        font-size: 0.9rem;
+        outline: none;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 0.55rem 1.1rem;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+      }
+      .btn:hover {
+        background: var(--accent-hover);
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .btn-secondary {
+        background: #1e293b;
+        border: 1px solid var(--border-color);
+        color: #cbd5e1;
+      }
+      .btn-secondary:hover {
+        background: #334155;
+      }
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+      }
+      .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.3);
+      }
+      .btn-beginner {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        font-size: 0.9rem;
+        padding: 0.75rem 1.25rem;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      }
+      .btn-beginner:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+      }
 
-    /* Topic Level Grid */
-    .topics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.85rem;
-      margin: 1rem 0;
-    }
-    .topic-card {
-      background: var(--code-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      transition: border-color 0.2s;
-    }
-    .topic-card:hover { border-color: #4b5563; }
-    .topic-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .topic-name { font-weight: 600; font-size: 0.92rem; color: #f1f5f9; }
-    .topic-cat {
-      font-size: 0.7rem;
-      background: rgba(59, 130, 246, 0.15);
-      color: #93c5fd;
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-    .level-pills {
-      display: flex;
-      gap: 0.35rem;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 0.25rem;
-      border-radius: 8px;
-    }
-    .pill-btn {
-      flex: 1;
-      text-align: center;
-      padding: 0.35rem 0.4rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      background: transparent;
-      transition: all 0.15s;
-    }
-    .pill-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
-    .pill-btn.active-easy { background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
-    .pill-btn.active-mid { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
-    .pill-btn.active-hard { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+      /* Topic Level Grid */
+      .topics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 0.85rem;
+        margin: 1rem 0;
+      }
+      .topic-card {
+        background: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        transition: border-color 0.2s;
+      }
+      .topic-card:hover {
+        border-color: #4b5563;
+      }
+      .topic-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .topic-name {
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: #f1f5f9;
+      }
+      .topic-cat {
+        font-size: 0.7rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: #93c5fd;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .level-pills {
+        display: flex;
+        gap: 0.35rem;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.25rem;
+        border-radius: 8px;
+      }
+      .pill-btn {
+        flex: 1;
+        text-align: center;
+        padding: 0.35rem 0.4rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        background: transparent;
+        transition: all 0.15s;
+      }
+      .pill-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .pill-btn.active-easy {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.4);
+      }
+      .pill-btn.active-mid {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.4);
+      }
+      .pill-btn.active-hard {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.4);
+      }
 
-    /* Endpoint list */
-    .endpoint {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.7rem 0.9rem;
-      border-radius: 8px;
-      background: var(--code-bg);
-      border: 1px solid var(--border-color);
-      margin-bottom: 0.6rem;
-      font-family: monospace;
-      font-size: 0.85rem;
-    }
-    .method {
-      display: inline-block;
-      padding: 0.2rem 0.45rem;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 0.72rem;
-      margin-right: 0.6rem;
-    }
-    .get { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .post { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .put { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+      /* Endpoint list */
+      .endpoint {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 0.9rem;
+        border-radius: 8px;
+        background: var(--code-bg);
+        border: 1px solid var(--border-color);
+        margin-bottom: 0.6rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+      }
+      .method {
+        display: inline-block;
+        padding: 0.2rem 0.45rem;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.72rem;
+        margin-right: 0.6rem;
+      }
+      .get {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+      }
+      .post {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+      }
+      .put {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+      }
 
-    /* Console */
-    #console {
-      background: var(--code-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #38bdf8;
-      font-family: "JetBrains Mono", Consolas, monospace;
-      font-size: 0.82rem;
-      white-space: pre-wrap;
-      max-height: 280px;
-      overflow-y: auto;
-    }
-    .rating-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 0.85rem 1.25rem;
-      border-radius: 10px;
-      margin-bottom: 1rem;
-    }
-    .rating-number { font-size: 1.5rem; font-weight: 800; color: #60a5fa; }
+      /* Console */
+      #console {
+        background: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        color: #38bdf8;
+        font-family: "JetBrains Mono", Consolas, monospace;
+        font-size: 0.82rem;
+        white-space: pre-wrap;
+        max-height: 280px;
+        overflow-y: auto;
+      }
+      .rating-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(
+          90deg,
+          rgba(59, 130, 246, 0.15),
+          rgba(139, 92, 246, 0.15)
+        );
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 0.85rem 1.25rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+      .rating-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #60a5fa;
+      }
 
-    /* CS Curriculum Styling */
-    .curriculum-layout {
-      display: grid;
-      grid-template-columns: 310px 1fr;
-      gap: 1.25rem;
-      align-items: start;
-    }
-    @media (max-width: 840px) {
-      .curriculum-layout { grid-template-columns: 1fr; }
-    }
-    .subject-nav-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 0.65rem;
-      margin-bottom: 1.25rem;
-    }
-    .subject-btn {
-      background: var(--code-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 0.75rem 0.9rem;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s;
-      color: var(--text);
-    }
-    .subject-btn:hover {
-      border-color: var(--accent);
-      background: rgba(59, 130, 246, 0.08);
-    }
-    .subject-btn.active {
-      border-color: var(--accent);
-      background: rgba(59, 130, 246, 0.16);
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
-    }
-    .subject-btn .sub-title { font-weight: 700; font-size: 0.92rem; color: #f8fafc; margin-bottom: 0.2rem; }
-    .subject-btn .sub-count { font-size: 0.75rem; color: #94a3b8; }
+      /* CS Curriculum Styling */
+      .curriculum-layout {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+      }
+      @media (max-width: 840px) {
+        .curriculum-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .subject-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+      }
+      .subject-btn {
+        background: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.75rem 0.9rem;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s;
+        color: var(--text);
+      }
+      .subject-btn:hover {
+        border-color: var(--accent);
+        background: rgba(59, 130, 246, 0.08);
+      }
+      .subject-btn.active {
+        border-color: var(--accent);
+        background: rgba(59, 130, 246, 0.16);
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+      }
+      .subject-btn .sub-title {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #f8fafc;
+        margin-bottom: 0.2rem;
+      }
+      .subject-btn .sub-count {
+        font-size: 0.75rem;
+        color: #94a3b8;
+      }
 
-    .chapter-list {
-      max-height: 650px;
-      overflow-y: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background: var(--code-bg);
-      padding: 0.5rem;
-    }
-    .chapter-group {
-      margin-bottom: 0.5rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      overflow: hidden;
-    }
-    .chapter-header {
-      padding: 0.6rem 0.75rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #e2e8f0;
-      background: rgba(255, 255, 255, 0.03);
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chapter-header:hover { background: rgba(255, 255, 255, 0.06); }
-    .topic-item {
-      padding: 0.5rem 0.75rem 0.5rem 1.1rem;
-      font-size: 0.82rem;
-      color: #94a3b8;
-      cursor: pointer;
-      border-top: 1px solid rgba(255, 255, 255, 0.02);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.15s;
-    }
-    .topic-item:hover { color: #fff; background: rgba(59, 130, 246, 0.08); }
-    .topic-item.active {
-      color: #60a5fa;
-      background: rgba(59, 130, 246, 0.15);
-      font-weight: 600;
-      border-left: 3px solid var(--accent);
-    }
-    .topic-item .mcq-badge {
-      font-size: 0.68rem;
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-    }
+      .chapter-list {
+        max-height: 650px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--code-bg);
+        padding: 0.5rem;
+      }
+      .chapter-group {
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        overflow: hidden;
+      }
+      .chapter-header {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .chapter-header:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .topic-item {
+        padding: 0.5rem 0.75rem 0.5rem 1.1rem;
+        font-size: 0.82rem;
+        color: #94a3b8;
+        cursor: pointer;
+        border-top: 1px solid rgba(255, 255, 255, 0.02);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.15s;
+      }
+      .topic-item:hover {
+        color: #fff;
+        background: rgba(59, 130, 246, 0.08);
+      }
+      .topic-item.active {
+        color: #60a5fa;
+        background: rgba(59, 130, 246, 0.15);
+        font-weight: 600;
+        border-left: 3px solid var(--accent);
+      }
+      .topic-item .mcq-badge {
+        font-size: 0.68rem;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+      }
 
-    .topic-content-panel {
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      background: var(--card-bg);
-      padding: 1.5rem;
-      min-height: 650px;
-    }
-    .markdown-body {
-      line-height: 1.68;
-      color: #e2e8f0;
-      font-size: 0.93rem;
-    }
-    .markdown-body h1 { font-size: 1.5rem; color: #fff; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-    .markdown-body h2 { font-size: 1.25rem; color: #93c5fd; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.35rem; }
-    .markdown-body h3 { font-size: 1.05rem; color: #f1f5f9; margin-top: 1.25rem; margin-bottom: 0.4rem; }
-    .markdown-body p { margin-bottom: 0.85rem; }
-    .markdown-body ul, .markdown-body ol { margin-left: 1.5rem; margin-bottom: 0.85rem; }
-    .markdown-body li { margin-bottom: 0.35rem; }
-    .markdown-body pre {
-      background: #050811;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 1rem;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.85rem;
-      color: #38bdf8;
-      margin: 1rem 0;
-    }
-    .markdown-body code {
-      font-family: ui-monospace, SFMono-Regular, monospace;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.85em;
-      color: #f43f5e;
-    }
-    .markdown-body pre code {
-      background: transparent;
-      padding: 0;
-      color: inherit;
-    }
-    .markdown-body table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.86rem;
-    }
-    .markdown-body th, .markdown-body td {
-      border: 1px solid var(--border-color);
-      padding: 0.55rem 0.75rem;
-      text-align: left;
-    }
-    .markdown-body th { background: rgba(59, 130, 246, 0.1); color: #93c5fd; }
-    .markdown-body blockquote {
-      border-left: 4px solid var(--accent);
-      padding: 0.5rem 1rem;
-      background: rgba(59, 130, 246, 0.05);
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-      color: #cbd5e1;
-    }
+      .topic-content-panel {
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--card-bg);
+        padding: 1.5rem;
+        min-height: 650px;
+      }
+      .markdown-body {
+        line-height: 1.68;
+        color: #e2e8f0;
+        font-size: 0.93rem;
+      }
+      .markdown-body h1 {
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+      }
+      .markdown-body h2 {
+        font-size: 1.25rem;
+        color: #93c5fd;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding-bottom: 0.35rem;
+      }
+      .markdown-body h3 {
+        font-size: 1.05rem;
+        color: #f1f5f9;
+        margin-top: 1.25rem;
+        margin-bottom: 0.4rem;
+      }
+      .markdown-body p {
+        margin-bottom: 0.85rem;
+      }
+      .markdown-body ul,
+      .markdown-body ol {
+        margin-left: 1.5rem;
+        margin-bottom: 0.85rem;
+      }
+      .markdown-body li {
+        margin-bottom: 0.35rem;
+      }
+      .markdown-body pre {
+        background: #050811;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.85rem;
+        color: #38bdf8;
+        margin: 1rem 0;
+      }
+      .markdown-body code {
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: #f43f5e;
+      }
+      .markdown-body pre code {
+        background: transparent;
+        padding: 0;
+        color: inherit;
+      }
+      .markdown-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.86rem;
+      }
+      .markdown-body th,
+      .markdown-body td {
+        border: 1px solid var(--border-color);
+        padding: 0.55rem 0.75rem;
+        text-align: left;
+      }
+      .markdown-body th {
+        background: rgba(59, 130, 246, 0.1);
+        color: #93c5fd;
+      }
+      .markdown-body blockquote {
+        border-left: 4px solid var(--accent);
+        padding: 0.5rem 1rem;
+        background: rgba(59, 130, 246, 0.05);
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+        color: #cbd5e1;
+      }
 
-    /* MCQ Quiz Area */
-    .quiz-container {
-      margin-top: 2rem;
-      border-top: 2px dashed var(--border-color);
-      padding-top: 1.5rem;
-    }
-    .mcq-question-card {
-      background: var(--code-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.1rem;
-      margin-bottom: 1.25rem;
-    }
-    .mcq-q-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.75rem;
-      font-weight: 600;
-      color: #f8fafc;
-      font-size: 0.95rem;
-    }
-    .mcq-options {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .mcq-option {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      padding: 0.6rem 0.85rem;
-      border-radius: 7px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      font-size: 0.88rem;
-      transition: all 0.15s;
-    }
-    .mcq-option:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: #64748b;
-    }
-    .mcq-option.selected {
-      border-color: var(--accent);
-      background: rgba(59, 130, 246, 0.12);
-    }
-    .mcq-option.correct-reveal {
-      border-color: var(--success) !important;
-      background: rgba(16, 185, 129, 0.2) !important;
-      color: #34d399 !important;
-    }
-    .mcq-option.wrong-reveal {
-      border-color: var(--danger) !important;
-      background: rgba(239, 68, 68, 0.2) !important;
-      color: #f87171 !important;
-    }
-    .mcq-explanation {
-      margin-top: 0.75rem;
-      padding: 0.75rem;
-      background: rgba(59, 130, 246, 0.08);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 6px 6px 0;
-      font-size: 0.82rem;
-      color: #cbd5e1;
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="brand">
-        <div class="logo-badge">C8</div>
-        <div>
-          <h1>Calibr8 — CS Curriculum & Engineering Suite</h1>
-          <p class="subtitle">Complete Computer Science Core Curriculum (OOPS, System Design, DBMS, OS, Networks) & Skill Calibration</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <div id="authStatusBadge" class="status-badge">
-          <span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;"></span>
-          <span id="authStatusText">Guest (Not Logged In)</span>
-        </div>
-        <button id="logoutBtn" class="btn btn-danger" style="display: none;" onclick="handleLogout()">Logout</button>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="tabs">
-      <button class="tab-btn active" id="btnTabCurriculum" onclick="switchTab('curriculumTab')">🎓 CS Curriculum (5 Core Subjects)</button>
-      <button class="tab-btn" id="btnTabDsa" onclick="switchTab('dsaTab')">DSA Level Selector</button>
-      <button class="tab-btn" id="btnTabAuth" onclick="switchTab('authTab')">Auth & Profile</button>
-      <button class="tab-btn" id="btnTabExp" onclick="switchTab('explorerTab')">API Explorer</button>
-    </div>
-
-    <!-- TAB 0: CS Curriculum (5 Core Subjects) -->
-    <div id="curriculumTab" class="tab-content active">
-      <!-- Subject Selection Bar -->
-      <div class="card" style="border-color: rgba(59, 130, 246, 0.4); margin-bottom: 1rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+      /* MCQ Quiz Area */
+      .quiz-container {
+        margin-top: 2rem;
+        border-top: 2px dashed var(--border-color);
+        padding-top: 1.5rem;
+      }
+      .mcq-question-card {
+        background: var(--code-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.1rem;
+        margin-bottom: 1.25rem;
+      }
+      .mcq-q-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #f8fafc;
+        font-size: 0.95rem;
+      }
+      .mcq-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .mcq-option {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.6rem 0.85rem;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        font-size: 0.88rem;
+        transition: all 0.15s;
+      }
+      .mcq-option:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: #64748b;
+      }
+      .mcq-option.selected {
+        border-color: var(--accent);
+        background: rgba(59, 130, 246, 0.12);
+      }
+      .mcq-option.correct-reveal {
+        border-color: var(--success) !important;
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #34d399 !important;
+      }
+      .mcq-option.wrong-reveal {
+        border-color: var(--danger) !important;
+        background: rgba(239, 68, 68, 0.2) !important;
+        color: #f87171 !important;
+      }
+      .mcq-explanation {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(59, 130, 246, 0.08);
+        border-left: 3px solid var(--accent);
+        border-radius: 0 6px 6px 0;
+        font-size: 0.82rem;
+        color: #cbd5e1;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="brand">
+          <div class="logo-badge">C8</div>
           <div>
-            <h2 style="font-size: 1.15rem; color: #60a5fa; font-weight: 700;">Computer Science Curriculum Expansion</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">
-              75 In-Depth Chapters across 5 Core Disciplines &middot; 11-Section Pedagogical Deep Dives &middot; 159 Interview MCQs
+            <h1>Calibr8 — CS Curriculum & Engineering Suite</h1>
+            <p class="subtitle">
+              Complete Computer Science Core Curriculum (OOPS, System Design,
+              DBMS, OS, Networks) & Skill Calibration
             </p>
           </div>
-          <div style="font-size: 0.82rem; background: rgba(59, 130, 246, 0.15); color: #93c5fd; padding: 0.35rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(59, 130, 246, 0.3);">
-            Production-Grade & Interview Ready
-          </div>
         </div>
-
-        <div class="subject-nav-grid" id="subjectButtonsContainer">
-          <!-- Populated dynamically: OOPS, System Design, DBMS, OS, Networks -->
-        </div>
-      </div>
-
-      <!-- Main Curriculum Two-Column Layout -->
-      <div class="curriculum-layout">
-        <!-- Sidebar: Chapter Accordion & Topic Picker -->
-        <div>
-          <div class="card" style="padding: 1rem; margin-bottom: 0.75rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-              <span style="font-weight: 600; font-size: 0.88rem; color: #f1f5f9;">Chapters & Topics</span>
-              <span id="topicCountBadge" style="font-size: 0.75rem; color: var(--text-muted);">Loading...</span>
-            </div>
-            <input type="text" id="curriculumSearch" placeholder="🔍 Filter chapters or topics..." oninput="handleCurriculumSearch(this.value)" style="width: 100%; font-size: 0.84rem; padding: 0.45rem 0.65rem;">
+        <div class="header-actions">
+          <div id="authStatusBadge" class="status-badge">
+            <span
+              style="
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: #94a3b8;
+              "
+            ></span>
+            <span id="authStatusText">Guest (Not Logged In)</span>
           </div>
-          <div class="chapter-list" id="chapterListContainer">
-            <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem;">Loading curriculum...</div>
-          </div>
-        </div>
-
-        <!-- Main Content Area: Topic Reader + Quiz Mode -->
-        <div class="topic-content-panel">
-          <div id="topicHeaderArea" style="margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <div id="topicBreadcrumb" style="font-size: 0.78rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Subject / Chapter</div>
-                <h2 id="topicTitle" style="font-size: 1.4rem; color: #fff; font-weight: 700;">Select a topic to start reading</h2>
-              </div>
-              <div style="display: flex; gap: 0.5rem;" id="topicActionBtns">
-                <button class="btn btn-secondary" onclick="scrollToQuiz()" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">
-                  📝 Take Assessment (<span id="activeQuizCount">0</span> MCQs)
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Formatted Markdown Reader -->
-          <div id="topicMarkdownBody" class="markdown-body">
-            <p style="color: var(--text-muted);">Pick any topic from the chapter navigation on the left to read its comprehensive 11-section study material with C++/SQL code examples, visual diagrams, and interview cheat sheets.</p>
-          </div>
-
-          <!-- Interactive Quiz Section -->
-          <div id="topicQuizArea" class="quiz-container" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <h3 style="font-size: 1.2rem; color: #34d399; font-weight: 700;">Topic Mastery Assessment</h3>
-                <p style="font-size: 0.82rem; color: var(--text-muted);">Answer the multiple-choice questions below to test your understanding. Explanations provided upon submission.</p>
-              </div>
-              <div id="quizScoreBanner" style="display: none; font-size: 0.95rem; font-weight: 700; padding: 0.4rem 0.9rem; border-radius: 8px;"></div>
-            </div>
-
-            <div id="mcqQuestionsList"></div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
-              <button class="btn btn-secondary" onclick="resetQuiz()">Clear Answers</button>
-              <button class="btn" id="btnSubmitQuiz" onclick="submitCurrentQuiz()">Submit Quiz for Evaluation</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 1: DSA Topic Level Selection -->
-    <div id="dsaTab" class="tab-content">
-      <!-- Beginner Quick Action -->
-      <div class="card" style="border-color: rgba(16, 185, 129, 0.35);">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h3 style="font-size: 1.15rem; color: #34d399; margin-bottom: 0.25rem;">Are you a Beginner?</h3>
-            <p style="color: var(--text-muted); font-size: 0.88rem;">
-              One-click setup: Automatically sets all DSA topics to <strong>Easy</strong> level and starts your calibration rating at <strong>800</strong>.
-            </p>
-          </div>
-          <button class="btn btn-beginner" onclick="applyBeginnerMode()">
-            ⚡ I am a Beginner (Set All to Easy)
+          <button
+            id="logoutBtn"
+            class="btn btn-danger"
+            style="display: none"
+            onclick="handleLogout()"
+          >
+            Logout
           </button>
         </div>
       </div>
 
-      <!-- Individual DSA Level Selection -->
-      <div class="card">
-        <div class="card-title">
-          <span>Custom DSA Topic Calibration</span>
-          <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">
-            Pick Easy, Mid, or Hard for each individual DSA topic
-          </span>
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <button
+          class="tab-btn active"
+          id="btnTabCurriculum"
+          onclick="switchTab('curriculumTab')"
+        >
+          🎓 CS Curriculum (5 Core Subjects)
+        </button>
+        <button class="tab-btn" id="btnTabDsa" onclick="switchTab('dsaTab')">
+          DSA Level Selector
+        </button>
+        <button class="tab-btn" id="btnTabAuth" onclick="switchTab('authTab')">
+          Auth & Profile
+        </button>
+        <button
+          class="tab-btn"
+          id="btnTabExp"
+          onclick="switchTab('explorerTab')"
+        >
+          API Explorer
+        </button>
+      </div>
+
+      <!-- TAB 0: CS Curriculum (5 Core Subjects) -->
+      <div id="curriculumTab" class="tab-content active">
+        <!-- Subject Selection Bar -->
+        <div
+          class="card"
+          style="border-color: rgba(59, 130, 246, 0.4); margin-bottom: 1rem"
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 0.75rem;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+            "
+          >
+            <div>
+              <h2 style="font-size: 1.15rem; color: #60a5fa; font-weight: 700">
+                Computer Science Curriculum Expansion
+              </h2>
+              <p style="font-size: 0.85rem; color: var(--text-muted)">
+                75 In-Depth Chapters across 5 Core Disciplines &middot;
+                11-Section Pedagogical Deep Dives &middot; 159 Interview MCQs
+              </p>
+            </div>
+            <div
+              style="
+                font-size: 0.82rem;
+                background: rgba(59, 130, 246, 0.15);
+                color: #93c5fd;
+                padding: 0.35rem 0.75rem;
+                border-radius: 9999px;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+              "
+            >
+              Production-Grade & Interview Ready
+            </div>
+          </div>
+
+          <div class="subject-nav-grid" id="subjectButtonsContainer">
+            <!-- Populated dynamically: OOPS, System Design, DBMS, OS, Networks -->
+          </div>
         </div>
 
-        <div class="rating-banner">
+        <!-- Main Curriculum Two-Column Layout -->
+        <div class="curriculum-layout">
+          <!-- Sidebar: Chapter Accordion & Topic Picker -->
           <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Projected Calibration Rating</div>
-            <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0.2rem;" id="ratingBreakdown">Calculating based on your selected levels...</div>
+            <div class="card" style="padding: 1rem; margin-bottom: 0.75rem">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 0.6rem;
+                "
+              >
+                <span
+                  style="font-weight: 600; font-size: 0.88rem; color: #f1f5f9"
+                  >Chapters & Topics</span
+                >
+                <span
+                  id="topicCountBadge"
+                  style="font-size: 0.75rem; color: var(--text-muted)"
+                  >Loading...</span
+                >
+              </div>
+              <input
+                type="text"
+                id="curriculumSearch"
+                placeholder="🔍 Filter chapters or topics..."
+                oninput="handleCurriculumSearch(this.value)"
+                style="
+                  width: 100%;
+                  font-size: 0.84rem;
+                  padding: 0.45rem 0.65rem;
+                "
+              />
+            </div>
+            <div class="chapter-list" id="chapterListContainer">
+              <div
+                style="
+                  text-align: center;
+                  padding: 2rem;
+                  color: var(--text-muted);
+                  font-size: 0.85rem;
+                "
+              >
+                Loading curriculum...
+              </div>
+            </div>
           </div>
-          <div style="text-align: right;">
-            <div class="rating-number" id="projectedRating">800</div>
-            <div style="font-size: 0.75rem; color: #93c5fd;" id="projectedDifficulty">EASY LEVEL</div>
+
+          <!-- Main Content Area: Topic Reader + Quiz Mode -->
+          <div class="topic-content-panel">
+            <div
+              id="topicHeaderArea"
+              style="
+                margin-bottom: 1.25rem;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 0.75rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  flex-wrap: wrap;
+                  gap: 0.5rem;
+                "
+              >
+                <div>
+                  <div
+                    id="topicBreadcrumb"
+                    style="
+                      font-size: 0.78rem;
+                      color: #93c5fd;
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                      margin-bottom: 0.35rem;
+                    "
+                  >
+                    Subject / Chapter
+                  </div>
+                  <h2
+                    id="topicTitle"
+                    style="font-size: 1.4rem; color: #fff; font-weight: 700"
+                  >
+                    Select a topic to start reading
+                  </h2>
+                </div>
+                <div style="display: flex; gap: 0.5rem" id="topicActionBtns">
+                  <button
+                    class="btn btn-secondary"
+                    onclick="scrollToQuiz()"
+                    style="font-size: 0.8rem; padding: 0.4rem 0.75rem"
+                  >
+                    📝 Take Assessment (<span id="activeQuizCount">0</span>
+                    MCQs)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Formatted Markdown Reader -->
+            <div id="topicMarkdownBody" class="markdown-body">
+              <p style="color: var(--text-muted)">
+                Pick any topic from the chapter navigation on the left to read
+                its comprehensive 11-section study material with C++/SQL code
+                examples, visual diagrams, and interview cheat sheets.
+              </p>
+            </div>
+
+            <!-- Interactive Quiz Section -->
+            <div
+              id="topicQuizArea"
+              class="quiz-container"
+              style="display: none"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 1rem;
+                  flex-wrap: wrap;
+                  gap: 0.5rem;
+                "
+              >
+                <div>
+                  <h3
+                    style="font-size: 1.2rem; color: #34d399; font-weight: 700"
+                  >
+                    Topic Mastery Assessment
+                  </h3>
+                  <p style="font-size: 0.82rem; color: var(--text-muted)">
+                    Answer the multiple-choice questions below to test your
+                    understanding. Explanations provided upon submission.
+                  </p>
+                </div>
+                <div
+                  id="quizScoreBanner"
+                  style="
+                    display: none;
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    padding: 0.4rem 0.9rem;
+                    border-radius: 8px;
+                  "
+                ></div>
+              </div>
+
+              <div id="mcqQuestionsList"></div>
+
+              <div
+                style="
+                  display: flex;
+                  justify-content: flex-end;
+                  gap: 0.75rem;
+                  margin-top: 1.25rem;
+                "
+              >
+                <button class="btn btn-secondary" onclick="resetQuiz()">
+                  Clear Answers
+                </button>
+                <button
+                  class="btn"
+                  id="btnSubmitQuiz"
+                  onclick="submitCurrentQuiz()"
+                >
+                  Submit Quiz for Evaluation
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="topics-grid" id="topicsContainer">
-          <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">Loading topics...</div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-          <button class="btn btn-secondary" onclick="resetToAllEasy()">Reset All to Easy</button>
-          <button class="btn" onclick="saveTopicLevels()">💾 Save & Complete Onboarding</button>
         </div>
       </div>
-    </div>
 
-    <!-- TAB 2: Authentication & Profile -->
-    <div id="authTab" class="tab-content">
-      <div class="form-grid">
-        <!-- Register Card -->
-        <div class="card">
-          <div class="card-title">Register New Account</div>
-          <div class="form-group" style="margin-bottom: 0.75rem;">
-            <label>Full Name</label>
-            <input type="text" id="regName" placeholder="e.g. Alex Chen" value="Alex Chen">
+      <!-- TAB 1: DSA Topic Level Selection -->
+      <div id="dsaTab" class="tab-content">
+        <!-- Beginner Quick Action -->
+        <div class="card" style="border-color: rgba(16, 185, 129, 0.35)">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              flex-wrap: wrap;
+              gap: 1rem;
+            "
+          >
+            <div>
+              <h3
+                style="
+                  font-size: 1.15rem;
+                  color: #34d399;
+                  margin-bottom: 0.25rem;
+                "
+              >
+                Are you a Beginner?
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.88rem">
+                One-click setup: Automatically sets all DSA topics to
+                <strong>Easy</strong> level and starts your calibration rating
+                at <strong>800</strong>.
+              </p>
+            </div>
+            <button class="btn btn-beginner" onclick="applyBeginnerMode()">
+              ⚡ I am a Beginner (Set All to Easy)
+            </button>
           </div>
-          <div class="form-group" style="margin-bottom: 0.75rem;">
-            <label>Email Address</label>
-            <input type="email" id="regEmail" placeholder="alex@calibr8.dev" value="">
-          </div>
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label>Password</label>
-            <input type="password" id="regPassword" placeholder="Minimum 6 characters" value="Password123!">
-          </div>
-          <button class="btn" style="width: 100%;" onclick="handleRegister()">Register Account</button>
         </div>
 
-        <!-- Login Card -->
+        <!-- Individual DSA Level Selection -->
         <div class="card">
-          <div class="card-title">Sign In</div>
-          <div class="form-group" style="margin-bottom: 0.75rem;">
-            <label>Email Address</label>
-            <input type="email" id="loginEmail" placeholder="alex@calibr8.dev" value="">
+          <div class="card-title">
+            <span>Custom DSA Topic Calibration</span>
+            <span
+              style="
+                font-size: 0.8rem;
+                font-weight: normal;
+                color: var(--text-muted);
+              "
+            >
+              Pick Easy, Mid, or Hard for each individual DSA topic
+            </span>
           </div>
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label>Password</label>
-            <input type="password" id="loginPassword" value="Password123!">
+
+          <div class="rating-banner">
+            <div>
+              <div
+                style="
+                  font-size: 0.8rem;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                "
+              >
+                Projected Calibration Rating
+              </div>
+              <div
+                style="font-size: 0.9rem; color: #cbd5e1; margin-top: 0.2rem"
+                id="ratingBreakdown"
+              >
+                Calculating based on your selected levels...
+              </div>
+            </div>
+            <div style="text-align: right">
+              <div class="rating-number" id="projectedRating">800</div>
+              <div
+                style="font-size: 0.75rem; color: #93c5fd"
+                id="projectedDifficulty"
+              >
+                EASY LEVEL
+              </div>
+            </div>
           </div>
-          <button class="btn" style="width: 100%;" onclick="handleLogin()">Sign In</button>
+
+          <div class="topics-grid" id="topicsContainer">
+            <div
+              style="
+                grid-column: 1/-1;
+                text-align: center;
+                padding: 2rem;
+                color: var(--text-muted);
+              "
+            >
+              Loading topics...
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 0.75rem;
+              margin-top: 1rem;
+              border-top: 1px solid var(--border-color);
+              padding-top: 1rem;
+            "
+          >
+            <button class="btn btn-secondary" onclick="resetToAllEasy()">
+              Reset All to Easy
+            </button>
+            <button class="btn" onclick="saveTopicLevels()">
+              💾 Save & Complete Onboarding
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Current Profile Card -->
+      <!-- TAB 2: Authentication & Profile -->
+      <div id="authTab" class="tab-content">
+        <div class="form-grid">
+          <!-- Register Card -->
+          <div class="card">
+            <div class="card-title">Register New Account</div>
+            <div class="form-group" style="margin-bottom: 0.75rem">
+              <label>Full Name</label>
+              <input
+                type="text"
+                id="regName"
+                placeholder="e.g. Alex Chen"
+                value="Alex Chen"
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 0.75rem">
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="regEmail"
+                placeholder="alex@calibr8.dev"
+                value=""
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem">
+              <label>Password</label>
+              <input
+                type="password"
+                id="regPassword"
+                placeholder="Minimum 6 characters"
+                value="Password123!"
+              />
+            </div>
+            <button class="btn" style="width: 100%" onclick="handleRegister()">
+              Register Account
+            </button>
+          </div>
+
+          <!-- Login Card -->
+          <div class="card">
+            <div class="card-title">Sign In</div>
+            <div class="form-group" style="margin-bottom: 0.75rem">
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="alex@calibr8.dev"
+                value=""
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem">
+              <label>Password</label>
+              <input type="password" id="loginPassword" value="Password123!" />
+            </div>
+            <button class="btn" style="width: 100%" onclick="handleLogin()">
+              Sign In
+            </button>
+          </div>
+        </div>
+
+        <!-- Current Profile Card -->
+        <div class="card">
+          <div class="card-title">
+            <span>Active Session & Profile</span>
+            <button
+              class="btn btn-secondary"
+              style="padding: 0.35rem 0.7rem; font-size: 0.8rem"
+              onclick="fetchProfile()"
+            >
+              Refresh Profile (/api/users/me)
+            </button>
+          </div>
+          <div
+            id="profileDetails"
+            style="color: var(--text-muted); font-size: 0.88rem"
+          >
+            No active user session. Please register or log in.
+          </div>
+        </div>
+
+        <!-- Password Change Card -->
+        <div class="card">
+          <div class="card-title">Change Password</div>
+          <div class="form-grid" style="margin-bottom: 0.75rem">
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" id="oldPassword" value="Password123!" />
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input
+                type="password"
+                id="newPassword"
+                placeholder="Minimum 6 characters"
+              />
+            </div>
+          </div>
+          <button class="btn btn-secondary" onclick="handleChangePassword()">
+            Update Password
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: REST API Explorer -->
+      <div id="explorerTab" class="tab-content">
+        <div class="card">
+          <div class="card-title">REST API Endpoints</div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/health</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— API health check</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/health')">Test</button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/api/topics/dsa</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— List DSA topics specifically</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/api/topics/dsa')">
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/api/topics</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— List all topics (DSA + Core)</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/api/topics')">
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span
+              ><span>/api/onboarding/status</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— User onboarding & topic levels (Protected)</span
+              >
+            </div>
+            <button
+              class="btn"
+              onclick="testEndpoint('/api/onboarding/status', true)"
+            >
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/api/users/me</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— Current user profile (Protected)</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/api/users/me', true)">
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/api/problems</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— Coding problems catalogue (15 problems)</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/api/problems')">
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span><span>/api/study/subjects</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— List 5 core CS subjects with chapter counts</span
+              >
+            </div>
+            <button class="btn" onclick="testEndpoint('/api/study/subjects')">
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span
+              ><span>/api/study/subjects/oops</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— OOPS Subject with 14 chapters & topics</span
+              >
+            </div>
+            <button
+              class="btn"
+              onclick="testEndpoint('/api/study/subjects/oops')"
+            >
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method get">GET</span
+              ><span>/api/study/topics/paradigms-and-oop-foundations</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— Complete 11-section topic & MCQs</span
+              >
+            </div>
+            <button
+              class="btn"
+              onclick="
+                testEndpoint('/api/study/topics/paradigms-and-oop-foundations')
+              "
+            >
+              Test
+            </button>
+          </div>
+
+          <div class="endpoint">
+            <div>
+              <span class="method post">POST</span><span>/api/auth/logout</span
+              ><span style="color: var(--text-muted); margin-left: 0.5rem"
+                >— Revoke current auth token (Protected)</span
+              >
+            </div>
+            <button class="btn btn-danger" onclick="handleLogout()">
+              Test Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Response Console -->
       <div class="card">
         <div class="card-title">
-          <span>Active Session & Profile</span>
-          <button class="btn btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;" onclick="fetchProfile()">Refresh Profile (/api/users/me)</button>
+          <span>Response Console</span>
+          <button
+            class="btn btn-secondary"
+            style="font-size: 0.75rem; padding: 0.25rem 0.6rem"
+            onclick="clearConsole()"
+          >
+            Clear
+          </button>
         </div>
-        <div id="profileDetails" style="color: var(--text-muted); font-size: 0.88rem;">
-          No active user session. Please register or log in.
-        </div>
-      </div>
-
-      <!-- Password Change Card -->
-      <div class="card">
-        <div class="card-title">Change Password</div>
-        <div class="form-grid" style="margin-bottom: 0.75rem;">
-          <div class="form-group">
-            <label>Current Password</label>
-            <input type="password" id="oldPassword" value="Password123!">
-          </div>
-          <div class="form-group">
-            <label>New Password</label>
-            <input type="password" id="newPassword" placeholder="Minimum 6 characters">
-          </div>
-        </div>
-        <button class="btn btn-secondary" onclick="handleChangePassword()">Update Password</button>
+        <pre id="console">
+Calibr8 Backend ready. Loading curriculum and session...</pre
+        >
       </div>
     </div>
 
-    <!-- TAB 3: REST API Explorer -->
-    <div id="explorerTab" class="tab-content">
-      <div class="card">
-        <div class="card-title">REST API Endpoints</div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/health</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— API health check</span></div>
-          <button class="btn" onclick="testEndpoint('/health')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/topics/dsa</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List DSA topics specifically</span></div>
-          <button class="btn" onclick="testEndpoint('/api/topics/dsa')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/topics</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List all topics (DSA + Core)</span></div>
-          <button class="btn" onclick="testEndpoint('/api/topics')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/onboarding/status</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— User onboarding & topic levels (Protected)</span></div>
-          <button class="btn" onclick="testEndpoint('/api/onboarding/status', true)">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/users/me</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Current user profile (Protected)</span></div>
-          <button class="btn" onclick="testEndpoint('/api/users/me', true)">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/problems</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Coding problems catalogue (15 problems)</span></div>
-          <button class="btn" onclick="testEndpoint('/api/problems')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/study/subjects</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— List 5 core CS subjects with chapter counts</span></div>
-          <button class="btn" onclick="testEndpoint('/api/study/subjects')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/study/subjects/oops</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— OOPS Subject with 14 chapters & topics</span></div>
-          <button class="btn" onclick="testEndpoint('/api/study/subjects/oops')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method get">GET</span><span>/api/study/topics/paradigms-and-oop-foundations</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Complete 11-section topic & MCQs</span></div>
-          <button class="btn" onclick="testEndpoint('/api/study/topics/paradigms-and-oop-foundations')">Test</button>
-        </div>
-
-        <div class="endpoint">
-          <div><span class="method post">POST</span><span>/api/auth/logout</span><span style="color: var(--text-muted); margin-left: 0.5rem;">— Revoke current auth token (Protected)</span></div>
-          <button class="btn btn-danger" onclick="handleLogout()">Test Logout</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Response Console -->
-    <div class="card">
-      <div class="card-title">
-        <span>Response Console</span>
-        <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="clearConsole()">Clear</button>
-      </div>
-      <pre id="console">Calibr8 Backend ready. Loading curriculum and session...</pre>
-    </div>
-  </div>
-
-  <script>
+    <!-- <script>
     let authToken = localStorage.getItem('calibr8_token') || '';
     let currentUser = null;
     let dsaTopicList = [];
@@ -1567,6 +2101,983 @@
         await fetchProfile();
       }
     });
-  </script>
-</body>
+  </script> -->
+
+    <script>
+      // If you open the HTML via file://, point this at your backend (e.g. http://localhost:5000)
+      const API_BASE =
+        location.protocol === "file:" ? "http://localhost:5000" : "";
+
+      let authToken = localStorage.getItem("calibr8_token") || "";
+      let currentUser = null;
+      let dsaTopicList = [];
+      const selectedLevels = {};
+
+      let curriculumSubjects = [];
+      let currentSubject = null;
+      let currentTopicSlug = "";
+      let selectedQuizAnswers = {};
+      let mcqEls = {};
+      const expandedChapters = new Set();
+
+      /* ---------- helpers ---------- */
+      async function api(path, opts) {
+        opts = opts || {};
+        const headers = {};
+        if (opts.body !== undefined)
+          headers["Content-Type"] = "application/json";
+        if (authToken) headers["Authorization"] = "Bearer " + authToken;
+        try {
+          const res = await fetch(API_BASE + path, {
+            method: opts.method || "GET",
+            headers: headers,
+            body:
+              opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+          });
+          const text = await res.text();
+          let data;
+          try {
+            data = text ? JSON.parse(text) : null;
+          } catch (e) {
+            data = { nonJsonResponse: text.slice(0, 400) };
+          }
+          return { ok: res.ok, status: res.status, data: data };
+        } catch (err) {
+          return {
+            ok: false,
+            status: 0,
+            data: {
+              error: err.message,
+              hint: "Network/CORS error or wrong API_BASE",
+            },
+          };
+        }
+      }
+
+      function asArray(d, keys) {
+        if (Array.isArray(d)) return d;
+        for (let i = 0; i < (keys || []).length; i++) {
+          if (d && Array.isArray(d[keys[i]])) return d[keys[i]];
+        }
+        return [];
+      }
+
+      function pickUser(d) {
+        if (!d) return null;
+        if (d.user) return d.user;
+        if (d.id || d.email) return d;
+        return null;
+      }
+
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function logConsole(title, data) {
+        const el = document.getElementById("console");
+        const body =
+          typeof data === "string" ? data : JSON.stringify(data, null, 2);
+        el.textContent =
+          "=== " +
+          title +
+          " [" +
+          new Date().toLocaleTimeString() +
+          "] ===\n" +
+          body;
+      }
+      function clearConsole() {
+        document.getElementById("console").textContent = "Console cleared.";
+      }
+
+      function switchTab(tabId) {
+        document.querySelectorAll(".tab-btn").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        document.querySelectorAll(".tab-content").forEach(function (c) {
+          c.classList.remove("active");
+        });
+        const map = {
+          curriculumTab: "btnTabCurriculum",
+          dsaTab: "btnTabDsa",
+          authTab: "btnTabAuth",
+          explorerTab: "btnTabExp",
+        };
+        if (map[tabId])
+          document.getElementById(map[tabId]).classList.add("active");
+        const target = document.getElementById(tabId);
+        if (target) target.classList.add("active");
+      }
+
+      /* FIX #1: testEndpoint was called by every API Explorer button but never defined */
+      async function testEndpoint(path, needsAuth) {
+        if (needsAuth && !authToken) {
+          logConsole(
+            "GET " + path,
+            "This endpoint is protected. Register or log in first (Auth & Profile tab).",
+          );
+          return;
+        }
+        logConsole("GET " + path, "Loading...");
+        const r = await api(path);
+        logConsole(
+          "GET " + path + "  →  " + r.status + (r.ok ? " OK" : " ERROR"),
+          r.data,
+        );
+      }
+
+      /* ---------- auth UI ---------- */
+      function updateAuthUI() {
+        const badge = document.getElementById("authStatusBadge");
+        const text = document.getElementById("authStatusText");
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (authToken && currentUser) {
+          badge.style.background = "rgba(16, 185, 129, 0.15)";
+          badge.style.color = "#34d399";
+          badge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+          text.textContent =
+            "👤 " +
+            (currentUser.name || currentUser.email) +
+            " (Rating: " +
+            (currentUser.rating || 800) +
+            ")";
+          logoutBtn.style.display = "inline-flex";
+          const topicsList = (currentUser.topics || [])
+            .map(function (t) {
+              const n = t.topic && t.topic.name ? t.topic.name : t.topicId;
+              return n + " (" + (t.level || "easy") + ")";
+            })
+            .join(", ");
+          document.getElementById("profileDetails").innerHTML =
+            '<div style="line-height: 1.6;">' +
+            "<div><strong>Name:</strong> " +
+            escapeHtml(currentUser.name) +
+            "</div>" +
+            "<div><strong>Email:</strong> " +
+            escapeHtml(currentUser.email) +
+            "</div>" +
+            '<div><strong>Overall Difficulty:</strong> <span style="text-transform: capitalize; color: #60a5fa;">' +
+            escapeHtml(currentUser.difficulty || "Not set") +
+            "</span></div>" +
+            '<div><strong>Calibration Rating:</strong> <span style="color: #34d399; font-weight: bold;">' +
+            escapeHtml(currentUser.rating) +
+            "</span></div>" +
+            "<div><strong>Onboarded:</strong> " +
+            (currentUser.onboarded ? "✅ Yes" : "⏳ Pending") +
+            "</div>" +
+            '<div style="margin-top: 0.5rem;"><strong>Calibrated Topics:</strong> ' +
+            escapeHtml(topicsList || "None selected yet") +
+            "</div>" +
+            "</div>";
+        } else {
+          badge.style.background = "rgba(100, 116, 139, 0.15)";
+          badge.style.color = "#cbd5e1";
+          badge.style.borderColor = "#475569";
+          text.textContent = "Guest (Not Logged In)";
+          logoutBtn.style.display = "none";
+          document.getElementById("profileDetails").textContent =
+            "No active user session. Please register or log in.";
+        }
+      }
+
+      function clearSession() {
+        authToken = "";
+        currentUser = null;
+        localStorage.removeItem("calibr8_token");
+        updateAuthUI();
+      }
+
+      /* ---------- DSA topics ---------- */
+      /* FIX #2: response shape was assumed; now uses /api/topics/dsa and accepts several shapes */
+      async function loadTopics() {
+        let r = await api("/api/topics/dsa");
+        let list = asArray(r.data, ["dsaTopics", "dsa", "topics", "data"]);
+        if (!list.length) {
+          r = await api("/api/topics");
+          list = asArray(r.data, ["dsaTopics", "dsa", "topics", "data"]);
+        }
+        if (!list.length) {
+          document.getElementById("topicsContainer").innerHTML =
+            '<div style="grid-column:1/-1;color:#ef4444;">Failed to load topics (HTTP ' +
+            r.status +
+            "). Check Response Console via API Explorer.</div>";
+          logConsole("TOPICS LOAD FAILED", r.data);
+          return;
+        }
+        dsaTopicList = list;
+        renderTopics();
+      }
+
+      function renderTopics() {
+        const container = document.getElementById("topicsContainer");
+        container.innerHTML = "";
+        dsaTopicList.forEach(function (topic) {
+          if (!selectedLevels[topic.id]) selectedLevels[topic.id] = "easy";
+          const lvl = selectedLevels[topic.id];
+          const card = document.createElement("div");
+          card.className = "topic-card";
+          card.innerHTML =
+            '<div class="topic-head"><span class="topic-name">' +
+            escapeHtml(topic.name) +
+            "</span>" +
+            '<span class="topic-cat">' +
+            escapeHtml(topic.category || "DSA") +
+            "</span></div>" +
+            '<div class="level-pills"></div>';
+          const pills = card.querySelector(".level-pills");
+          [
+            ["easy", "Easy", "active-easy"],
+            ["mid", "Mid", "active-mid"],
+            ["hard", "Hard", "active-hard"],
+          ].forEach(function (p) {
+            const b = document.createElement("button");
+            const active = lvl === p[0] || (p[0] === "mid" && lvl === "medium");
+            b.className = "pill-btn" + (active ? " " + p[2] : "");
+            b.textContent = p[1];
+            b.onclick = function () {
+              selectedLevels[topic.id] = p[0];
+              renderTopics();
+            };
+            pills.appendChild(b);
+          });
+          container.appendChild(card);
+        });
+        calculateProjectedRating();
+      }
+
+      function resetToAllEasy() {
+        dsaTopicList.forEach(function (t) {
+          selectedLevels[t.id] = "easy";
+        });
+        renderTopics();
+      }
+
+      function calculateProjectedRating() {
+        const map = { easy: 800, mid: 1200, medium: 1200, hard: 1600 };
+        const keys = Object.keys(selectedLevels);
+        if (!keys.length) return;
+        let sum = 0,
+          e = 0,
+          m = 0,
+          h = 0;
+        keys.forEach(function (k) {
+          const l = selectedLevels[k];
+          sum += map[l] || 800;
+          if (l === "easy") e++;
+          else if (l === "mid" || l === "medium") m++;
+          else if (l === "hard") h++;
+        });
+        const avg = Math.round(sum / keys.length);
+        document.getElementById("projectedRating").textContent = avg;
+        document.getElementById("projectedDifficulty").textContent =
+          (avg >= 1400 ? "HARD" : avg >= 1000 ? "MEDIUM" : "EASY") + " LEVEL";
+        document.getElementById("ratingBreakdown").textContent =
+          keys.length +
+          " Topics Selected (" +
+          e +
+          " Easy, " +
+          m +
+          " Mid, " +
+          h +
+          " Hard)";
+      }
+
+      function syncUserTopics(user) {
+        if (user && user.topics) {
+          user.topics.forEach(function (t) {
+            selectedLevels[t.topicId] = t.level || "easy";
+          });
+          renderTopics();
+        }
+      }
+
+      async function applyBeginnerMode() {
+        if (!authToken) await autoRegisterDemoUser();
+        const r = await api("/api/onboarding", {
+          method: "POST",
+          body: { beginner: true },
+        });
+        logConsole("BEGINNER ONBOARDING  →  " + r.status, r.data);
+        const u = r.ok && pickUser(r.data);
+        if (u) {
+          currentUser = u;
+          syncUserTopics(u);
+          updateAuthUI();
+        }
+      }
+
+      async function saveTopicLevels() {
+        if (!authToken) await autoRegisterDemoUser();
+        const topicLevels = Object.keys(selectedLevels).map(function (id) {
+          return { topicId: id, level: selectedLevels[id] };
+        });
+        const r = await api("/api/onboarding", {
+          method: "POST",
+          body: { topicLevels: topicLevels },
+        });
+        logConsole("ONBOARDING SAVE  →  " + r.status, r.data);
+        const u = r.ok && pickUser(r.data);
+        if (u) {
+          currentUser = u;
+          updateAuthUI();
+        }
+      }
+
+      /* ---------- auth ---------- */
+      async function handleRegister() {
+        const name = document.getElementById("regName").value;
+        const email =
+          document.getElementById("regEmail").value ||
+          "user_" + Math.floor(Math.random() * 10000) + "@calibr8.dev";
+        const password = document.getElementById("regPassword").value;
+        const r = await api("/api/auth/register", {
+          method: "POST",
+          body: { name: name, email: email, password: password },
+        });
+        logConsole("REGISTER  →  " + r.status, r.data);
+        if (r.ok && r.data && r.data.token) {
+          authToken = r.data.token;
+          currentUser = pickUser(r.data);
+          localStorage.setItem("calibr8_token", authToken);
+          document.getElementById("loginEmail").value = email;
+          updateAuthUI();
+        }
+      }
+
+      async function handleLogin() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        if (!email || !password) {
+          logConsole("LOGIN FAILED", "Please enter email and password.");
+          return;
+        }
+        const r = await api("/api/auth/login", {
+          method: "POST",
+          body: { email: email, password: password },
+        });
+        logConsole("LOGIN  →  " + r.status, r.data);
+        if (r.ok && r.data && r.data.token) {
+          authToken = r.data.token;
+          currentUser = pickUser(r.data);
+          localStorage.setItem("calibr8_token", authToken);
+          updateAuthUI();
+          syncUserTopics(currentUser);
+        }
+      }
+
+      async function handleLogout() {
+        const r = await api("/api/auth/logout", { method: "POST" });
+        logConsole("LOGOUT  →  " + r.status, r.data);
+        clearSession();
+      }
+
+      async function fetchProfile() {
+        if (!authToken) {
+          logConsole("PROFILE", "No active token. Please log in.");
+          return;
+        }
+        const r = await api("/api/users/me");
+        logConsole("PROFILE  →  " + r.status, r.data);
+        if (r.status === 401) {
+          clearSession();
+          return;
+        } // stale token
+        const u = r.ok && pickUser(r.data);
+        if (u) {
+          currentUser = u;
+          updateAuthUI();
+          syncUserTopics(u);
+        }
+      }
+
+      async function handleChangePassword() {
+        if (!authToken) {
+          logConsole("PASSWORD CHANGE", "Please log in first.");
+          return;
+        }
+        const r = await api("/api/auth/change-password", {
+          method: "POST",
+          body: {
+            oldPassword: document.getElementById("oldPassword").value,
+            newPassword: document.getElementById("newPassword").value,
+          },
+        });
+        logConsole("PASSWORD CHANGE  →  " + r.status, r.data);
+      }
+
+      async function autoRegisterDemoUser() {
+        const r = await api("/api/auth/register", {
+          method: "POST",
+          body: {
+            name: "Demo Student",
+            email:
+              "user_" + Math.floor(Math.random() * 100000) + "@calibr8.dev",
+            password: "Password123!",
+          },
+        });
+        if (r.ok && r.data && r.data.token) {
+          authToken = r.data.token;
+          currentUser = pickUser(r.data);
+          localStorage.setItem("calibr8_token", authToken);
+          updateAuthUI();
+        } else {
+          logConsole("AUTO REGISTER FAILED  →  " + r.status, r.data);
+        }
+      }
+
+      /* ---------- curriculum ---------- */
+      async function loadCurriculum() {
+        const r = await api("/api/study/subjects");
+        curriculumSubjects = asArray(r.data, ["subjects", "data"]);
+        if (!curriculumSubjects.length) {
+          document.getElementById("chapterListContainer").innerHTML =
+            '<div style="color:#ef4444;padding:1rem;">Failed to load subjects (HTTP ' +
+            r.status +
+            ").</div>";
+          return;
+        }
+        renderSubjectButtons();
+        selectSubject(curriculumSubjects[0].slug);
+      }
+
+      function renderSubjectButtons() {
+        const container = document.getElementById("subjectButtonsContainer");
+        container.innerHTML = "";
+        const icons = {
+          oops: "🧩",
+          "system-design": "🏗️",
+          dbms: "🗄️",
+          os: "⚡",
+          cn: "🌐",
+        };
+        curriculumSubjects.forEach(function (sub) {
+          const btn = document.createElement("div");
+          btn.className =
+            "subject-btn" +
+            (currentSubject && currentSubject.slug === sub.slug
+              ? " active"
+              : "");
+          btn.id = "subject-btn-" + sub.slug;
+          const n =
+            (sub._count && sub._count.chapters) ||
+            (sub.chapters ? sub.chapters.length : "");
+          btn.innerHTML =
+            '<div class="sub-title">' +
+            (icons[sub.slug] || "📚") +
+            " " +
+            escapeHtml(sub.name) +
+            "</div>" +
+            '<div class="sub-count">' +
+            n +
+            " Core Chapters</div>";
+          btn.onclick = function () {
+            selectSubject(sub.slug);
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      async function fetchChapterTopics(ch) {
+        if (Array.isArray(ch.topics)) return;
+        const r = await api(
+          "/api/study/chapters/" + encodeURIComponent(ch.id) + "/topics",
+        );
+        // FIX #3: only accept a real array; an error object here used to crash the renderer
+        ch.topics = r.ok ? asArray(r.data, ["topics", "data"]) : [];
+      }
+
+      async function selectSubject(slug) {
+        document.querySelectorAll(".subject-btn").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        const ab = document.getElementById("subject-btn-" + slug);
+        if (ab) ab.classList.add("active");
+        const list = document.getElementById("chapterListContainer");
+        list.innerHTML =
+          '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.85rem;">Loading chapters...</div>';
+
+        const r = await api("/api/study/subjects/" + encodeURIComponent(slug));
+        if (!r.ok) {
+          list.innerHTML =
+            '<div style="color:#ef4444;padding:1rem;">Failed to load chapters (HTTP ' +
+            r.status +
+            ").</div>";
+          return;
+        }
+        currentSubject = r.data.subject || r.data;
+        const chapters = currentSubject.chapters || [];
+        expandedChapters.clear();
+        if (chapters.length) {
+          expandedChapters.add(chapters[0].id);
+          await fetchChapterTopics(chapters[0]); // no-op if the subject response already embeds topics
+        }
+        renderChapterList(chapters);
+        const first =
+          chapters.length && chapters[0].topics && chapters[0].topics[0];
+        if (first) loadTopic(first.slug);
+      }
+
+      function renderChapterList(chapters, filter) {
+        const container = document.getElementById("chapterListContainer");
+        container.innerHTML = "";
+        const f = (filter || "").toLowerCase();
+        let shownTopics = 0;
+
+        chapters.forEach(function (ch, idx) {
+          const topics = ch.topics || [];
+          const chMatch = !f || ch.name.toLowerCase().includes(f);
+          // FIX #4: the filter used to compute matches but then render all topics
+          const visible =
+            f && !chMatch
+              ? topics.filter(function (t) {
+                  return t.name.toLowerCase().includes(f);
+                })
+              : topics;
+          if (f && !chMatch && !visible.length) return;
+
+          const group = document.createElement("div");
+          group.className = "chapter-group";
+          const header = document.createElement("div");
+          header.className = "chapter-header";
+          const count = ch._count ? ch._count.topics : topics.length;
+          header.innerHTML =
+            "<span>Ch " +
+            (idx + 1) +
+            ": " +
+            escapeHtml(ch.name) +
+            "</span>" +
+            '<span style="font-size:0.72rem;color:#94a3b8;">' +
+            count +
+            " topic" +
+            (count === 1 ? "" : "s") +
+            "</span>";
+          header.onclick = async function () {
+            if (expandedChapters.has(ch.id)) expandedChapters.delete(ch.id);
+            else {
+              expandedChapters.add(ch.id);
+              await fetchChapterTopics(ch);
+            }
+            renderChapterList(
+              chapters,
+              document.getElementById("curriculumSearch").value,
+            );
+          };
+          group.appendChild(header);
+
+          if (expandedChapters.has(ch.id) || f) {
+            visible.forEach(function (t) {
+              shownTopics++;
+              const item = document.createElement("div");
+              item.className =
+                "topic-item" + (currentTopicSlug === t.slug ? " active" : "");
+              item.id = "topic-nav-" + t.slug;
+              const mc = t.mcqCount || (t._count && t._count.mcqs) || 0;
+              item.innerHTML =
+                "<span>" +
+                escapeHtml(t.name) +
+                "</span>" +
+                (mc ? '<span class="mcq-badge">' + mc + " MCQs</span>" : "");
+              item.onclick = function () {
+                loadTopic(t.slug);
+              };
+              group.appendChild(item);
+            });
+          }
+          container.appendChild(group);
+        });
+
+        document.getElementById("topicCountBadge").textContent =
+          chapters.length + " Chapters";
+        if (f && !container.children.length) {
+          container.innerHTML =
+            '<div style="padding:1rem;color:var(--text-muted);font-size:0.85rem;">No matches.</div>';
+        }
+      }
+
+      function handleCurriculumSearch(q) {
+        if (currentSubject && currentSubject.chapters)
+          renderChapterList(currentSubject.chapters, q);
+      }
+
+      async function loadTopic(slug) {
+        currentTopicSlug = slug;
+        selectedQuizAnswers = {};
+        document.querySelectorAll(".topic-item").forEach(function (i) {
+          i.classList.remove("active");
+        });
+        const nav = document.getElementById("topic-nav-" + slug);
+        if (nav) nav.classList.add("active");
+
+        const titleEl = document.getElementById("topicTitle");
+        const bodyEl = document.getElementById("topicMarkdownBody");
+        const quizArea = document.getElementById("topicQuizArea");
+        document.getElementById("quizScoreBanner").style.display = "none";
+        titleEl.textContent = "Loading topic content...";
+        bodyEl.innerHTML =
+          '<div style="color:var(--text-muted);padding:1.5rem 0;">Retrieving material...</div>';
+
+        const r = await api("/api/study/topics/" + encodeURIComponent(slug));
+        if (!r.ok) {
+          titleEl.textContent = "Could not load topic";
+          bodyEl.innerHTML =
+            '<div style="color:#ef4444;">HTTP ' +
+            r.status +
+            ": " +
+            escapeHtml(JSON.stringify(r.data)) +
+            "</div>";
+          quizArea.style.display = "none";
+          return;
+        }
+        const topic = r.data.topic || r.data;
+        titleEl.textContent = topic.name || slug;
+        // FIX #5: optional chaining — a missing chapter/subject object used to abort rendering of the content
+        const subj =
+          topic.chapter && topic.chapter.subject && topic.chapter.subject.name;
+        document.getElementById("topicBreadcrumb").textContent =
+          (subj ? subj + " › " : "") +
+          ((topic.chapter && topic.chapter.name) || "Computer Science");
+
+        let content = topic.content || topic.markdown || topic.body || "";
+        if (!content && Array.isArray(topic.sections)) {
+          content = topic.sections
+            .map(function (s) {
+              return typeof s === "string"
+                ? s
+                : "## " +
+                    (s.title || s.heading || "") +
+                    "\n\n" +
+                    (s.content || s.body || "");
+            })
+            .join("\n\n");
+        }
+        bodyEl.innerHTML =
+          renderMarkdown(content) ||
+          '<p style="color:var(--text-muted)">This topic has no content yet.</p>';
+
+        const mcqs = asArray(topic.mcqs || topic.questions, []).map(
+          normalizeMcq,
+        );
+        document.getElementById("activeQuizCount").textContent = mcqs.length;
+        if (mcqs.length) {
+          quizArea.style.display = "block";
+          renderQuiz(mcqs);
+        } else {
+          quizArea.style.display = "none";
+        }
+      }
+
+      /* FIX #6: markdown renderer rewritten line-by-line.
+   The old regex pipeline ran bold/italic/heading/list rules INSIDE code blocks (breaking C++ `*ptr`, `# comments`),
+   and wrapped everything between the first and last <li> in one <ul>. */
+      function inline(raw) {
+        return escapeHtml(raw)
+          .split(/(`[^`]+`)/g)
+          .map(function (p) {
+            if (p.length > 1 && p[0] === "`" && p[p.length - 1] === "`")
+              return "<code>" + p.slice(1, -1) + "</code>";
+            return p
+              .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+              .replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<em>$2</em>");
+          })
+          .join("");
+      }
+
+      function renderMarkdown(md) {
+        const out = [];
+        const lines = String(md || "")
+          .replace(/\r/g, "")
+          .split("\n");
+        let i = 0,
+          para = [],
+          list = null,
+          m;
+        const flushP = function () {
+          if (para.length) {
+            out.push("<p>" + inline(para.join(" ")) + "</p>");
+            para = [];
+          }
+        };
+        const flushL = function () {
+          if (list) {
+            out.push("</" + list + ">");
+            list = null;
+          }
+        };
+        const isRow = function (l) {
+          return /^\s*\|.*\|\s*$/.test(l);
+        };
+
+        while (i < lines.length) {
+          const line = lines[i];
+          if ((m = line.match(/^```\s*([\w+#-]*)/))) {
+            flushP();
+            flushL();
+            const code = [];
+            i++;
+            while (i < lines.length && !/^```/.test(lines[i]))
+              code.push(lines[i++]);
+            i++;
+            out.push(
+              '<pre><code class="language-' +
+                (m[1] || "text") +
+                '">' +
+                escapeHtml(code.join("\n")) +
+                "</code></pre>",
+            );
+            continue;
+          }
+          if (isRow(line)) {
+            flushP();
+            flushL();
+            const rows = [];
+            while (i < lines.length && isRow(lines[i])) rows.push(lines[i++]);
+            let html = "<table>",
+              head = true;
+            rows.forEach(function (r) {
+              if (/^\s*\|[\s:|-]+\|\s*$/.test(r)) {
+                head = false;
+                return;
+              }
+              const cells = r
+                .trim()
+                .replace(/^\||\|$/g, "")
+                .split("|");
+              const tag = head ? "th" : "td";
+              html +=
+                "<tr>" +
+                cells
+                  .map(function (c) {
+                    return (
+                      "<" + tag + ">" + inline(c.trim()) + "</" + tag + ">"
+                    );
+                  })
+                  .join("") +
+                "</tr>";
+            });
+            out.push(html + "</table>");
+            continue;
+          }
+          if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
+            flushP();
+            flushL();
+            const n = Math.min(m[1].length, 3);
+            out.push("<h" + n + ">" + inline(m[2]) + "</h" + n + ">");
+            i++;
+            continue;
+          }
+          if ((m = line.match(/^>\s?(.*)$/))) {
+            flushP();
+            flushL();
+            out.push("<blockquote>" + inline(m[1]) + "</blockquote>");
+            i++;
+            continue;
+          }
+          if ((m = line.match(/^\s*([-*]|\d+\.)\s+(.*)$/))) {
+            flushP();
+            const t = /\d/.test(m[1]) ? "ol" : "ul";
+            if (list !== t) {
+              flushL();
+              out.push("<" + t + ">");
+              list = t;
+            }
+            const cb = m[2].match(/^\[( |x)\]\s*(.*)$/i);
+            out.push(
+              cb
+                ? '<li style="list-style:none">' +
+                    (cb[1] === " " ? "◻️ " : "✅ ") +
+                    inline(cb[2]) +
+                    "</li>"
+                : "<li>" + inline(m[2]) + "</li>",
+            );
+            i++;
+            continue;
+          }
+          if (!line.trim()) {
+            flushP();
+            flushL();
+            i++;
+            continue;
+          }
+          flushL();
+          para.push(line.trim());
+          i++;
+        }
+        flushP();
+        flushL();
+        return out.join("");
+      }
+
+      /* ---------- quiz ---------- */
+      function normalizeMcq(m, idx) {
+        let opts = m.options;
+        if (typeof opts === "string") {
+          try {
+            opts = JSON.parse(opts);
+          } catch (e) {
+            opts = [];
+          }
+        }
+        opts = (opts || []).map(function (o) {
+          return typeof o === "string" ? o : o.text || o.label || String(o);
+        });
+        return {
+          id: m.id !== undefined ? m.id : idx,
+          question: m.question || m.text || "",
+          options: opts,
+          difficulty: m.difficulty,
+        };
+      }
+
+      function renderQuiz(mcqs) {
+        const container = document.getElementById("mcqQuestionsList");
+        container.innerHTML = "";
+        mcqEls = {};
+        const labels = ["A", "B", "C", "D", "E"];
+        mcqs.forEach(function (mcq, qIdx) {
+          const diffColor =
+            mcq.difficulty === "Hard"
+              ? "#f87171"
+              : mcq.difficulty === "Medium"
+                ? "#fbbf24"
+                : "#34d399";
+          const card = document.createElement("div");
+          card.className = "mcq-question-card";
+          card.innerHTML =
+            '<div class="mcq-q-header"><span>Q' +
+            (qIdx + 1) +
+            ". " +
+            escapeHtml(mcq.question) +
+            "</span>" +
+            '<span style="font-size:0.72rem;color:' +
+            diffColor +
+            ';background:rgba(255,255,255,0.05);padding:0.15rem 0.5rem;border-radius:4px;">' +
+            escapeHtml(mcq.difficulty || "Standard") +
+            "</span></div>" +
+            '<div class="mcq-options"></div><div class="mcq-explanation"></div>';
+          const optBox = card.querySelector(".mcq-options");
+          const els = { opts: [], exp: card.querySelector(".mcq-explanation") };
+          mcq.options.forEach(function (text, oIdx) {
+            const d = document.createElement("div");
+            d.className = "mcq-option";
+            d.innerHTML =
+              '<span style="font-weight:700;color:#94a3b8;width:18px;">' +
+              (labels[oIdx] || oIdx) +
+              ".</span><span>" +
+              escapeHtml(text) +
+              "</span>";
+            d.onclick = function () {
+              selectedQuizAnswers[mcq.id] = oIdx;
+              els.opts.forEach(function (x) {
+                x.classList.remove("selected");
+              });
+              d.classList.add("selected");
+            };
+            els.opts.push(d);
+            optBox.appendChild(d);
+          });
+          mcqEls[mcq.id] = els;
+          container.appendChild(card);
+        });
+      }
+
+      async function submitCurrentQuiz() {
+        if (!currentTopicSlug) return;
+        const btn = document.getElementById("btnSubmitQuiz");
+        btn.textContent = "Evaluating Answers...";
+        btn.disabled = true;
+        const r = await api(
+          "/api/study/topics/" +
+            encodeURIComponent(currentTopicSlug) +
+            "/submit",
+          { method: "POST", body: { answers: selectedQuizAnswers } },
+        );
+        btn.textContent = "Submit Quiz for Evaluation";
+        btn.disabled = false;
+        logConsole("QUIZ SUBMIT  →  " + r.status, r.data);
+        const banner = document.getElementById("quizScoreBanner");
+        banner.style.display = "inline-block";
+        if (!r.ok || !r.data) {
+          banner.style.background = "rgba(239,68,68,0.2)";
+          banner.style.color = "#f87171";
+          banner.textContent = "⚠️ Submit failed (HTTP " + r.status + ")";
+          return;
+        }
+        const ev = r.data.result || r.data;
+        const pct =
+          ev.percentage !== undefined
+            ? ev.percentage
+            : ev.total
+              ? Math.round((ev.score / ev.total) * 100)
+              : 0;
+        const passed = ev.passed !== undefined ? ev.passed : pct >= 60;
+        banner.style.background = passed
+          ? "rgba(16,185,129,0.2)"
+          : "rgba(239,68,68,0.2)";
+        banner.style.color = passed ? "#34d399" : "#f87171";
+        banner.textContent =
+          (passed ? "🎉 " : "⚠️ ") +
+          "Score: " +
+          ev.score +
+          " / " +
+          ev.total +
+          " (" +
+          pct +
+          "%) — " +
+          (passed ? "Passed!" : "Review & Try Again");
+
+        asArray(ev.results, []).forEach(function (res) {
+          const els = mcqEls[res.id];
+          if (!els) return;
+          els.opts.forEach(function (o) {
+            o.classList.remove("correct-reveal", "wrong-reveal");
+          });
+          if (els.opts[res.correctIndex])
+            els.opts[res.correctIndex].classList.add("correct-reveal");
+          if (
+            res.userAnswer !== undefined &&
+            res.userAnswer !== null &&
+            res.userAnswer !== res.correctIndex &&
+            els.opts[res.userAnswer]
+          ) {
+            els.opts[res.userAnswer].classList.add("wrong-reveal");
+          }
+          if (res.explanation) {
+            els.exp.style.display = "block";
+            els.exp.innerHTML =
+              "<strong>Explanation:</strong> " + escapeHtml(res.explanation);
+          }
+        });
+        banner.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function resetQuiz() {
+        selectedQuizAnswers = {};
+        document.querySelectorAll(".mcq-option").forEach(function (o) {
+          o.classList.remove("selected", "correct-reveal", "wrong-reveal");
+        });
+        document.querySelectorAll(".mcq-explanation").forEach(function (e) {
+          e.style.display = "none";
+        });
+        document.getElementById("quizScoreBanner").style.display = "none";
+      }
+
+      function scrollToQuiz() {
+        const q = document.getElementById("topicQuizArea");
+        if (q) q.scrollIntoView({ behavior: "smooth" });
+      }
+
+      window.addEventListener("DOMContentLoaded", async function () {
+        document.getElementById("regEmail").value =
+          "user_" + Math.floor(Math.random() * 10000) + "@calibr8.dev";
+        await loadCurriculum();
+        await loadTopics();
+        if (authToken) await fetchProfile();
+      });
+    </script>
+  </body>
 </html>
